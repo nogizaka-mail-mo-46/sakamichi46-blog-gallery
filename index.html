@@ -41,7 +41,7 @@
 
   <script src="https://apis.google.com/js/api.js"></script>
   <script>
-    // ======== 設定 ========
+    // ======== 設定（あなたの環境に合わせて変更済み） ========
     const API_KEY   = "AIzaSyArp7taw62PJxRgX7Ip95LIjfF2OyotPl4";     // Drive APIキー
     const FOLDER_ID = "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt";           // 池田瑛紗フォルダID
 
@@ -60,30 +60,19 @@
       gallery.innerHTML = "読み込み中...";
 
       try {
-        // MIMEタイプではなく拡張子で判定（Driveの判定ブレ対策）
         const query =
-          `'${FOLDER_ID}' in parents and trashed = false and (name contains '.jpg' or name contains '.jpeg' or name contains '.png')`;
+          `'${FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`;
 
         const res = await gapi.client.request({
           path: "https://www.googleapis.com/drive/v3/files",
           method: "GET",
           params: {
             q: query,
-            fields: "files(id,name,thumbnailLink)"
+            fields: "files(id,name)"
           }
         });
 
-        let files = res.result.files || [];
-
-        // ======== 壊れた画像を除外（thumbnailLink があるものだけ） ========
-        files = files.filter(f => f.thumbnailLink);
-
-        // ======== ファイル名降順ソート ========
-        files.sort((a, b) => b.name.localeCompare(a.name, 'ja'));
-
-        // ======== 上位100件だけに絞る ========
-        files = files.slice(0, 100);
-
+        const files = res.result.files || [];
         renderGallery(files);
 
       } catch (err) {

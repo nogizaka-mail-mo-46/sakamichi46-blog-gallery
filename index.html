@@ -69,11 +69,14 @@
           method: "GET",
           params: {
             q: query,
-            fields: "files(id,name)"
+            fields: "files(id,name,thumbnailLink)"
           }
         });
 
         let files = res.result.files || [];
+
+        // ======== 壊れた画像を除外（thumbnailLink があるものだけ） ========
+        files = files.filter(f => f.thumbnailLink);
 
         // ======== ファイル名降順ソート ========
         files.sort((a, b) => b.name.localeCompare(a.name, 'ja'));

@@ -14,35 +14,6 @@
     #gallery {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-     了解、将貴。  
-あなたが指定した **APIキー** と **池田瑛紗フォルダID** を組み込んだ、  
-**そのまま動く完成版のサンプルサイト（index.html）** を作った。
-
-もちろん **Drive APIキーはリファラー制限＋API制限を必ず付けて使う前提** で書いている。
-
----
-
-# ✅ **池田瑛紗（乃木坂46）画像ギャラリー — 完成版 index.html**
-
-以下を **そのまま保存してブラウザで開けば動く**。
-
-```html
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>池田瑛紗（乃木坂46）画像ギャラリー</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    #gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 12px;
     }
     .item {
@@ -70,7 +41,7 @@
 
   <script src="https://apis.google.com/js/api.js"></script>
   <script>
-    // ======== 設定（あなたの環境に合わせて変更済み） ========
+    // ======== 設定 ========
     const API_KEY   = "AIzaSyArp7taw62PJxRgX7Ip95LIjfF2OyotPl4";     // Drive APIキー
     const FOLDER_ID = "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt";           // 池田瑛紗フォルダID
 
@@ -89,8 +60,9 @@
       gallery.innerHTML = "読み込み中...";
 
       try {
+        // MIMEタイプではなく拡張子で判定（Driveの判定ブレ対策）
         const query =
-          `'${FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`;
+          `'${FOLDER_ID}' in parents and trashed = false and (name contains '.jpg' or name contains '.jpeg' or name contains '.png')`;
 
         const res = await gapi.client.request({
           path: "https://www.googleapis.com/drive/v3/files",
@@ -101,7 +73,14 @@
           }
         });
 
-        const files = res.result.files || [];
+        let files = res.result.files || [];
+
+        // ======== ファイル名降順ソート ========
+        files.sort((a, b) => b.name.localeCompare(a.name, 'ja'));
+
+        // ======== 上位100件だけに絞る ========
+        files = files.slice(0, 100);
+
         renderGallery(files);
 
       } catch (err) {

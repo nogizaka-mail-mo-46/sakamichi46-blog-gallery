@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>池田瑛紗（乃木坂46）画像ギャラリー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+     了解、将貴。  
+あなたが指定した **APIキー** と **池田瑛紗フォルダID** を組み込んだ、  
+**そのまま動く完成版のサンプルサイト（index.html）** を作った。
+
+もちろん **Drive APIキーはリファラー制限＋API制限を必ず付けて使う前提** で書いている。
+
+---
+
+# ✅ **池田瑛紗（乃木坂46）画像ギャラリー — 完成版 index.html**
+
+以下を **そのまま保存してブラウザで開けば動く**。
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>池田瑛紗（乃木坂46）画像ギャラリー</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 20px;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    #gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .item {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: center;
+    }
+    .item img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin-bottom: 6px;
+    }
+    .item span {
+      font-size: 12px;
+      color: #555;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>池田瑛紗（乃木坂46）画像ギャラリー</h1>
+  <div id="gallery">読み込み中...</div>
+
+  <script src="https://apis.google.com/js/api.js"></script>
+  <script>
+    // ======== 設定（あなたの環境に合わせて変更済み） ========
+    const API_KEY   = "AIzaSyArp7taw62PJxRgX7Ip95LIjfF2OyotPl4";     // Drive APIキー
+    const FOLDER_ID = "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt";           // 池田瑛紗フォルダID
+
+    // ======== Drive API 初期化 ========
+    function initClient() {
+      gapi.client.init({
+        apiKey: API_KEY
+      }).then(listImages);
+    }
+
+    gapi.load("client", initClient);
+
+    // ======== フォルダ内の画像一覧を取得 ========
+    async function listImages() {
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "読み込み中...";
+
+      try {
+        const query =
+          `'${FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`;
+
+        const res = await gapi.client.request({
+          path: "https://www.googleapis.com/drive/v3/files",
+          method: "GET",
+          params: {
+            q: query,
+            fields: "files(id,name)"
+          }
+        });
+
+        const files = res.result.files || [];
+        renderGallery(files);
+
+      } catch (err) {
+        console.error(err);
+        gallery.innerHTML = "画像の取得に失敗しました。";
+      }
+    }
+
+    // ======== ギャラリー描画 ========
+    function renderGallery(files) {
+      const gallery = document.getElementById("gallery");
+      gallery.innerHTML = "";
+
+      if (!files.length) {
+        gallery.innerHTML = "画像がありません。";
+        return;
+      }
+
+      files.forEach(file => {
+        const imgUrl =
+          `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
+
+        const div = document.createElement("div");
+        div.className = "item";
+
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        img.alt = file.name;
+
+        const caption = document.createElement("span");
+        caption.textContent = file.name;
+
+        div.appendChild(img);
+        div.appendChild(caption);
+        gallery.appendChild(div);
+      });
+    }
+  </script>
+
+</body>
+</html>

@@ -64,7 +64,7 @@ function renderGallery(images) {
     item.className = "gallery-item";
 
     item.innerHTML = `
-      <img src="https://drive.google.com/uc?id=${img.id}" class="gallery-img">
+      <img src="${img.webContentLink}" class="gallery-img">
     `;
 
     gallery.appendChild(item);

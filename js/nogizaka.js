@@ -1,33 +1,8 @@
-const API_KEY = "AIzaSyArp7taw62PJxRgX7Ip95LIjfF2OyotPl4";
-const NOGI_TOP_FOLDER = DRIVE_FOLDERS.nogizaka;
+const API_KEY = "あなたのAPIキー";
 
-async function listSubFolders(parentId) {
-  const url =
-    `https://www.googleapis.com/drive/v3/files` +
-    `?q='${parentId}'+in+parents+and+mimeType='application/vnd.google-apps.folder'` +
-    `&fields=files(id,name)` +
-    `&key=${API_KEY}`;
-
-  const res = await fetch(url);
-  const data = await res.json();
-  return data.files || [];
-}
-
-async function findMemberFolderInNogizaka(memberName) {
-  const kiseFolders = await listSubFolders(NOGI_TOP_FOLDER);
-  console.log("期生フォルダ一覧:", kiseFolders);
-
-  for (const kiseFolder of kiseFolders) {
-    const memberFolders = await listSubFolders(kiseFolder.id);
-    console.log("メンバーフォルダ一覧:", memberFolders);
-
-    const hit = memberFolders.find(f => f.name === memberName);
-    if (hit) return hit.id;
-  }
-
-  return null;
-}
-
+// ===============================
+// メンバーフォルダ内の画像一覧を取得（高速）
+// ===============================
 async function listImages(folderId) {
   const url =
     `https://www.googleapis.com/drive/v3/files` +
@@ -41,12 +16,18 @@ async function listImages(folderId) {
   return (data.files || []).filter(f => f.mimeType.startsWith("image/"));
 }
 
+// ===============================
+// 日付フィルタ
+// ===============================
 function filterByDate(files, selectedDate) {
   if (!selectedDate) return files;
   const ymd = selectedDate.replace(/-/g, "");
   return files.filter(f => f.name.startsWith(ymd));
 }
 
+// ===============================
+// ギャラリー表示
+// ===============================
 function renderGallery(images) {
   const content = document.getElementById("content");
   content.innerHTML = "";
@@ -73,17 +54,20 @@ function renderGallery(images) {
   content.appendChild(gallery);
 }
 
+// ===============================
+// 乃木坂画像取得メイン関数（最速版）
+// ===============================
 async function loadNogizakaImages(memberName, selectedDate) {
-  const memberFolderId = await findMemberFolderInNogizaka(memberName);
 
-  if (!memberFolderId) {
+  const folderId = MEMBER_FOLDERS[memberName];
+
+  if (!folderId) {
     document.getElementById("content").textContent =
-      `${memberName} のフォルダが見つかりません`;
+      `${memberName} のフォルダIDが登録されていません`;
     return;
   }
 
-  let images = await listImages(memberFolderId);
-  console.log("画像一覧:", images);
+  let images = await listImages(folderId);
 
   images = filterByDate(images, selectedDate);
 

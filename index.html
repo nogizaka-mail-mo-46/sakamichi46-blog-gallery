@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>坂道グループ ブログ ギャラリー</title>
 
+<link rel="stylesheet" href="js/gallery.css">
+
 <style>
   body {
     font-family: sans-serif;
@@ -12,7 +14,6 @@
     background: #fafafa;
   }
 
-  /* ===== グループタブ ===== */
   .group-tabs {
     display: flex;
     overflow-x: auto;
@@ -40,7 +41,6 @@
     filter: brightness(0.85);
   }
 
-  /* ===== メンバー選択 ===== */
   #memberSelect {
     width: 100%;
     padding: 12px;
@@ -51,7 +51,6 @@
     background: #fff;
   }
 
-  /* ===== カレンダー ===== */
   #calendar {
     margin: 10px;
     background: #fff;
@@ -68,26 +67,12 @@
     gap: 10px;
   }
 
-  #calendar-header select {
-    padding: 6px;
-    font-size: 14px;
-  }
-
-  #calendar-header button {
-    padding: 6px 10px;
-    font-size: 14px;
-  }
-
   #weekday-row {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
     text-align: center;
     margin-bottom: 6px;
     font-weight: bold;
-  }
-
-  .weekday {
-    padding: 6px 0;
   }
 
   .sun { color: red; }
@@ -115,15 +100,10 @@
     color: #fff;
   }
 
-  .holiday {
-    color: red;
-  }
-
   .holiday-bg {
-    background: #ffe5e5; /* 祝日背景色（淡い赤） */
+    background: #ffe5e5;
   }
 
-  /* ===== メイン表示領域 ===== */
   #content {
     padding: 20px;
     font-size: 18px;
@@ -133,27 +113,21 @@
 
 <body>
 
-<!-- ===== グループ選択 ===== -->
 <div class="group-tabs">
   <div class="group-tab nogizaka active" data-group="nogizaka">乃木坂46</div>
   <div class="group-tab sakurazaka" data-group="sakurazaka">櫻坂46</div>
   <div class="group-tab hinatazaka" data-group="hinatazaka">日向坂46</div>
 </div>
 
-<!-- ===== メンバー選択 ===== -->
 <select id="memberSelect">
   <option value="">メンバーを選択してください</option>
 </select>
 
-<!-- ===== カレンダー ===== -->
 <div id="calendar">
-
   <div id="calendar-header">
     <button id="prevMonth">←</button>
-
     <select id="yearSelect"></select>
     <select id="monthSelect"></select>
-
     <button id="nextMonth">→</button>
   </div>
 
@@ -170,38 +144,35 @@
   <div id="calendar-grid"></div>
 </div>
 
-<!-- ===== メイン表示領域 ===== -->
 <div id="content"></div>
 
-<!-- ===== 外部 JS 読み込み ===== -->
 <script src="js/holidays.js"></script>
 <script src="js/calendar.js"></script>
 <script src="js/members.js"></script>
+<script src="js/driveFolders.js"></script>
 <script src="js/nogizaka.js"></script>
 <script src="js/sakurazaka.js"></script>
 <script src="js/hinatazaka.js"></script>
 
 <script>
-  // ===== index.html が担当するのは UI のみ =====
+  let selectedDate = null;
+  let currentGroup = "nogizaka";
+  let currentMember = null;
 
-  // 初期表示：乃木坂
   updateMemberSelect("nogizaka");
 
-  // グループ切り替え
   document.querySelectorAll(".group-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".group-tab").forEach(t => t.classList.remove("active"));
       tab.classList.add("active");
 
-      const group = tab.dataset.group;
-      updateMemberSelect(group);
+      currentGroup = tab.dataset.group;
+      updateMemberSelect(currentGroup);
 
       document.getElementById("content").textContent = "";
-      resetCalendarSelection();
     });
   });
 
-  // メンバー選択
   function updateMemberSelect(group) {
     const select = document.getElementById("memberSelect");
     select.innerHTML = '<option value="">メンバーを選択してください</option>';
@@ -214,20 +185,24 @@
     });
   }
 
-  // メンバー選択時の表示
   document.getElementById("memberSelect").addEventListener("change", function() {
-    const name = this.value;
-    const content = document.getElementById("content");
+    currentMember = this.value;
 
-    if (name) {
-      content.textContent = `${name} のブログ画像一覧`;
-    } else {
-      content.textContent = "";
+    if (currentMember && selectedDate) {
+      loadImages();
     }
   });
 
-  // カレンダー初期化（calendar.js 内の関数）
-  initCalendar();
+  function loadImages() {
+    if (currentGroup === "nogizaka") {
+      loadNogizakaImages(currentMember, selectedDate);
+    }
+  }
+
+  initCalendar((dateStr) => {
+    selectedDate = dateStr;
+    if (currentMember) loadImages();
+  });
 </script>
 
 </body>

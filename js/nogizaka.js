@@ -69,7 +69,14 @@ async function loadNogizakaImages(memberName, selectedDate) {
 
   let images = await listImages(folderId);
 
-  images = filterByDate(images, selectedDate);
+  // ★ 日付指定あり → フィルタ
+  if (selectedDate) {
+    images = filterByDate(images, selectedDate);
+  } else {
+    // ★ 日付指定なし → ファイル名降順ソート
+    images.sort((a, b) => b.name.localeCompare(a.name, "ja"));
+  }
 
   renderGallery(images);
 }
+

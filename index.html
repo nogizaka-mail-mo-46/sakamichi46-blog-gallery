@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>坂道グループ ブログ ギャラリー</title>
 
+<link rel="stylesheet" href="css/style.css">
+
 <style>
   body {
     font-family: sans-serif;
@@ -65,12 +67,33 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+    gap: 10px;
+  }
+
+  #calendar-header select {
+    padding: 6px;
+    font-size: 14px;
   }
 
   #calendar-header button {
     padding: 6px 10px;
     font-size: 14px;
   }
+
+  #weekday-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    margin-bottom: 6px;
+    font-weight: bold;
+  }
+
+  .weekday {
+    padding: 6px 0;
+  }
+
+  .sun { color: red; }
+  .sat { color: blue; }
 
   #calendar-grid {
     display: grid;
@@ -94,6 +117,10 @@
     color: #fff;
   }
 
+  .holiday {
+    color: red;
+  }
+
   /* メイン表示領域 */
   #content {
     padding: 20px;
@@ -111,53 +138,61 @@
   <div class="group-tab hinatazaka" data-group="hinatazaka">日向坂46</div>
 </div>
 
-<!-- メンバー選択（プルダウン） -->
+<!-- メンバー選択 -->
 <select id="memberSelect">
   <option value="">メンバーを選択してください</option>
 </select>
 
-<!-- カレンダー（視覚的 UI） -->
+<!-- カレンダー -->
 <div id="calendar">
+
   <div id="calendar-header">
     <button id="prevMonth">←</button>
-    <div id="monthLabel"></div>
+
+    <select id="yearSelect"></select>
+    <select id="monthSelect"></select>
+
     <button id="nextMonth">→</button>
   </div>
+
+  <!-- 曜日 -->
+  <div id="weekday-row">
+    <div class="weekday sun">日</div>
+    <div class="weekday">月</div>
+    <div class="weekday">火</div>
+    <div class="weekday">水</div>
+    <div class="weekday">木</div>
+    <div class="weekday">金</div>
+    <div class="weekday sat">土</div>
+  </div>
+
   <div id="calendar-grid"></div>
 </div>
 
 <!-- メイン表示領域 -->
 <div id="content"></div>
 
+<!-- ===== 外部 JS 読み込み ===== -->
+<script src="js/holidays.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/nogizaka.js"></script>
+<script src="js/sakurazaka.js"></script>
+<script src="js/hinatazaka.js"></script>
+
 <script>
-  // ====== メンバー一覧 ======
+  /* ===== index.html が担当するのは UI のみ ===== */
 
+  // メンバー一覧（簡略化）
   const members = {
-    nogizaka: [
-      "伊藤理々杏","岩本蓮加","吉田綾乃クリスティー",
-      "遠藤さくら","賀喜遥香","金川紗耶","黒見明香","柴田柚菜","田村真佑","筒井あやめ","林瑠奈","弓木奈於",
-      "五百城茉央","池田瑛紗","一ノ瀬美空","井上和","岡本姫奈","小川彩","奥田いろは","川﨑桜","菅原咲月","冨里奈央","中西アルノ",
-      "愛宕心響","大越ひなの","小津玲奈","海邉朱莉","川端晃菜","鈴木佑捺","瀬戸口心月","長嶋凛桜","増田三莉音","森平麗心","矢田萌華"
-    ],
-
-    sakurazaka: [
-      "遠藤光莉","大園玲","大沼晶保","幸阪茉里乃","田村保乃","藤吉夏鈴","増本綺良","松田里奈","森田ひかる","守屋麗奈","山﨑天",
-      "石森璃花","遠藤理子","小田倉麗奈","小島凪紗","谷口愛季","中嶋優月","的野美青","向井純葉","村井優","村山美羽","山下瞳月",
-      "浅井恋乃未","稲熊ひな","勝又春","佐藤愛桜","中川智尋","松本和子","目黒陽色","山川宇衣","山田桃実"
-    ],
-
-    hinatazaka: [
-      "金村美玖","小坂菜緒",
-      "上村ひなの","髙橋未来虹","森本茉莉","山口陽世",
-      "石塚瑶季","小西夏菜実","清水理央","正源司陽子","竹内希来里","平尾帆夏","平岡海月","藤嶌果歩","宮地すみれ","山下葉留花","渡辺莉奈",
-      "大田美月","大野愛実","片山紗希","蔵盛妃那乃","坂井新奈","佐藤優羽","下田衣珠季","高井俐香","鶴崎仁香","松尾桜"
-    ]
+    nogizaka: ["伊藤理々杏","岩本蓮加","吉田綾乃クリスティー","遠藤さくら","賀喜遥香"],
+    sakurazaka: ["遠藤光莉","大園玲","大沼晶保","幸阪茉里乃","田村保乃"],
+    hinatazaka: ["金村美玖","小坂菜緒","上村ひなの","髙橋未来虹","森本茉莉"]
   };
 
-  // ====== 初期表示：乃木坂46 ======
+  // 初期表示：乃木坂
   updateMemberSelect("nogizaka");
 
-  // ====== グループタブ切り替え ======
+  // グループ切り替え
   document.querySelectorAll(".group-tab").forEach(tab => {
     tab.addEventListener("click", () => {
       document.querySelectorAll(".group-tab").forEach(t => t.classList.remove("active"));
@@ -167,12 +202,11 @@
       updateMemberSelect(group);
 
       document.getElementById("content").textContent = "";
-      selectedDate = null;
-      renderCalendar(currentYear, currentMonth);
+      resetCalendarSelection();
     });
   });
 
-  // ====== メンバー選択プルダウン更新 ======
+  // メンバー選択
   function updateMemberSelect(group) {
     const select = document.getElementById("memberSelect");
     select.innerHTML = '<option value="">メンバーを選択してください</option>';
@@ -185,7 +219,7 @@
     });
   }
 
-  // ====== メンバー選択時の表示 ======
+  // メンバー選択時の表示
   document.getElementById("memberSelect").addEventListener("change", function() {
     const name = this.value;
     const content = document.getElementById("content");
@@ -197,70 +231,8 @@
     }
   });
 
-  // ====== カレンダー生成 ======
-
-  let currentDate = new Date();
-  let currentYear = currentDate.getFullYear();
-  let currentMonth = currentDate.getMonth();
-  let selectedDate = null;
-
-  function renderCalendar(year, month) {
-    const monthLabel = document.getElementById("monthLabel");
-    const grid = document.getElementById("calendar-grid");
-    grid.innerHTML = "";
-
-    monthLabel.textContent = `${year}年 ${month + 1}月`;
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const lastDate = new Date(year, month + 1, 0).getDate();
-
-    for (let i = 0; i < firstDay; i++) {
-      const empty = document.createElement("div");
-      grid.appendChild(empty);
-    }
-
-    for (let day = 1; day <= lastDate; day++) {
-      const div = document.createElement("div");
-      div.className = "day";
-      div.textContent = day;
-
-      div.addEventListener("click", () => {
-        document.querySelectorAll(".day").forEach(d => d.classList.remove("selected-day"));
-        div.classList.add("selected-day");
-
-        selectedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-
-        const member = document.getElementById("memberSelect").value;
-        const content = document.getElementById("content");
-
-        if (member) {
-          content.textContent = `${member} の ${selectedDate} のブログ画像一覧`;
-        }
-      });
-
-      grid.appendChild(div);
-    }
-  }
-
-  document.getElementById("prevMonth").addEventListener("click", () => {
-    currentMonth--;
-    if (currentMonth < 0) {
-      currentMonth = 11;
-      currentYear--;
-    }
-    renderCalendar(currentYear, currentMonth);
-  });
-
-  document.getElementById("nextMonth").addEventListener("click", () => {
-    currentMonth++;
-    if (currentMonth > 11) {
-      currentMonth = 0;
-      currentYear++;
-    }
-    renderCalendar(currentYear, currentMonth);
-  });
-
-  renderCalendar(currentYear, currentMonth);
+  // カレンダー初期化（calendar.js 内の関数）
+  initCalendar();
 </script>
 
 </body>

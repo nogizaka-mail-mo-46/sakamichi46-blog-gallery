@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>坂道グループ ブログ ギャラリー</title>
 
-<link rel="stylesheet" href="css/style.css">
-
 <style>
   body {
     font-family: sans-serif;
@@ -14,7 +12,7 @@
     background: #fafafa;
   }
 
-  /* 上段グループタブ */
+  /* ===== グループタブ ===== */
   .group-tabs {
     display: flex;
     overflow-x: auto;
@@ -42,7 +40,7 @@
     filter: brightness(0.85);
   }
 
-  /* メンバー選択プルダウン */
+  /* ===== メンバー選択 ===== */
   #memberSelect {
     width: 100%;
     padding: 12px;
@@ -53,7 +51,7 @@
     background: #fff;
   }
 
-  /* カレンダー */
+  /* ===== カレンダー ===== */
   #calendar {
     margin: 10px;
     background: #fff;
@@ -121,7 +119,11 @@
     color: red;
   }
 
-  /* メイン表示領域 */
+  .holiday-bg {
+    background: #ffe5e5; /* 祝日背景色（淡い赤） */
+  }
+
+  /* ===== メイン表示領域 ===== */
   #content {
     padding: 20px;
     font-size: 18px;
@@ -131,19 +133,19 @@
 
 <body>
 
-<!-- 上段：グループ選択 -->
+<!-- ===== グループ選択 ===== -->
 <div class="group-tabs">
   <div class="group-tab nogizaka active" data-group="nogizaka">乃木坂46</div>
   <div class="group-tab sakurazaka" data-group="sakurazaka">櫻坂46</div>
   <div class="group-tab hinatazaka" data-group="hinatazaka">日向坂46</div>
 </div>
 
-<!-- メンバー選択 -->
+<!-- ===== メンバー選択 ===== -->
 <select id="memberSelect">
   <option value="">メンバーを選択してください</option>
 </select>
 
-<!-- カレンダー -->
+<!-- ===== カレンダー ===== -->
 <div id="calendar">
 
   <div id="calendar-header">
@@ -155,7 +157,6 @@
     <button id="nextMonth">→</button>
   </div>
 
-  <!-- 曜日 -->
   <div id="weekday-row">
     <div class="weekday sun">日</div>
     <div class="weekday">月</div>
@@ -169,25 +170,19 @@
   <div id="calendar-grid"></div>
 </div>
 
-<!-- メイン表示領域 -->
+<!-- ===== メイン表示領域 ===== -->
 <div id="content"></div>
 
 <!-- ===== 外部 JS 読み込み ===== -->
 <script src="js/holidays.js"></script>
 <script src="js/calendar.js"></script>
+<script src="js/members.js"></script>
 <script src="js/nogizaka.js"></script>
 <script src="js/sakurazaka.js"></script>
 <script src="js/hinatazaka.js"></script>
 
 <script>
-  /* ===== index.html が担当するのは UI のみ ===== */
-
-  // メンバー一覧（簡略化）
-  const members = {
-    nogizaka: ["伊藤理々杏","岩本蓮加","吉田綾乃クリスティー","遠藤さくら","賀喜遥香"],
-    sakurazaka: ["遠藤光莉","大園玲","大沼晶保","幸阪茉里乃","田村保乃"],
-    hinatazaka: ["金村美玖","小坂菜緒","上村ひなの","髙橋未来虹","森本茉莉"]
-  };
+  // ===== index.html が担当するのは UI のみ =====
 
   // 初期表示：乃木坂
   updateMemberSelect("nogizaka");
@@ -211,7 +206,7 @@
     const select = document.getElementById("memberSelect");
     select.innerHTML = '<option value="">メンバーを選択してください</option>';
 
-    members[group].forEach(name => {
+    MEMBERS[group].forEach(name => {
       const option = document.createElement("option");
       option.value = name;
       option.textContent = name;

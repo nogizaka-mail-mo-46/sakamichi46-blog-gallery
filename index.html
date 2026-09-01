@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>坂道グループ ブログ ギャラリーUI</title>
+<title>坂道グループ ブログ ギャラリー</title>
 
 <style>
   body {
@@ -32,24 +32,15 @@
     color: #007bff;
   }
 
-  /* 下段メンバータブ */
-  .member-tabs {
-    display: flex;
-    overflow-x: auto;
-    white-space: nowrap;
-    background: #f7f7f7;
-    border-bottom: 1px solid #ddd;
-  }
-  .member-tab {
-    padding: 10px 14px;
-    cursor: pointer;
-    flex-shrink: 0;
-    font-size: 14px;
-  }
-  .member-tab.active {
-    background: #007bff;
-    color: #fff;
-    border-radius: 4px;
+  /* メンバー選択プルダウン */
+  #memberSelect {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
   }
 
   /* メイン表示領域 */
@@ -69,8 +60,10 @@
   <div class="group-tab" data-group="hinatazaka">日向坂46</div>
 </div>
 
-<!-- 下段：メンバー選択 -->
-<div class="member-tabs" id="memberTabs"></div>
+<!-- メンバー選択（プルダウン） -->
+<select id="memberSelect">
+  <option value="">メンバーを選択してください</option>
+</select>
 
 <!-- メイン表示領域 -->
 <div id="content">メンバーを選択してください</div>
@@ -101,7 +94,7 @@
   };
 
   // ====== 初期表示：乃木坂46 ======
-  updateMemberTabs("nogizaka");
+  updateMemberSelect("nogizaka");
 
   // ====== グループタブ切り替え ======
   document.querySelectorAll(".group-tab").forEach(tab => {
@@ -110,30 +103,34 @@
       tab.classList.add("active");
 
       const group = tab.dataset.group;
-      updateMemberTabs(group);
+      updateMemberSelect(group);
+
       document.getElementById("content").textContent = "メンバーを選択してください";
     });
   });
 
-  // ====== メンバータブ生成 ======
-  function updateMemberTabs(group) {
-    const area = document.getElementById("memberTabs");
-    area.innerHTML = "";
+  // ====== メンバー選択プルダウン更新 ======
+  function updateMemberSelect(group) {
+    const select = document.getElementById("memberSelect");
+    select.innerHTML = '<option value="">メンバーを選択してください</option>';
 
     members[group].forEach(name => {
-      const div = document.createElement("div");
-      div.className = "member-tab";
-      div.textContent = name;
-
-      div.addEventListener("click", () => {
-        document.querySelectorAll(".member-tab").forEach(t => t.classList.remove("active"));
-        div.classList.add("active");
-        document.getElementById("content").textContent = name + " を選択中";
-      });
-
-      area.appendChild(div);
+      const option = document.createElement("option");
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
     });
   }
+
+  // ====== メンバー選択時の表示 ======
+  document.getElementById("memberSelect").addEventListener("change", function() {
+    const name = this.value;
+    if (name) {
+      document.getElementById("content").textContent = name + " を選択中";
+    } else {
+      document.getElementById("content").textContent = "メンバーを選択してください";
+    }
+  });
 </script>
 
 </body>

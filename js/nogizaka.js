@@ -1,4 +1,4 @@
-const API_KEY = "あなたのAPIキー";
+const API_KEY = "AIzaSyArp7taw62PJxRgX7Ip95LIjfF2OyotPl4";
 
 // ===============================
 // メンバーフォルダ内の画像一覧を取得（高速）

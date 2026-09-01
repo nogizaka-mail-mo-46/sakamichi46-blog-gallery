@@ -20,16 +20,24 @@
     background: #fff;
     border-bottom: 1px solid #ddd;
   }
+
   .group-tab {
     padding: 14px 20px;
     cursor: pointer;
     flex-shrink: 0;
     font-size: 16px;
-  }
-  .group-tab.active {
-    border-bottom: 3px solid #007bff;
     font-weight: bold;
-    color: #007bff;
+    color: #fff;
+    text-align: center;
+  }
+
+  /* グループカラー */
+  .nogizaka { background: #7d2c8e; }   /* 乃木坂：紫 */
+  .sakurazaka { background: #e8a2c8; } /* 櫻坂：ピンク */
+  .hinatazaka { background: #7fcff4; } /* 日向坂：水色 */
+
+  .group-tab.active {
+    outline: 3px solid #333;
   }
 
   /* メンバー選択プルダウン */
@@ -55,9 +63,9 @@
 
 <!-- 上段：グループ選択 -->
 <div class="group-tabs">
-  <div class="group-tab active" data-group="nogizaka">乃木坂46</div>
-  <div class="group-tab" data-group="sakurazaka">櫻坂46</div>
-  <div class="group-tab" data-group="hinatazaka">日向坂46</div>
+  <div class="group-tab nogizaka active" data-group="nogizaka">乃木坂46</div>
+  <div class="group-tab sakurazaka" data-group="sakurazaka">櫻坂46</div>
+  <div class="group-tab hinatazaka" data-group="hinatazaka">日向坂46</div>
 </div>
 
 <!-- メンバー選択（プルダウン） -->
@@ -66,10 +74,10 @@
 </select>
 
 <!-- メイン表示領域 -->
-<div id="content">メンバーを選択してください</div>
+<div id="content"></div>
 
 <script>
-  // ====== メンバー一覧（公式サイト基準） ======
+  // ====== メンバー一覧 ======
 
   const members = {
     nogizaka: [
@@ -105,7 +113,7 @@
       const group = tab.dataset.group;
       updateMemberSelect(group);
 
-      document.getElementById("content").textContent = "メンバーを選択してください";
+      document.getElementById("content").textContent = "";
     });
   });
 
@@ -125,10 +133,12 @@
   // ====== メンバー選択時の表示 ======
   document.getElementById("memberSelect").addEventListener("change", function() {
     const name = this.value;
+    const content = document.getElementById("content");
+
     if (name) {
-      document.getElementById("content").textContent = name + " を選択中";
+      content.textContent = `${name} のブログ画像一覧`;
     } else {
-      document.getElementById("content").textContent = "メンバーを選択してください";
+      content.textContent = "";
     }
   });
 </script>

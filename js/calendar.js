@@ -1,5 +1,5 @@
 // ===============================
-// calendar.js
+// calendar.js（祝日背景色強調付き）
 // ===============================
 
 // 現在の年月
@@ -66,9 +66,10 @@ function renderCalendar(year, month) {
     if (weekday === 0) div.classList.add("sun");
     if (weekday === 6) div.classList.add("sat");
 
-    // 祝日色付け（holidays.js のデータを参照）
+    // 祝日色付け（背景色＋文字色）
     if (holidays[dateStr]) {
-      div.classList.add("holiday");
+      div.classList.add("holiday");     // 文字色赤
+      div.classList.add("holiday-bg");  // 背景色（淡い赤）
     }
 
     // 日付クリック

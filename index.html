@@ -1,116 +1,140 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>池田瑛紗（乃木坂46）画像ギャラリー</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 20px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    #gallery {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 12px;
-    }
-    .item {
-      border: 1px solid #ccc;
-      padding: 8px;
-      text-align: center;
-    }
-    .item img {
-      max-width: 100%;
-      height: auto;
-      display: block;
-      margin-bottom: 6px;
-    }
-    .item span {
-      font-size: 12px;
-      color: #555;
-      word-break: break-all;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>坂道グループ ギャラリーUI</title>
+
+<style>
+  body {
+    font-family: sans-serif;
+    margin: 0;
+    background: #fafafa;
+  }
+
+  /* 上段グループタブ */
+  .group-tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    background: #fff;
+    border-bottom: 1px solid #ddd;
+  }
+  .group-tab {
+    padding: 14px 20px;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 16px;
+  }
+  .group-tab.active {
+    border-bottom: 3px solid #007bff;
+    font-weight: bold;
+    color: #007bff;
+  }
+
+  /* 下段メンバータブ */
+  .member-tabs {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    background: #f7f7f7;
+    border-bottom: 1px solid #ddd;
+  }
+  .member-tab {
+    padding: 10px 14px;
+    cursor: pointer;
+    flex-shrink: 0;
+    font-size: 14px;
+  }
+  .member-tab.active {
+    background: #007bff;
+    color: #fff;
+    border-radius: 4px;
+  }
+
+  /* メイン表示領域 */
+  #content {
+    padding: 20px;
+    font-size: 18px;
+  }
+</style>
 </head>
+
 <body>
 
-  <h1>池田瑛紗（乃木坂46）画像ギャラリー</h1>
-  <div id="gallery">読み込み中...</div>
+<!-- 上段：グループ選択 -->
+<div class="group-tabs">
+  <div class="group-tab active" data-group="nogizaka">乃木坂46</div>
+  <div class="group-tab" data-group="sakurazaka">櫻坂46</div>
+  <div class="group-tab" data-group="hinatazaka">日向坂46</div>
+</div>
 
-  <script src="https://apis.google.com/js/api.js"></script>
-  <script>
-    // ======== 設定（あなたの環境に合わせて変更済み） ========
-    const API_KEY   = "AIzaSyArp7taw62PJxRgX7Ip95LIjfF2OyotPl4";     // Drive APIキー
-    const FOLDER_ID = "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt";           // 池田瑛紗フォルダID
+<!-- 下段：メンバー選択 -->
+<div class="member-tabs" id="memberTabs"></div>
 
-    // ======== Drive API 初期化 ========
-    function initClient() {
-      gapi.client.init({
-        apiKey: API_KEY
-      }).then(listImages);
-    }
+<!-- メイン表示領域 -->
+<div id="content">メンバーを選択してください</div>
 
-    gapi.load("client", initClient);
+<script>
+  // ====== メンバー一覧（公式サイト基準） ======
 
-    // ======== フォルダ内の画像一覧を取得 ========
-    async function listImages() {
-      const gallery = document.getElementById("gallery");
-      gallery.innerHTML = "読み込み中...";
+  const members = {
+    nogizaka: [
+      "伊藤理々杏","岩本蓮加","吉田綾乃クリスティー",
+      "遠藤さくら","賀喜遥香","金川紗耶","黒見明香","柴田柚菜","田村真佑","筒井あやめ","林瑠奈","弓木奈於",
+      "五百城茉央","池田瑛紗","一ノ瀬美空","井上和","岡本姫奈","小川彩","奥田いろは","川﨑桜","菅原咲月","冨里奈央","中西アルノ",
+      "愛宕心響","大越ひなの","小津玲奈","海邉朱莉","川端晃菜","鈴木佑捺","瀬戸口心月","長嶋凛桜","増田三莉音","森平麗心","矢田萌華"
+    ],
 
-      try {
-        const query =
-          `'${FOLDER_ID}' in parents and mimeType contains 'image/' and trashed = false`;
+    sakurazaka: [
+      "遠藤光莉","大園玲","大沼晶保","幸阪茉里乃","田村保乃","藤吉夏鈴","増本綺良","松田里奈","森田ひかる","守屋麗奈","山﨑天",
+      "石森璃花","遠藤理子","小田倉麗奈","小島凪紗","谷口愛季","中嶋優月","的野美青","向井純葉","村井優","村山美羽","山下瞳月",
+      "浅井恋乃未","稲熊ひな","勝又春","佐藤愛桜","中川智尋","松本和子","目黒陽色","山川宇衣","山田桃実"
+    ],
 
-        const res = await gapi.client.request({
-          path: "https://www.googleapis.com/drive/v3/files",
-          method: "GET",
-          params: {
-            q: query,
-            fields: "files(id,name)"
-          }
-        });
+    hinatazaka: [
+      "金村美玖","小坂菜緒",
+      "上村ひなの","髙橋未来虹","森本茉莉","山口陽世",
+      "石塚瑶季","小西夏菜実","清水理央","正源司陽子","竹内希来里","平尾帆夏","平岡海月","藤嶌果歩","宮地すみれ","山下葉留花","渡辺莉奈",
+      "大田美月","大野愛実","片山紗希","蔵盛妃那乃","坂井新奈","佐藤優羽","下田衣珠季","高井俐香","鶴崎仁香","松尾桜"
+    ]
+  };
 
-        const files = res.result.files || [];
-        renderGallery(files);
+  // ====== 初期表示：乃木坂46 ======
+  updateMemberTabs("nogizaka");
 
-      } catch (err) {
-        console.error(err);
-        gallery.innerHTML = "画像の取得に失敗しました。";
-      }
-    }
+  // ====== グループタブ切り替え ======
+  document.querySelectorAll(".group-tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".group-tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
 
-    // ======== ギャラリー描画 ========
-    function renderGallery(files) {
-      const gallery = document.getElementById("gallery");
-      gallery.innerHTML = "";
+      const group = tab.dataset.group;
+      updateMemberTabs(group);
+      document.getElementById("content").textContent = "メンバーを選択してください";
+    });
+  });
 
-      if (!files.length) {
-        gallery.innerHTML = "画像がありません。";
-        return;
-      }
+  // ====== メンバータブ生成 ======
+  function updateMemberTabs(group) {
+    const area = document.getElementById("memberTabs");
+    area.innerHTML = "";
 
-      files.forEach(file => {
-        const imgUrl =
-          `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${API_KEY}`;
+    members[group].forEach(name => {
+      const div = document.createElement("div");
+      div.className = "member-tab";
+      div.textContent = name;
 
-        const div = document.createElement("div");
-        div.className = "item";
-
-        const img = document.createElement("img");
-        img.src = imgUrl;
-        img.alt = file.name;
-
-        const caption = document.createElement("span");
-        caption.textContent = file.name;
-
-        div.appendChild(img);
-        div.appendChild(caption);
-        gallery.appendChild(div);
+      div.addEventListener("click", () => {
+        document.querySelectorAll(".member-tab").forEach(t => t.classList.remove("active"));
+        div.classList.add("active");
+        document.getElementById("content").textContent = name + " を選択中";
       });
-    }
-  </script>
+
+      area.appendChild(div);
+    });
+  }
+</script>
 
 </body>
 </html>

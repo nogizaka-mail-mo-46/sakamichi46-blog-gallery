@@ -32,7 +32,7 @@ async function listImages(folderId) {
   const url =
     `https://www.googleapis.com/drive/v3/files` +
     `?q='${folderId}'+in+parents` +
-    `&fields=files(id,name,mimeType)` +
+    `&fields=files(id,name,mimeType,webContentLink)` +
     `&key=${API_KEY}`;
 
   const res = await fetch(url);

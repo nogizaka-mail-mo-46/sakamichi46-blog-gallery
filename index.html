@@ -29,19 +29,32 @@
     font-weight: bold;
     color: #fff;
     text-align: center;
+    transition: filter 0.2s;
   }
 
   /* グループカラー */
-  .nogizaka { background: #7d2c8e; }   /* 乃木坂：紫 */
-  .sakurazaka { background: #e8a2c8; } /* 櫻坂：ピンク */
-  .hinatazaka { background: #7fcff4; } /* 日向坂：水色 */
+  .nogizaka { background: #7d2c8e; }
+  .sakurazaka { background: #e8a2c8; }
+  .hinatazaka { background: #7fcff4; }
 
+  /* 選択時は少し濃くする */
   .group-tab.active {
-    outline: 3px solid #333;
+    filter: brightness(0.85);
   }
 
   /* メンバー選択プルダウン */
   #memberSelect {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    margin-top: 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    background: #fff;
+  }
+
+  /* カレンダー */
+  #dateSelect {
     width: 100%;
     padding: 12px;
     font-size: 16px;
@@ -72,6 +85,9 @@
 <select id="memberSelect">
   <option value="">メンバーを選択してください</option>
 </select>
+
+<!-- カレンダー（新規追加） -->
+<input type="date" id="dateSelect">
 
 <!-- メイン表示領域 -->
 <div id="content"></div>
@@ -114,6 +130,7 @@
       updateMemberSelect(group);
 
       document.getElementById("content").textContent = "";
+      document.getElementById("dateSelect").value = "";
     });
   });
 
@@ -139,6 +156,17 @@
       content.textContent = `${name} のブログ画像一覧`;
     } else {
       content.textContent = "";
+    }
+  });
+
+  // ====== カレンダー選択時の表示（今後拡張予定） ======
+  document.getElementById("dateSelect").addEventListener("change", function() {
+    const date = this.value;
+    const member = document.getElementById("memberSelect").value;
+    const content = document.getElementById("content");
+
+    if (member && date) {
+      content.textContent = `${member} の ${date} のブログ画像一覧`;
     }
   });
 </script>

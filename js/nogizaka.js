@@ -30,11 +30,13 @@ async function findMemberFolderInNogizaka(memberName) {
 
   // 1. 乃木坂トップフォルダ配下の「3期生」「4期生」フォルダを取得
   const kiseFolders = await listSubFolders(NOGI_TOP_FOLDER);
+  console.log("期生フォルダ一覧:", kiseFolders);   // ← ここ！
 
   for (const kiseFolder of kiseFolders) {
 
     // 2. 期生フォルダ配下のメンバーフォルダ一覧を取得
     const memberFolders = await listSubFolders(kiseFolder.id);
+    console.log("メンバーフォルダ一覧:", memberFolders);   // ← ここ！
 
     // 3. メンバー名と一致するフォルダを探す
     const hit = memberFolders.find(f => f.name === memberName);
@@ -114,6 +116,7 @@ async function loadNogizakaImages(memberName, selectedDate) {
 
   // 2. メンバーフォルダ内の画像一覧を取得
   let images = await listImages(memberFolderId);
+  console.log("画像一覧:", images);   // ← ここ！
 
   // 3. 日付フィルタ
   images = filterByDate(images, selectedDate);

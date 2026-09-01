@@ -32,12 +32,10 @@
     transition: filter 0.2s;
   }
 
-  /* グループカラー */
   .nogizaka { background: #7d2c8e; }
   .sakurazaka { background: #e8a2c8; }
   .hinatazaka { background: #7fcff4; }
 
-  /* 選択時は少し濃くする */
   .group-tab.active {
     filter: brightness(0.85);
   }
@@ -54,14 +52,46 @@
   }
 
   /* カレンダー */
-  #dateSelect {
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    margin-top: 10px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+  #calendar {
+    margin: 10px;
     background: #fff;
+    border-radius: 8px;
+    padding: 10px;
+    border: 1px solid #ddd;
+  }
+
+  #calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  #calendar-header button {
+    padding: 6px 10px;
+    font-size: 14px;
+  }
+
+  #calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+    text-align: center;
+  }
+
+  .day {
+    padding: 10px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .day:hover {
+    background: #eee;
+  }
+
+  .selected-day {
+    background: #007bff;
+    color: #fff;
   }
 
   /* メイン表示領域 */
@@ -86,8 +116,15 @@
   <option value="">メンバーを選択してください</option>
 </select>
 
-<!-- カレンダー（新規追加） -->
-<input type="date" id="dateSelect">
+<!-- カレンダー（視覚的 UI） -->
+<div id="calendar">
+  <div id="calendar-header">
+    <button id="prevMonth">←</button>
+    <div id="monthLabel"></div>
+    <button id="nextMonth">→</button>
+  </div>
+  <div id="calendar-grid"></div>
+</div>
 
 <!-- メイン表示領域 -->
 <div id="content"></div>
@@ -130,7 +167,8 @@
       updateMemberSelect(group);
 
       document.getElementById("content").textContent = "";
-      document.getElementById("dateSelect").value = "";
+      selectedDate = null;
+      renderCalendar(currentYear, currentMonth);
     });
   });
 
@@ -159,16 +197,70 @@
     }
   });
 
-  // ====== カレンダー選択時の表示（今後拡張予定） ======
-  document.getElementById("dateSelect").addEventListener("change", function() {
-    const date = this.value;
-    const member = document.getElementById("memberSelect").value;
-    const content = document.getElementById("content");
+  // ====== カレンダー生成 ======
 
-    if (member && date) {
-      content.textContent = `${member} の ${date} のブログ画像一覧`;
+  let currentDate = new Date();
+  let currentYear = currentDate.getFullYear();
+  let currentMonth = currentDate.getMonth();
+  let selectedDate = null;
+
+  function renderCalendar(year, month) {
+    const monthLabel = document.getElementById("monthLabel");
+    const grid = document.getElementById("calendar-grid");
+    grid.innerHTML = "";
+
+    monthLabel.textContent = `${year}年 ${month + 1}月`;
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const lastDate = new Date(year, month + 1, 0).getDate();
+
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement("div");
+      grid.appendChild(empty);
     }
+
+    for (let day = 1; day <= lastDate; day++) {
+      const div = document.createElement("div");
+      div.className = "day";
+      div.textContent = day;
+
+      div.addEventListener("click", () => {
+        document.querySelectorAll(".day").forEach(d => d.classList.remove("selected-day"));
+        div.classList.add("selected-day");
+
+        selectedDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
+        const member = document.getElementById("memberSelect").value;
+        const content = document.getElementById("content");
+
+        if (member) {
+          content.textContent = `${member} の ${selectedDate} のブログ画像一覧`;
+        }
+      });
+
+      grid.appendChild(div);
+    }
+  }
+
+  document.getElementById("prevMonth").addEventListener("click", () => {
+    currentMonth--;
+    if (currentMonth < 0) {
+      currentMonth = 11;
+      currentYear--;
+    }
+    renderCalendar(currentYear, currentMonth);
   });
+
+  document.getElementById("nextMonth").addEventListener("click", () => {
+    currentMonth++;
+    if (currentMonth > 11) {
+      currentMonth = 0;
+      currentYear++;
+    }
+    renderCalendar(currentYear, currentMonth);
+  });
+
+  renderCalendar(currentYear, currentMonth);
 </script>
 
 </body>

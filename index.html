@@ -3,46 +3,723 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Google Drive Image Test</title>
+
+    <title>Google Drive Image Gallery</title>
 
     <style>
-        body {
-            font-family: sans-serif;
-            margin: 0;
-            padding: 30px;
-            background: #f5f5f5;
+        * {
+            box-sizing: border-box;
         }
 
-        h1 {
-            margin-bottom: 30px;
+        html,
+        body {
+            margin: 0;
+            padding: 0;
         }
+
+        body {
+            font-family:
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                "Noto Sans JP",
+                sans-serif;
+
+            background: #f5f5f5;
+            color: #222;
+        }
+
+        /* =========================
+           ヘッダー
+        ========================= */
+
+        header {
+            padding: 24px 30px;
+            background: white;
+            border-bottom: 1px solid #ddd;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        /* =========================
+           ギャラリー
+        ========================= */
 
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+
+            grid-template-columns:
+                repeat(auto-fill, minmax(220px, 1fr));
+
+            gap: 16px;
+
+            padding: 24px 30px;
         }
 
-        .gallery img {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
+        .gallery-item {
+            position: relative;
+
+            aspect-ratio: 1 / 1;
+
+            overflow: hidden;
+
             background: white;
+
             border-radius: 10px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+
+            cursor: pointer;
+
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+        }
+
+        .gallery-item:hover {
+            transform: translateY(-3px);
+
+            box-shadow:
+                0 6px 16px rgba(0, 0, 0, 0.18);
+        }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+
+            object-fit: cover;
+
+            display: block;
+        }
+
+        /* =========================
+           拡大表示（ライトボックス）
+        ========================= */
+
+        .lightbox {
+            position: fixed;
+
+            inset: 0;
+
+            z-index: 1000;
+
+            display: none;
+
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(0, 0, 0, 0.9);
+
+            padding: 20px;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-image {
+            max-width: calc(100vw - 120px);
+            max-height: calc(100vh - 80px);
+
+            width: auto;
+            height: auto;
+
+            object-fit: contain;
+
+            user-select: none;
+
+            border-radius: 4px;
+        }
+
+        /* =========================
+           閉じるボタン
+        ========================= */
+
+        .close-button {
+            position: absolute;
+
+            top: 15px;
+            right: 20px;
+
+            width: 48px;
+            height: 48px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: rgba(255, 255, 255, 0.15);
+
+            color: white;
+
+            font-size: 32px;
+
+            line-height: 48px;
+
+            cursor: pointer;
+
+            z-index: 1002;
+        }
+
+        .close-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* =========================
+           前へ・次へ
+        ========================= */
+
+        .nav-button {
+            position: absolute;
+
+            top: 50%;
+
+            transform: translateY(-50%);
+
+            width: 52px;
+            height: 72px;
+
+            border: none;
+
+            background: rgba(255, 255, 255, 0.15);
+
+            color: white;
+
+            font-size: 40px;
+
+            cursor: pointer;
+
+            z-index: 1001;
+
+            border-radius: 8px;
+        }
+
+        .nav-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .prev-button {
+            left: 20px;
+        }
+
+        .next-button {
+            right: 20px;
+        }
+
+        /* =========================
+           枚数表示
+        ========================= */
+
+        .image-counter {
+            position: absolute;
+
+            bottom: 18px;
+            left: 50%;
+
+            transform: translateX(-50%);
+
+            color: white;
+
+            background: rgba(0, 0, 0, 0.5);
+
+            padding: 6px 12px;
+
+            border-radius: 20px;
+
+            font-size: 14px;
+
+            z-index: 1001;
+        }
+
+        /* =========================
+           PC
+        ========================= */
+
+        @media (min-width: 1200px) {
+            .gallery {
+                grid-template-columns:
+                    repeat(5, 1fr);
+            }
+        }
+
+        /* =========================
+           タブレット
+        ========================= */
+
+        @media (min-width: 768px) and (max-width: 1199px) {
+            .gallery {
+                grid-template-columns:
+                    repeat(4, 1fr);
+            }
+        }
+
+        /* =========================
+           スマホ
+        ========================= */
+
+        @media (max-width: 767px) {
+
+            header {
+                padding: 18px 16px;
+            }
+
+            header h1 {
+                font-size: 20px;
+            }
+
+            .gallery {
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+                gap: 8px;
+
+                padding: 12px 8px;
+            }
+
+            .gallery-item {
+                border-radius: 6px;
+            }
+
+            .lightbox {
+                padding: 10px;
+            }
+
+            .lightbox-image {
+                max-width: 100%;
+                max-height: calc(100vh - 100px);
+            }
+
+            .close-button {
+                top: 8px;
+                right: 8px;
+
+                width: 42px;
+                height: 42px;
+
+                font-size: 28px;
+
+                line-height: 42px;
+            }
+
+            .nav-button {
+                width: 40px;
+                height: 60px;
+
+                font-size: 30px;
+
+                background: rgba(255, 255, 255, 0.1);
+            }
+
+            .prev-button {
+                left: 5px;
+            }
+
+            .next-button {
+                right: 5px;
+            }
+
+            .image-counter {
+                bottom: 10px;
+            }
         }
     </style>
 </head>
 
 <body>
 
-<h1>Google Drive Image Test</h1>
+<header>
+    <h1>Google Drive Image Gallery</h1>
+</header>
 
-<div class="gallery">
+<main>
+    <div id="gallery" class="gallery"></div>
+</main>
 
-    <img src="https://drive.google.com/thumbnail?id=1UZoR1wZNgZsL5FoXBEVN-0ID6fqfJJcG&sz=w1000">
-  
+
+<!-- =========================
+     拡大表示
+========================= -->
+
+<div id="lightbox" class="lightbox">
+
+    <button
+        id="closeButton"
+        class="close-button"
+        aria-label="閉じる"
+    >
+        ×
+    </button>
+
+    <button
+        id="prevButton"
+        class="nav-button prev-button"
+        aria-label="前の画像"
+    >
+        ‹
+    </button>
+
+    <img
+        id="lightboxImage"
+        class="lightbox-image"
+        src=""
+        alt=""
+    >
+
+    <button
+        id="nextButton"
+        class="nav-button next-button"
+        aria-label="次の画像"
+    >
+        ›
+    </button>
+
+    <div id="imageCounter" class="image-counter">
+        1 / 1
+    </div>
+
 </div>
+
+
+<script>
+
+    /*
+     * ========================================
+     * Google Drive画像のファイルID
+     * ========================================
+     *
+     * ここに表示したい画像のIDを追加するだけ。
+     *
+     */
+
+    const imageIds = [
+
+        // 現在テストできている画像
+        "18M8jhD8mKgmI9_bfN-RL9e5NgKwSFTSU",
+        "1zuHEWysXZU8NzTB5yhpvOOrgCzOTBBfk",
+        "1KZdUpX5aC7s5lwsk8UX4Yey26-Ro-NX5",
+        "1nwbhIdXDh6q0x72st_rpvIjjeBlPQ9LD",
+
+    ];
+
+
+    /*
+     * ========================================
+     * Google Drive画像URL
+     * ========================================
+     */
+
+    function getThumbnailUrl(fileId) {
+
+        return `https://drive.google.com/thumbnail?id=${fileId}&sz=w1200`;
+
+    }
+
+
+    /*
+     * ========================================
+     * ギャラリー生成
+     * ========================================
+     */
+
+    const gallery = document.getElementById("gallery");
+
+    imageIds.forEach((fileId, index) => {
+
+        const item = document.createElement("div");
+
+        item.className = "gallery-item";
+
+        const img = document.createElement("img");
+
+        img.src = getThumbnailUrl(fileId);
+
+        img.alt = `画像 ${index + 1}`;
+
+        /*
+         * 画面に近づいたときに読み込む
+         */
+        img.loading = "lazy";
+
+        img.decoding = "async";
+
+
+        /*
+         * 画像クリック
+         */
+
+        item.addEventListener("click", () => {
+
+            openLightbox(index);
+
+        });
+
+
+        item.appendChild(img);
+
+        gallery.appendChild(item);
+
+    });
+
+
+    /*
+     * ========================================
+     * ライトボックス
+     * ========================================
+     */
+
+    const lightbox =
+        document.getElementById("lightbox");
+
+    const lightboxImage =
+        document.getElementById("lightboxImage");
+
+    const imageCounter =
+        document.getElementById("imageCounter");
+
+
+    let currentIndex = 0;
+
+
+    function openLightbox(index) {
+
+        if (imageIds.length === 0) {
+            return;
+        }
+
+        currentIndex = index;
+
+        updateLightbox();
+
+        lightbox.classList.add("active");
+
+        document.body.style.overflow = "hidden";
+
+    }
+
+
+    function closeLightbox() {
+
+        lightbox.classList.remove("active");
+
+        document.body.style.overflow = "";
+
+    }
+
+
+    function updateLightbox() {
+
+        const fileId =
+            imageIds[currentIndex];
+
+        lightboxImage.src =
+            getThumbnailUrl(fileId);
+
+        lightboxImage.alt =
+            `画像 ${currentIndex + 1}`;
+
+        imageCounter.textContent =
+            `${currentIndex + 1} / ${imageIds.length}`;
+
+    }
+
+
+    /*
+     * ========================================
+     * 前へ
+     * ========================================
+     */
+
+    function showPrevious() {
+
+        if (imageIds.length === 0) {
+            return;
+        }
+
+        currentIndex--;
+
+        if (currentIndex < 0) {
+            currentIndex =
+                imageIds.length - 1;
+        }
+
+        updateLightbox();
+
+    }
+
+
+    /*
+     * ========================================
+     * 次へ
+     * ========================================
+     */
+
+    function showNext() {
+
+        if (imageIds.length === 0) {
+            return;
+        }
+
+        currentIndex++;
+
+        if (currentIndex >= imageIds.length) {
+            currentIndex = 0;
+        }
+
+        updateLightbox();
+
+    }
+
+
+    /*
+     * ========================================
+     * ボタン
+     * ========================================
+     */
+
+    document
+        .getElementById("closeButton")
+        .addEventListener(
+            "click",
+            closeLightbox
+        );
+
+
+    document
+        .getElementById("prevButton")
+        .addEventListener(
+            "click",
+            showPrevious
+        );
+
+
+    document
+        .getElementById("nextButton")
+        .addEventListener(
+            "click",
+            showNext
+        );
+
+
+    /*
+     * ========================================
+     * 背景クリックで閉じる
+     * ========================================
+     */
+
+    lightbox.addEventListener("click", (event) => {
+
+        if (event.target === lightbox) {
+
+            closeLightbox();
+
+        }
+
+    });
+
+
+    /*
+     * ========================================
+     * キーボード操作
+     * ========================================
+     *
+     * ← 前の画像
+     * → 次の画像
+     * ESC 閉じる
+     *
+     */
+
+    document.addEventListener("keydown", (event) => {
+
+        if (!lightbox.classList.contains("active")) {
+            return;
+        }
+
+
+        if (event.key === "Escape") {
+
+            closeLightbox();
+
+        }
+
+
+        if (event.key === "ArrowLeft") {
+
+            showPrevious();
+
+        }
+
+
+        if (event.key === "ArrowRight") {
+
+            showNext();
+
+        }
+
+    });
+
+
+    /*
+     * ========================================
+     * スマホのスワイプ操作
+     * ========================================
+     */
+
+    let touchStartX = 0;
+
+    let touchEndX = 0;
+
+
+    lightbox.addEventListener("touchstart", (event) => {
+
+        touchStartX =
+            event.changedTouches[0].screenX;
+
+    });
+
+
+    lightbox.addEventListener("touchend", (event) => {
+
+        touchEndX =
+            event.changedTouches[0].screenX;
+
+        handleSwipe();
+
+    });
+
+
+    function handleSwipe() {
+
+        const difference =
+            touchEndX - touchStartX;
+
+
+        /*
+         * 左スワイプ → 次
+         */
+
+        if (difference < -50) {
+
+            showNext();
+
+        }
+
+
+        /*
+         * 右スワイプ → 前
+         */
+
+        if (difference > 50) {
+
+            showPrevious();
+
+        }
+
+    }
+
+</script>
 
 </body>
 </html>

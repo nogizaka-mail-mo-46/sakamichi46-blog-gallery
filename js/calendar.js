@@ -18,29 +18,23 @@ export function createCalendar({
 }) {
 
 
+/*
+ * ========================================
+ * 選択日タイトル
+ * ========================================
+ */
+
+function updateSelectedDateTitle() {
+    const selectedDate =
+        getSelectedDate();
+
     /*
-     * ========================================
-     * 選択日タイトル
-     * ========================================
+     * 日付選択中
      */
 
-    function updateSelectedDateTitle() {
-        const selectedDate =
-            getSelectedDate();
-
-        if (
-            !selectedDate
-        ) {
-            selectedDateTitle.textContent =
-                "";
-
-            selectedDateTitle.classList.remove(
-                "visible"
-            );
-
-            return;
-        }
-
+    if (
+        selectedDate
+    ) {
         const year =
             Number(
                 selectedDate.substring(
@@ -71,7 +65,45 @@ export function createCalendar({
         selectedDateTitle.classList.add(
             "visible"
         );
+
+        return;
     }
+
+
+    /*
+     * 日付未選択
+     * → 表示中の月
+     */
+
+    const calendarYear =
+        getCalendarYear();
+
+    const calendarMonth =
+        getCalendarMonth();
+
+    if (
+        calendarYear ===
+            null ||
+        calendarMonth ===
+            null
+    ) {
+        selectedDateTitle.textContent =
+            "";
+
+        selectedDateTitle.classList.remove(
+            "visible"
+        );
+
+        return;
+    }
+
+    selectedDateTitle.textContent =
+        `${calendarYear}年${calendarMonth}月のブログ`;
+
+    selectedDateTitle.classList.add(
+        "visible"
+    );
+}
 
 
     /*
@@ -611,7 +643,7 @@ export function createCalendar({
                 "calendar-clear";
 
             clearButton.textContent =
-                "すべて表示";
+                "この月をすべて表示";
 
             clearButton.addEventListener(
                 "click",

@@ -77,10 +77,13 @@ async function getGoogleAccessToken(
             if (
                 !tokenResponse.ok
             ) {
+                console.error(
+                    "Google token error:",
+                    tokenData
+                );
+
                 throw new Error(
-                    JSON.stringify(
-                        tokenData
-                    )
+                    "Google access tokenの取得に失敗しました。"
                 );
             }
 
@@ -111,6 +114,13 @@ async function getGoogleAccessToken(
             null;
     }
 }
+
+
+/*
+ * ========================================
+ * 画像プロキシ
+ * ========================================
+ */
 
 export async function onRequestGet(
     context
@@ -285,7 +295,6 @@ export async function onRequestGet(
             await getGoogleAccessToken(
                 env
             );
-        }
 
 
         /*
@@ -365,7 +374,9 @@ export async function onRequestGet(
 
 
         /*
+         * ========================================
          * ブラウザへ返却
+         * ========================================
          */
 
         return response;
@@ -373,6 +384,10 @@ export async function onRequestGet(
     } catch (
         error
     ) {
+        console.error(
+            error
+        );
+
         return new Response(
             `Proxy error: ${error.message}`,
             {

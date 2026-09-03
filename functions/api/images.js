@@ -345,22 +345,67 @@ async function getPostDates(
 
 /*
  * ========================================
+ * メンバー投稿日取得
+ * ========================================
+ */
+
+async function getMemberPostDates(
+    accessToken,
+    member
+) {
+    const postDates =
+        new Set();
+
+    const images =
+        await getImagesFromFolder(
+            accessToken,
+            member.folderId
+        );
+
+    images.forEach(
+        (image) => {
+            if (
+                !image.name
+            ) {
+                return;
+            }
+
+            const match =
+                image.name.match(
+                    /^(\d{8})_/
+                );
+
+            if (
+                match
+            ) {
+                postDates.add(
+                    match[1]
+                );
+            }
+        }
+    );
+
+    return Array.from(
+        postDates
+    ).sort();
+}
+
+
+/*
+ * ========================================
  * カレンダーキャッシュキー作成
  * ========================================
  */
 
 function createCalendarCacheKey(
     request,
-    group
+    group,
+    memberKey = null
 ) {
     const cacheUrl =
         new URL(
             request.url
         );
-
-    /*
-     * 不要なquery parameterを除去
-     */
 
     cacheUrl.search =
         "";
@@ -376,6 +421,15 @@ function createCalendarCacheKey(
         cacheUrl.searchParams.set(
             "group",
             group
+        );
+    }
+
+    if (
+        memberKey
+    ) {
+        cacheUrl.searchParams.set(
+            "member",
+            memberKey
         );
     }
 
@@ -397,7 +451,8 @@ function createCalendarCacheKey(
 
 async function getCachedCalendarResponse(
     request,
-    group
+    group,
+    memberKey = null
 ) {
     const cache =
         caches.default;
@@ -405,7 +460,8 @@ async function getCachedCalendarResponse(
     const cacheKey =
         createCalendarCacheKey(
             request,
-            group
+            group,
+            memberKey
         );
 
     return await cache.match(
@@ -452,6 +508,66 @@ async function createAndCacheCalendarResponse(
         createCalendarCacheKey(
             request,
             group
+        );
+
+    await cache.put(
+        cacheKey,
+        response.clone()
+    );
+
+    return response;
+}
+
+
+/*
+ * ========================================
+ * メンバーカレンダーをキャッシュ保存
+ * ========================================
+ */
+
+async function createAndCacheMemberCalendarResponse(
+    request,
+    accessToken,
+    group,
+    memberKey,
+    member
+) {
+    const postDates =
+        await getMemberPostDates(
+            accessToken,
+            member
+        );
+
+    const response =
+        Response.json({
+            member: {
+                key:
+                    memberKey,
+
+                name:
+                    member.name,
+
+                group:
+                    member.group
+            },
+
+            postDates:
+                postDates
+        });
+
+    response.headers.set(
+        "Cache-Control",
+        "public, max-age=3600"
+    );
+
+    const cache =
+        caches.default;
+
+    const cacheKey =
+        createCalendarCacheKey(
+            request,
+            group,
+            memberKey
         );
 
     await cache.put(
@@ -817,6 +933,94 @@ export async function onRequestGet(
                 {
                     error:
                         "投稿日一覧の取得中にエラーが発生しました。"
+                },
+                {
+                    status:
+                        500
+                }
+            );
+        }
+    }
+    if (
+        memberKey &&
+        !date &&
+        !month
+    ) {
+        const member =
+            members[
+                memberKey
+            ];
+
+        if (
+            !member
+        ) {
+            return Response.json(
+                {
+                    error:
+                        "存在しないメンバーです。"
+                },
+                {
+                    status:
+                        404
+                }
+            );
+        }
+
+        if (
+            group &&
+            member.group !==
+                group
+        ) {
+            return Response.json(
+                {
+                    error:
+                        "指定されたグループにそのメンバーは存在しません。"
+                },
+                {
+                    status:
+                        404
+                }
+            );
+        }
+
+        try {
+            const cachedResponse =
+                await getCachedCalendarResponse(
+                    request,
+                    group,
+                    memberKey
+                );
+
+            if (
+                cachedResponse
+            ) {
+                return cachedResponse;
+            }
+
+            const accessToken =
+                await getGoogleAccessToken(
+                    env
+                );
+
+            return await createAndCacheMemberCalendarResponse(
+                request,
+                accessToken,
+                group,
+                memberKey,
+                member
+            );
+
+        } catch (
+            error
+        ) {
+            console.error(
+                error
+            );
+
+            return Response.json(
+                {
+                    error:
+                        "メンバー投稿日一覧の取得中にエラーが発生しました。"
                 },
                 {
                     status:

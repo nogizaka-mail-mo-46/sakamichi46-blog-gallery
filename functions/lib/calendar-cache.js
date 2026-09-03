@@ -1,4 +1,8 @@
 import {
+    members
+} from "../data/member-data.js";
+
+import {
     getMemberPostDates,
     getPostDates
 } from "./drive.js";
@@ -37,6 +41,35 @@ function createCalendarCacheKey(
         cacheUrl.searchParams.set(
             "member",
             memberKey
+        );
+    } else if (
+        group
+    ) {
+        const groupMemberKeys =
+            Object.entries(
+                members
+            )
+                .filter(
+                    ([
+                        key,
+                        member
+                    ]) =>
+                        member.group ===
+                        group
+                )
+                .map(
+                    ([
+                        key
+                    ]) =>
+                        key
+                )
+                .sort();
+
+        cacheUrl.searchParams.set(
+            "members",
+            groupMemberKeys.join(
+                ","
+            )
         );
     }
 

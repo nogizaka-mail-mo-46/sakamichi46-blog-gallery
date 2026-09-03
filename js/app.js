@@ -6,6 +6,8 @@
 
 const memberSelect = document.getElementById("memberSelect");
 
+const sortSelect = document.getElementById("sortSelect");
+
 const gallery = document.getElementById("gallery");
 
 const lightbox = document.getElementById("lightbox");
@@ -20,6 +22,8 @@ const imageCounter = document.getElementById("imageCounter");
  * 画像データ
  * ========================================
  */
+
+let images = [];
 
 let imageIds = [];
 
@@ -60,6 +64,24 @@ memberSelect.addEventListener("change", async () => {
 
 /*
  * ========================================
+ * 並び順変更
+ * ========================================
+ */
+
+sortSelect.addEventListener(
+    "change",
+    () => {
+        if (images.length === 0) {
+            return;
+        }
+
+        sortImages();
+    }
+);
+
+
+/*
+ * ========================================
  * メンバー画像取得
  * ========================================
  */
@@ -80,9 +102,9 @@ async function loadMemberImages(memberKey) {
 
         const data = await response.json();
 
-        imageIds = data.images.map(
-            (image) => image.id
-        );
+        images = data.images;
+
+        sortImages();
 
         renderGallery();
 
@@ -94,6 +116,36 @@ async function loadMemberImages(memberKey) {
         gallery.textContent =
             "画像の読み込みに失敗しました。";
     }
+}
+
+
+/*
+ * ========================================
+ * 並び替え
+ * ========================================
+ */
+
+function sortImages() {
+    const sortOrder =
+        sortSelect.value;
+
+    images.sort((a, b) => {
+        if (sortOrder === "asc") {
+            return a.name.localeCompare(
+                b.name
+            );
+        }
+
+        return b.name.localeCompare(
+            a.name
+        );
+    });
+
+    imageIds = images.map(
+        (image) => image.id
+    );
+
+    renderGallery();
 }
 
 

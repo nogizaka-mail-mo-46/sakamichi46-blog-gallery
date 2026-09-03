@@ -33,28 +33,30 @@
            ヘッダー
         ========================= */
 
-        header {
-            padding: 24px 30px;
-            background: white;
-            border-bottom: 1px solid #ddd;
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
         }
 
-        header h1 {
+        .header h1 {
             margin: 0;
-            font-size: 24px;
         }
 
         .logout-button {
-            display: inline-block;
+            flex-shrink: 0;
             padding: 8px 14px;
             border: 1px solid #ccc;
             border-radius: 8px;
-            text-decoration: none;
-            color: #333;
             background: #fff;
+            color: #333;
+            text-decoration: none;
             font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
         }
-        
+
         .logout-button:hover {
             background: #f5f5f5;
         }
@@ -341,16 +343,17 @@
             }
         }
     </style>
-    <a href="/auth/logout" class="logout-button">
-        ログアウト
-    </a>
 </head>
 
 <body>
 
-<header>
+<div class="header">
     <h1>Google Drive Image Gallery</h1>
-</header>
+
+    <a href="/auth/logout" class="logout-button">
+        ログアウト
+    </a>
+</div>
 
 <main>
     <div id="gallery" class="gallery"></div>

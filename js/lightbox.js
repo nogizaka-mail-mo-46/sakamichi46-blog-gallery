@@ -104,7 +104,7 @@ export function createLightbox() {
     ) {
         if (
             imageIds.length ===
-            0
+                0
         ) {
             return;
         }
@@ -148,7 +148,7 @@ export function createLightbox() {
     function update() {
         if (
             imageIds.length ===
-            0
+                0
         ) {
             return;
         }
@@ -180,7 +180,7 @@ export function createLightbox() {
     function showPrevious() {
         if (
             imageIds.length ===
-            0
+                0
         ) {
             return;
         }
@@ -189,7 +189,7 @@ export function createLightbox() {
 
         if (
             currentIndex <
-            0
+                0
         ) {
             currentIndex =
                 imageIds.length - 1;
@@ -208,7 +208,7 @@ export function createLightbox() {
     function showNext() {
         if (
             imageIds.length ===
-            0
+                0
         ) {
             return;
         }
@@ -217,7 +217,7 @@ export function createLightbox() {
 
         if (
             currentIndex >=
-            imageIds.length
+                imageIds.length
         ) {
             currentIndex =
                 0;
@@ -240,14 +240,14 @@ export function createLightbox() {
 
         if (
             difference <
-            -50
+                -50
         ) {
             showNext();
         }
 
         if (
             difference >
-            50
+                50
         ) {
             showPrevious();
         }
@@ -301,7 +301,7 @@ export function createLightbox() {
         (event) => {
             if (
                 event.target ===
-                lightbox
+                    lightbox
             ) {
                 close();
             }
@@ -328,21 +328,21 @@ export function createLightbox() {
 
             if (
                 event.key ===
-                "Escape"
+                    "Escape"
             ) {
                 close();
             }
 
             if (
                 event.key ===
-                "ArrowLeft"
+                    "ArrowLeft"
             ) {
                 showPrevious();
             }
 
             if (
                 event.key ===
-                "ArrowRight"
+                    "ArrowRight"
             ) {
                 showNext();
             }

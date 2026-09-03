@@ -286,6 +286,8 @@ async function processInBatches(
 /*
  * ========================================
  * 投稿日取得
+ *
+ * 5メンバーずつ並列取得
  * ========================================
  */
 
@@ -293,49 +295,61 @@ async function getPostDates(
     accessToken,
     group
 ) {
-    const postDates =
-        new Set();
-
     const targetMembers =
         getTargetMembers(
             group
         );
 
-    for (
-        const [
-            memberKey,
-            member
-        ] of targetMembers
-    ) {
-        const images =
-            await getImagesFromFolder(
-                accessToken,
-                member.folderId
-            );
-
-        images.forEach(
-            (image) => {
-                if (
-                    !image.name
-                ) {
-                    return;
-                }
-
-                const match =
-                    image.name.match(
-                        /^(\d{8})_/
+    const memberPostDates =
+        await processInBatches(
+            targetMembers,
+            5,
+            async ([
+                memberKey,
+                member
+            ]) => {
+                const images =
+                    await getImagesFromFolder(
+                        accessToken,
+                        member.folderId
                     );
 
-                if (
-                    match
-                ) {
-                    postDates.add(
-                        match[1]
-                    );
-                }
+                const postDates =
+                    new Set();
+
+                images.forEach(
+                    (image) => {
+                        if (
+                            !image.name
+                        ) {
+                            return;
+                        }
+
+                        const match =
+                            image.name.match(
+                                /^(\d{8})_/
+                            );
+
+                        if (
+                            match
+                        ) {
+                            postDates.add(
+                                match[1]
+                            );
+                        }
+                    }
+                );
+
+                return Array.from(
+                    postDates
+                );
             }
         );
-    }
+
+    const postDates =
+        new Set(
+            memberPostDates.flat()
+        );
 
     return Array.from(
         postDates

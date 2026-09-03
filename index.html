@@ -15,61 +15,85 @@
 </div>
 
 <main>
-    <div class="group-row">
-        <select id="groupSelect">
-            <option value="nogizaka46">
-                乃木坂46
-            </option>
+    <div
+        id="galleryView"
+    >
+        <div class="group-row">
+            <select id="groupSelect">
+                <option value="nogizaka46">
+                    乃木坂46
+                </option>
 
-            <option value="sakurazaka46">
-                櫻坂46
-            </option>
+                <option value="sakurazaka46">
+                    櫻坂46
+                </option>
 
-            <option value="hinatazaka46">
-                日向坂46
-            </option>
-        </select>
+                <option value="hinatazaka46">
+                    日向坂46
+                </option>
+            </select>
 
-        <a
-            href="/auth/logout"
-            class="logout-button"
+            <a
+                href="/auth/logout"
+                class="logout-button"
+            >
+                ログアウト
+            </a>
+        </div>
+
+        <div class="select-row">
+            <select id="memberSelect">
+                <option value="">
+                    メンバーを選択
+                </option>
+            </select>
+
+            <select id="sortSelect">
+                <option value="desc">
+                    新しい順
+                </option>
+
+                <option value="asc">
+                    古い順
+                </option>
+            </select>
+        </div>
+
+        <div
+            id="calendar"
+            class="calendar"
+        ></div>
+
+        <div
+            id="selectedDateTitle"
+            class="selected-date-title"
+        ></div>
+
+        <div
+            id="gallery"
+            class="gallery"
+        ></div>
+    </div>
+
+    <div
+        id="blogDetailView"
+        class="blog-detail-view"
+        hidden
+    >
+        <button
+            id="blogDetailBackButton"
+            type="button"
+            class="blog-detail-back-button"
         >
-            ログアウト
-        </a>
+            ← ギャラリーに戻る
+        </button>
+
+        <article
+            id="blogDetail"
+            class="blog-detail"
+        >
+        </article>
     </div>
-
-    <div class="select-row">
-        <select id="memberSelect">
-            <option value="">
-                メンバーを選択
-            </option>
-        </select>
-
-        <select id="sortSelect">
-            <option value="desc">
-                新しい順
-            </option>
-
-            <option value="asc">
-                古い順
-            </option>
-        </select>
-    </div>
-
-    <div
-        id="calendar"
-        class="calendar"
-    ></div>
-
-    <div
-        id="selectedDateTitle"
-        class="selected-date-title"
-    ></div>
-
-    <div
-        id="gallery"
-        class="gallery"
-    ></div>
 </main>
 
 

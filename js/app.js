@@ -47,6 +47,26 @@ const galleryElement =
         "gallery"
     );
 
+const galleryView =
+    document.getElementById(
+        "galleryView"
+    );
+
+const blogDetailView =
+    document.getElementById(
+        "blogDetailView"
+    );
+
+const blogDetailBackButton =
+    document.getElementById(
+        "blogDetailBackButton"
+    );
+
+const blogDetail =
+    document.getElementById(
+        "blogDetail"
+    );
+
 
 /*
  * ========================================
@@ -939,6 +959,27 @@ sortSelect.addEventListener(
 
 /*
  * ========================================
+ * ブログ詳細から戻る
+ * ========================================
+ */
+
+blogDetailBackButton.addEventListener(
+    "click",
+    () => {
+        blogDetailView.hidden =
+            true;
+
+        galleryView.hidden =
+            false;
+
+        blogDetail.innerHTML =
+            "";
+    }
+);
+
+
+/*
+ * ========================================
  * 画像並び替え・描画
  * ========================================
  */
@@ -1030,8 +1071,7 @@ async function loadBlogDetail(
         const blogData =
             await response.json();
 
-        console.log(
-            "ブログ詳細:",
+        renderBlogDetail(
             blogData
         );
 
@@ -1042,4 +1082,184 @@ async function loadBlogDetail(
             error
         );
     }
+}
+
+
+/*
+ * ========================================
+ * ブログ詳細描画
+ * ========================================
+ */
+
+function renderBlogDetail(
+    blogData
+) {
+    blogDetail.innerHTML =
+        "";
+
+    const header =
+        document.createElement(
+            "header"
+        );
+
+    header.className =
+        "blog-detail-header";
+
+    const title =
+        document.createElement(
+            "h2"
+        );
+
+    title.className =
+        "blog-detail-title";
+
+    title.textContent =
+        blogData.title ||
+        "タイトルなし";
+
+    const meta =
+        document.createElement(
+            "div"
+        );
+
+    meta.className =
+        "blog-detail-meta";
+
+    const date =
+        blogData.date
+            ? blogData.date.replace(
+                /-/g,
+                "."
+            )
+            : "";
+
+    const memberName =
+        blogData.member?.name ||
+        "";
+
+    meta.textContent =
+        [
+            date,
+            memberName
+        ]
+            .filter(
+                Boolean
+            )
+            .join(
+                " / "
+            );
+
+    header.appendChild(
+        title
+    );
+
+    header.appendChild(
+        meta
+    );
+
+    blogDetail.appendChild(
+        header
+    );
+
+
+    /*
+     * ========================================
+     * 本文・画像
+     * ========================================
+     */
+
+    const blocks =
+        Array.isArray(
+            blogData.blocks
+        )
+            ? blogData.blocks
+            : [];
+
+    blocks.forEach(
+        block => {
+            if (
+                block.type ===
+                    "text"
+            ) {
+                const text =
+                    document.createElement(
+                        "div"
+                    );
+
+                text.className =
+                    "blog-detail-text";
+
+                text.textContent =
+                    block.text ||
+                    "";
+
+                blogDetail.appendChild(
+                    text
+                );
+
+                return;
+            }
+
+            if (
+                block.type ===
+                    "image" &&
+                block.fileId
+            ) {
+                const imageContainer =
+                    document.createElement(
+                        "div"
+                    );
+
+                imageContainer.className =
+                    "blog-detail-image";
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+                image.src =
+                    `/image/${block.fileId}`;
+
+                image.alt =
+                    blogData.title ||
+                    "";
+
+                image.loading =
+                    "lazy";
+
+                image.decoding =
+                    "async";
+
+                imageContainer.appendChild(
+                    image
+                );
+
+                blogDetail.appendChild(
+                    imageContainer
+                );
+            }
+        }
+    );
+
+
+    /*
+     * ========================================
+     * 詳細画面へ切り替え
+     * ========================================
+     */
+
+    galleryView.hidden =
+        true;
+
+    blogDetailView.hidden =
+        false;
+
+    window.scrollTo({
+        top:
+            0,
+
+        behavior:
+            "auto"
+    });
 }

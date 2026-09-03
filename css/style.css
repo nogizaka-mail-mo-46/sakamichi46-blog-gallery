@@ -51,19 +51,29 @@ body {
 
 .logout-button {
     flex-shrink: 0;
-    padding: 8px 14px;
+}
+
+.select-row {
+    display: flex;
+    gap: 12px;
+    margin: 12px 30px 20px;
+}
+
+#memberSelect,
+#sortSelect {
+    padding: 10px 12px;
     border: 1px solid #ccc;
     border-radius: 8px;
     background: #fff;
-    color: #333;
-    text-decoration: none;
-    font-size: 14px;
-    font-weight: 500;
-    cursor: pointer;
+    font-size: 16px;
 }
 
-.logout-button:hover {
-    background: #f5f5f5;
+#memberSelect {
+    width: 320px;
+}
+
+#sortSelect {
+    width: 140px;
 }
 
 /* =========================
@@ -211,29 +221,6 @@ body {
 /* =========================
    ギャラリー
 ========================= */
-
-.select-row {
-    display: flex;
-    gap: 12px;
-    margin: 20px 30px;
-}
-
-#memberSelect,
-#sortSelect {
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 16px;
-}
-
-#memberSelect {
-    width: 320px;
-}
-
-#sortSelect {
-    width: 140px;
-}
 
 .gallery {
     display: grid;
@@ -458,6 +445,7 @@ body {
     }
 
     .group-row {
+        gap: 8px;
         margin: 16px 8px 0;
     }
 
@@ -473,7 +461,7 @@ body {
 
     .select-row {
         gap: 8px;
-        margin: 16px 8px;
+        margin: 8px 8px 16px;
     }
 
     #memberSelect {

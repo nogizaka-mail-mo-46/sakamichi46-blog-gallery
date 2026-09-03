@@ -355,9 +355,9 @@ async function loadGroupPostDates() {
         selectedDate =
             null;
 
-        calendar.updateSelectedDateTitle();
-
         setInitialCalendarMonth();
+
+        calendar.updateSelectedDateTitle();
 
         calendar.render();
 
@@ -433,6 +433,8 @@ memberSelect.addEventListener(
         ) {
             setInitialCalendarMonth();
 
+            calendar.updateSelectedDateTitle();
+
             calendar.render();
 
             await loadCurrentMonthImages();
@@ -505,9 +507,9 @@ async function loadMemberPostDates(
         selectedDate =
             null;
 
-        calendar.updateSelectedDateTitle();
-
         setInitialCalendarMonth();
+
+        calendar.updateSelectedDateTitle();
 
         calendar.render();
 

@@ -274,7 +274,18 @@ export async function onRequestGet(
     if (
         cachedResponse
     ) {
-        return cachedResponse;
+        const browserResponse =
+            new Response(
+                cachedResponse.body,
+                cachedResponse
+            );
+
+        browserResponse.headers.set(
+            "Cache-Control",
+            "private, max-age=3600"
+        );
+
+        return browserResponse;
     }
 
 

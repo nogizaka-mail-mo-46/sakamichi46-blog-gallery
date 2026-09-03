@@ -23,108 +23,108 @@ export function createGallery({
 }) {
 
 
-/*
- * ========================================
- * ギャラリー初期化
- * ========================================
- */
+    /*
+     * ========================================
+     * ギャラリー初期化
+     * ========================================
+     */
 
-function clear() {
-    element.innerHTML =
-        "";
-}
-
-
-/*
- * ========================================
- * ギャラリー表示
- * ========================================
- */
-
-function render(
-    imageIds,
-    memberSelected
-) {
-    clear();
-
-    if (
-        imageIds.length ===
-        0
-    ) {
-        if (
-            memberSelected
-        ) {
-            element.textContent =
-                "画像がありません。";
-        }
-
-        return;
+    function clear() {
+        element.innerHTML =
+            "";
     }
 
-    imageIds.forEach(
-        (
-            fileId,
-            index
-        ) => {
-            const item =
-                document.createElement(
-                    "div"
-                );
 
-            item.className =
-                "gallery-item";
+    /*
+     * ========================================
+     * ギャラリー表示
+     * ========================================
+     */
 
-            const img =
-                document.createElement(
-                    "img"
-                );
+    function render(
+        imageIds,
+        memberSelected
+    ) {
+        clear();
 
-            img.src =
-                getThumbnailUrl(
-                    fileId
-                );
+        if (
+            imageIds.length ===
+                0
+        ) {
+            if (
+                memberSelected
+            ) {
+                element.textContent =
+                    "画像がありません。";
+            }
 
-            img.alt =
-                `画像 ${index + 1}`;
-
-            img.loading =
-                "lazy";
-
-            img.decoding =
-                "async";
-
-            item.addEventListener(
-                "click",
-                () => {
-                    onImageClick(
-                        index
-                    );
-                }
-            );
-
-            item.appendChild(
-                img
-            );
-
-            element.appendChild(
-                item
-            );
+            return;
         }
-    );
-}
+
+        imageIds.forEach(
+            (
+                fileId,
+                index
+            ) => {
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+                item.className =
+                    "gallery-item";
+
+                const img =
+                    document.createElement(
+                        "img"
+                    );
+
+                img.src =
+                    getThumbnailUrl(
+                        fileId
+                    );
+
+                img.alt =
+                    `画像 ${index + 1}`;
+
+                img.loading =
+                    "lazy";
+
+                img.decoding =
+                    "async";
+
+                item.addEventListener(
+                    "click",
+                    () => {
+                        onImageClick(
+                            index
+                        );
+                    }
+                );
+
+                item.appendChild(
+                    img
+                );
+
+                element.appendChild(
+                    item
+                );
+            }
+        );
+    }
 
 
-/*
- * ========================================
- * 公開メソッド
- * ========================================
- */
+    /*
+     * ========================================
+     * 公開メソッド
+     * ========================================
+     */
 
-return {
-    clear:
-        clear,
+    return {
+        clear:
+            clear,
 
-    render:
-        render
-};
+        render:
+            render
+    };
 }

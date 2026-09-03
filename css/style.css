@@ -32,10 +32,21 @@ body {
     margin: 0;
 }
 
-.logout-row {
+.group-row {
     display: flex;
-    justify-content: flex-end;
-    padding: 12px 30px 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 20px 30px 0;
+}
+
+#groupSelect {
+    width: 200px;
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 16px;
 }
 
 .logout-button {
@@ -446,8 +457,18 @@ body {
         font-size: 20px;
     }
 
-    .logout-row {
-        padding: 12px 16px 0;
+    .group-row {
+        margin: 16px 8px 0;
+    }
+
+    #groupSelect {
+        width: auto;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .logout-button {
+        flex-shrink: 0;
     }
 
     .select-row {

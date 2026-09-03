@@ -172,22 +172,11 @@ function getTargetMembers(
             key,
             member
         ]) => {
-            /*
-             * group指定なし
-             * → 全メンバー
-             */
-
             if (
                 !group
             ) {
                 return true;
             }
-
-
-            /*
-             * group指定あり
-             * → 指定グループのみ
-             */
 
             return (
                 member.group ===
@@ -338,6 +327,84 @@ async function getImagesByDate(
 
 /*
  * ========================================
+ * 指定月の画像取得
+ * ========================================
+ */
+
+async function getImagesByMonth(
+    accessToken,
+    month,
+    group
+) {
+    const result = [];
+
+    const targetMembers =
+        getTargetMembers(
+            group
+        );
+
+    for (
+        const [
+            memberKey,
+            member
+        ] of targetMembers
+    ) {
+        const images =
+            await getImagesFromFolder(
+                accessToken,
+                member.folderId
+            );
+
+        const matchedImages =
+            images.filter(
+                (image) =>
+                    image.name &&
+                    image.name.startsWith(
+                        month
+                    )
+            );
+
+        matchedImages.forEach(
+            (image) => {
+                result.push({
+                    id:
+                        image.id,
+
+                    name:
+                        image.name,
+
+                    mimeType:
+                        image.mimeType,
+
+                    createdTime:
+                        image.createdTime,
+
+                    memberKey:
+                        memberKey,
+
+                    memberName:
+                        member.name,
+
+                    group:
+                        member.group
+                });
+            }
+        );
+    }
+
+    result.sort(
+        (a, b) =>
+            b.name.localeCompare(
+                a.name
+            )
+    );
+
+    return result;
+}
+
+
+/*
+ * ========================================
  * API
  * ========================================
  */
@@ -370,6 +437,11 @@ export async function onRequestGet(
             "date"
         );
 
+    const month =
+        url.searchParams.get(
+            "month"
+        );
+
 
     /*
      * ========================================
@@ -387,6 +459,54 @@ export async function onRequestGet(
             {
                 error:
                     "dateの形式が正しくありません。"
+            },
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+
+    /*
+     * ========================================
+     * month形式チェック
+     * ========================================
+     */
+
+    if (
+        month &&
+        !/^\d{6}$/.test(
+            month
+        )
+    ) {
+        return Response.json(
+            {
+                error:
+                    "monthの形式が正しくありません。"
+            },
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+
+    /*
+     * ========================================
+     * dateとmonth同時指定チェック
+     * ========================================
+     */
+
+    if (
+        date &&
+        month
+    ) {
+        return Response.json(
+            {
+                error:
+                    "dateとmonthは同時に指定できません。"
             },
             {
                 status:
@@ -491,7 +611,6 @@ export async function onRequestGet(
 
             /*
              * date指定あり
-             * → その日の画像だけ
              */
 
             if (
@@ -503,6 +622,24 @@ export async function onRequestGet(
                             image.name &&
                             image.name.startsWith(
                                 `${date}_`
+                            )
+                    );
+            }
+
+
+            /*
+             * month指定あり
+             */
+
+            if (
+                month
+            ) {
+                images =
+                    images.filter(
+                        (image) =>
+                            image.name &&
+                            image.name.startsWith(
+                                month
                             )
                     );
             }
@@ -528,6 +665,12 @@ export async function onRequestGet(
                         member.group
                 },
 
+                date:
+                    date,
+
+                month:
+                    month,
+
                 images:
                     images
             });
@@ -538,9 +681,6 @@ export async function onRequestGet(
          * ========================================
          * メンバー未指定
          * date指定あり
-         *
-         * 対象グループの
-         * 指定日の全メンバー画像
          * ========================================
          */
 
@@ -570,9 +710,38 @@ export async function onRequestGet(
         /*
          * ========================================
          * メンバー未指定
-         * date指定なし
+         * month指定あり
+         * ========================================
+         */
+
+        if (
+            month
+        ) {
+            const images =
+                await getImagesByMonth(
+                    accessToken,
+                    month,
+                    group
+                );
+
+            return Response.json({
+                group:
+                    group,
+
+                month:
+                    month,
+
+                images:
+                    images
+            });
+        }
+
+
+        /*
+         * ========================================
+         * date・month指定なし
          *
-         * 対象グループの投稿日一覧
+         * 投稿日一覧
          * ========================================
          */
 

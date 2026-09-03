@@ -158,21 +158,69 @@ async function getImagesFromFolder(
 
 /*
  * ========================================
- * 全メンバーの投稿日取得
+ * 対象メンバー取得
  * ========================================
  */
 
-async function getAllPostDates(
-    accessToken
+function getTargetMembers(
+    group
+) {
+    return Object.entries(
+        members
+    ).filter(
+        ([
+            key,
+            member
+        ]) => {
+            /*
+             * group指定なし
+             * → 全メンバー
+             */
+
+            if (
+                !group
+            ) {
+                return true;
+            }
+
+
+            /*
+             * group指定あり
+             * → 指定グループのみ
+             */
+
+            return (
+                member.group ===
+                group
+            );
+        }
+    );
+}
+
+
+/*
+ * ========================================
+ * 投稿日取得
+ * ========================================
+ */
+
+async function getPostDates(
+    accessToken,
+    group
 ) {
     const postDates =
         new Set();
 
+    const targetMembers =
+        getTargetMembers(
+            group
+        );
+
     for (
-        const member of
-        Object.values(
-            members
-        )
+        const [
+            memberKey,
+            member
+        ] of targetMembers
     ) {
         const images =
             await getImagesFromFolder(
@@ -182,6 +230,12 @@ async function getAllPostDates(
 
         images.forEach(
             (image) => {
+                if (
+                    !image.name
+                ) {
+                    return;
+                }
+
                 const match =
                     image.name.match(
                         /^(\d{8})_/
@@ -206,24 +260,27 @@ async function getAllPostDates(
 
 /*
  * ========================================
- * 指定日の全メンバー画像取得
+ * 指定日の画像取得
  * ========================================
  */
 
 async function getImagesByDate(
     accessToken,
-    date
+    date,
+    group
 ) {
     const result = [];
+
+    const targetMembers =
+        getTargetMembers(
+            group
+        );
 
     for (
         const [
             memberKey,
             member
-        ] of
-        Object.entries(
-            members
-        )
+        ] of targetMembers
     ) {
         const images =
             await getImagesFromFolder(
@@ -259,7 +316,10 @@ async function getImagesByDate(
                         memberKey,
 
                     memberName:
-                        member.name
+                        member.name,
+
+                    group:
+                        member.group
                 });
             }
         );
@@ -295,6 +355,11 @@ export async function onRequestGet(
             request.url
         );
 
+    const group =
+        url.searchParams.get(
+            "group"
+        );
+
     const memberKey =
         url.searchParams.get(
             "member"
@@ -326,6 +391,32 @@ export async function onRequestGet(
             {
                 status:
                     400
+            }
+        );
+    }
+
+
+    /*
+     * ========================================
+     * group存在チェック
+     * ========================================
+     */
+
+    if (
+        group &&
+        getTargetMembers(
+            group
+        ).length ===
+            0
+    ) {
+        return Response.json(
+            {
+                error:
+                    "存在しないグループです。"
+            },
+            {
+                status:
+                    404
             }
         );
     }
@@ -367,6 +458,30 @@ export async function onRequestGet(
                 );
             }
 
+
+            /*
+             * groupとmemberの
+             * 組み合わせチェック
+             */
+
+            if (
+                group &&
+                member.group !==
+                    group
+            ) {
+                return Response.json(
+                    {
+                        error:
+                            "指定されたグループにそのメンバーは存在しません。"
+                    },
+                    {
+                        status:
+                            404
+                    }
+                );
+            }
+
+
             let images =
                 await getImagesFromFolder(
                     accessToken,
@@ -375,7 +490,8 @@ export async function onRequestGet(
 
 
             /*
-             * dateも指定されている場合
+             * date指定あり
+             * → その日の画像だけ
              */
 
             if (
@@ -399,13 +515,17 @@ export async function onRequestGet(
                     )
             );
 
+
             return Response.json({
                 member: {
                     key:
                         memberKey,
 
                     name:
-                        member.name
+                        member.name,
+
+                    group:
+                        member.group
                 },
 
                 images:
@@ -416,9 +536,11 @@ export async function onRequestGet(
 
         /*
          * ========================================
-         * メンバー未指定・日付指定あり
+         * メンバー未指定
+         * date指定あり
          *
-         * その日の全メンバー画像
+         * 対象グループの
+         * 指定日の全メンバー画像
          * ========================================
          */
 
@@ -428,10 +550,14 @@ export async function onRequestGet(
             const images =
                 await getImagesByDate(
                     accessToken,
-                    date
+                    date,
+                    group
                 );
 
             return Response.json({
+                group:
+                    group,
+
                 date:
                     date,
 
@@ -443,18 +569,23 @@ export async function onRequestGet(
 
         /*
          * ========================================
-         * メンバー未指定・日付指定なし
+         * メンバー未指定
+         * date指定なし
          *
-         * 全メンバーの投稿日一覧
+         * 対象グループの投稿日一覧
          * ========================================
          */
 
         const postDates =
-            await getAllPostDates(
-                accessToken
+            await getPostDates(
+                accessToken,
+                group
             );
 
         return Response.json({
+            group:
+                group,
+
             postDates:
                 postDates
         });

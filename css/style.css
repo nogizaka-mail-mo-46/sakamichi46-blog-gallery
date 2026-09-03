@@ -241,14 +241,44 @@ body {
 ========================= */
 
 .gallery {
+    display: block;
+    padding: 24px 30px;
+}
+
+/* =========================
+   ブログ単位
+========================= */
+
+.gallery-article {
+    margin-bottom: 36px;
+}
+
+.gallery-article:last-child {
+    margin-bottom: 0;
+}
+
+/* =========================
+   ブログタイトル
+========================= */
+
+.gallery-article-title {
+    margin: 0 0 14px;
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* =========================
+   ブログ画像
+========================= */
+
+.gallery-article-images {
     display: grid;
 
     grid-template-columns:
         repeat(auto-fill, minmax(220px, 1fr));
 
     gap: 16px;
-
-    padding: 24px 30px;
 }
 
 .gallery-item {
@@ -431,7 +461,7 @@ body {
 ========================= */
 
 @media (min-width: 1200px) {
-    .gallery {
+    .gallery-article-images {
         grid-template-columns:
             repeat(5, 1fr);
     }
@@ -442,7 +472,7 @@ body {
 ========================= */
 
 @media (min-width: 768px) and (max-width: 1199px) {
-    .gallery {
+    .gallery-article-images {
         grid-template-columns:
             repeat(4, 1fr);
     }
@@ -453,11 +483,11 @@ body {
 ========================= */
 
 @media (max-width: 767px) {
-    
+
     .header {
         padding: 18px 16px 0;
     }
-    
+
     .header h1 {
         font-size: 20px;
     }
@@ -525,15 +555,26 @@ body {
     .selected-date-title {
         margin: 0 8px 4px;
         font-size: 18px;
-    }    
-    
+    }
+
     .gallery {
+        padding: 12px 8px;
+    }
+
+    .gallery-article {
+        margin-bottom: 28px;
+    }
+
+    .gallery-article-title {
+        margin-bottom: 10px;
+        font-size: 16px;
+    }
+
+    .gallery-article-images {
         grid-template-columns:
             repeat(2, 1fr);
 
         gap: 8px;
-
-        padding: 12px 8px;
     }
 
     .gallery-item {

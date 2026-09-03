@@ -3,6 +3,12 @@ import {
 } from "../data/members.js";
 
 
+/*
+ * ========================================
+ * Drive検索用文字列のエスケープ
+ * ========================================
+ */
+
 function escapeDriveQueryValue(
     value
 ) {
@@ -17,6 +23,12 @@ function escapeDriveQueryValue(
         );
 }
 
+
+/*
+ * ========================================
+ * 指定フォルダ内の画像取得
+ * ========================================
+ */
 
 export async function getImagesFromFolder(
     accessToken,
@@ -139,6 +151,115 @@ export async function getImagesFromFolder(
 }
 
 
+/*
+ * ========================================
+ * 投稿日取得用の軽量画像一覧取得
+ * ========================================
+ */
+
+async function getImageNamesFromFolder(
+    accessToken,
+    folderId
+) {
+    const imageNames = [];
+
+    let pageToken =
+        null;
+
+    do {
+        const params =
+            new URLSearchParams({
+                q:
+                    [
+                        `'${escapeDriveQueryValue(folderId)}' in parents`,
+                        "trashed = false"
+                    ].join(
+                        " and "
+                    ),
+
+                pageSize:
+                    "1000",
+
+                fields:
+                    "nextPageToken,files(name,mimeType)"
+            });
+
+        if (
+            pageToken
+        ) {
+            params.set(
+                "pageToken",
+                pageToken
+            );
+        }
+
+        const driveResponse =
+            await fetch(
+                `https://www.googleapis.com/drive/v3/files?${params.toString()}`,
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+        if (
+            !driveResponse.ok
+        ) {
+            const errorText =
+                await driveResponse.text();
+
+            console.error(
+                "Google Drive API error:",
+                errorText
+            );
+
+            throw new Error(
+                "Google Driveの投稿日一覧取得に失敗しました。"
+            );
+        }
+
+        const driveData =
+            await driveResponse.json();
+
+        const names =
+            driveData.files
+                .filter(
+                    (file) =>
+                        file.mimeType &&
+                        file.mimeType.startsWith(
+                            "image/"
+                        ) &&
+                        file.name
+                )
+                .map(
+                    (file) =>
+                        file.name
+                );
+
+        imageNames.push(
+            ...names
+        );
+
+        pageToken =
+            driveData.nextPageToken ||
+            null;
+
+    } while (
+        pageToken
+    );
+
+    return imageNames;
+}
+
+
+/*
+ * ========================================
+ * 対象メンバー取得
+ * ========================================
+ */
+
 export function getTargetMembers(
     group
 ) {
@@ -163,6 +284,12 @@ export function getTargetMembers(
     );
 }
 
+
+/*
+ * ========================================
+ * 一定件数ずつ並列処理
+ * ========================================
+ */
 
 async function processInBatches(
     items,
@@ -198,6 +325,14 @@ async function processInBatches(
 }
 
 
+/*
+ * ========================================
+ * 投稿日取得
+ *
+ * 5メンバーずつ並列取得
+ * ========================================
+ */
+
 export async function getPostDates(
     accessToken,
     group
@@ -215,8 +350,8 @@ export async function getPostDates(
                 memberKey,
                 member
             ]) => {
-                const images =
-                    await getImagesFromFolder(
+                const imageNames =
+                    await getImageNamesFromFolder(
                         accessToken,
                         member.folderId
                     );
@@ -224,16 +359,10 @@ export async function getPostDates(
                 const postDates =
                     new Set();
 
-                images.forEach(
-                    (image) => {
-                        if (
-                            !image.name
-                        ) {
-                            return;
-                        }
-
+                imageNames.forEach(
+                    (imageName) => {
                         const match =
-                            image.name.match(
+                            imageName.match(
                                 /^(\d{8})_/
                             );
 
@@ -264,6 +393,12 @@ export async function getPostDates(
 }
 
 
+/*
+ * ========================================
+ * メンバー投稿日取得
+ * ========================================
+ */
+
 export async function getMemberPostDates(
     accessToken,
     member
@@ -271,22 +406,16 @@ export async function getMemberPostDates(
     const postDates =
         new Set();
 
-    const images =
-        await getImagesFromFolder(
+    const imageNames =
+        await getImageNamesFromFolder(
             accessToken,
             member.folderId
         );
 
-    images.forEach(
-        (image) => {
-            if (
-                !image.name
-            ) {
-                return;
-            }
-
+    imageNames.forEach(
+        (imageName) => {
             const match =
-                image.name.match(
+                imageName.match(
                     /^(\d{8})_/
                 );
 
@@ -305,6 +434,14 @@ export async function getMemberPostDates(
     ).sort();
 }
 
+
+/*
+ * ========================================
+ * 指定日の画像取得
+ *
+ * 5メンバーずつ並列取得
+ * ========================================
+ */
 
 export async function getImagesByDate(
     accessToken,
@@ -374,6 +511,14 @@ export async function getImagesByDate(
     return result;
 }
 
+
+/*
+ * ========================================
+ * 指定月の画像取得
+ *
+ * 5メンバーずつ並列取得
+ * ========================================
+ */
 
 export async function getImagesByMonth(
     accessToken,

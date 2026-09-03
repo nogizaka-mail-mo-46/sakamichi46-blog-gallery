@@ -4,24 +4,45 @@
  * ========================================
  */
 
-const memberSelect = document.getElementById("memberSelect");
+const memberSelect =
+    document.getElementById(
+        "memberSelect"
+    );
 
-const sortSelect = document.getElementById("sortSelect");
+const sortSelect =
+    document.getElementById(
+        "sortSelect"
+    );
 
-const calendar = document.getElementById("calendar");
+const calendar =
+    document.getElementById(
+        "calendar"
+    );
 
-const gallery = document.getElementById("gallery");
+const gallery =
+    document.getElementById(
+        "gallery"
+    );
 
-const lightbox = document.getElementById("lightbox");
+const lightbox =
+    document.getElementById(
+        "lightbox"
+    );
 
-const lightboxImage = document.getElementById("lightboxImage");
+const lightboxImage =
+    document.getElementById(
+        "lightboxImage"
+    );
 
-const imageCounter = document.getElementById("imageCounter");
+const imageCounter =
+    document.getElementById(
+        "imageCounter"
+    );
 
 
 /*
  * ========================================
- * 画像データ
+ * 画像・カレンダーデータ
  * ========================================
  */
 
@@ -30,6 +51,8 @@ let images = [];
 let filteredImages = [];
 
 let imageIds = [];
+
+let allPostDates = [];
 
 let currentIndex = 0;
 
@@ -53,35 +76,110 @@ function getThumbnailUrl(fileId) {
 
 /*
  * ========================================
+ * ページ初期化
+ * ========================================
+ */
+
+async function initialize() {
+    await loadAllPostDates();
+}
+
+initialize();
+
+
+/*
+ * ========================================
+ * 全メンバーの投稿日取得
+ * ========================================
+ */
+
+async function loadAllPostDates() {
+    calendar.innerHTML = "";
+
+    try {
+        const response =
+            await fetch(
+                "/api/images"
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "全メンバーの投稿日取得に失敗しました。"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        allPostDates =
+            Array.isArray(
+                data.postDates
+            )
+                ? data.postDates
+                : [];
+
+        selectedDate =
+            null;
+
+        setInitialCalendarMonth();
+
+        renderCalendar();
+
+    } catch (error) {
+        console.error(
+            error
+        );
+
+        calendar.textContent =
+            "カレンダーの読み込みに失敗しました。";
+    }
+}
+
+
+/*
+ * ========================================
  * メンバー選択
  * ========================================
  */
 
-memberSelect.addEventListener("change", async () => {
-    const member = memberSelect.value;
+memberSelect.addEventListener(
+    "change",
+    async () => {
+        const member =
+            memberSelect.value;
 
-    if (!member) {
+        selectedDate =
+            null;
+
         images = [];
 
         filteredImages = [];
-        
+
         imageIds = [];
-
-        selectedDate = null;
-
-        calendarYear = null;
-
-        calendarMonth = null;
-
-        calendar.innerHTML = "";
 
         clearGallery();
 
-        return;
-    }
 
-    await loadMemberImages(member);
-});
+        /*
+         * メンバー未選択
+         */
+
+        if (!member) {
+            await loadAllPostDates();
+
+            return;
+        }
+
+
+        /*
+         * メンバー選択あり
+         */
+
+        await loadMemberImages(
+            member
+        );
+    }
+);
 
 
 /*
@@ -93,7 +191,10 @@ memberSelect.addEventListener("change", async () => {
 sortSelect.addEventListener(
     "change",
     () => {
-        if (images.length === 0) {
+        if (
+            images.length ===
+            0
+        ) {
             return;
         }
 
@@ -104,48 +205,185 @@ sortSelect.addEventListener(
 
 /*
  * ========================================
+ * メンバー画像取得
+ * ========================================
+ */
+
+async function loadMemberImages(
+    memberKey
+) {
+    clearGallery();
+
+    calendar.innerHTML =
+        "読み込み中...";
+
+    try {
+        const response =
+            await fetch(
+                `/api/images?member=${encodeURIComponent(memberKey)}`
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "画像一覧の取得に失敗しました。"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        images =
+            Array.isArray(
+                data.images
+            )
+                ? data.images
+                : [];
+
+        selectedDate =
+            null;
+
+        setInitialCalendarMonth();
+
+        renderCalendar();
+
+        updateImages();
+
+    } catch (error) {
+        console.error(
+            error
+        );
+
+        images = [];
+
+        filteredImages = [];
+
+        imageIds = [];
+
+        calendar.innerHTML = "";
+
+        gallery.textContent =
+            "画像の読み込みに失敗しました。";
+    }
+}
+
+
+/*
+ * ========================================
+ * 現在対象の投稿日取得
+ * ========================================
+ */
+
+function getPostDates() {
+    /*
+     * メンバー選択中
+     */
+
+    if (memberSelect.value) {
+        const postDates =
+            new Set();
+
+        images.forEach(
+            (image) => {
+                if (
+                    !image.name
+                ) {
+                    return;
+                }
+
+                const match =
+                    image.name.match(
+                        /^(\d{8})_/
+                    );
+
+                if (match) {
+                    postDates.add(
+                        match[1]
+                    );
+                }
+            }
+        );
+
+        return postDates;
+    }
+
+
+    /*
+     * メンバー未選択
+     */
+
+    return new Set(
+        allPostDates
+    );
+}
+
+
+/*
+ * ========================================
+ * 投稿日が存在する月の取得
+ * ========================================
+ */
+
+function getPostMonths() {
+    const postMonths =
+        new Set();
+
+    const postDates =
+        getPostDates();
+
+    postDates.forEach(
+        (dateKey) => {
+            if (
+                /^\d{8}$/.test(
+                    dateKey
+                )
+            ) {
+                postMonths.add(
+                    dateKey.substring(
+                        0,
+                        6
+                    )
+                );
+            }
+        }
+    );
+
+    return Array.from(
+        postMonths
+    ).sort();
+}
+
+
+/*
+ * ========================================
  * カレンダー初期月
  * ========================================
  */
 
 function setInitialCalendarMonth() {
-    const validImages =
-        images.filter(
-            (image) =>
-                image.name &&
-                /^\d{8}_/.test(
-                    image.name
-                )
-        );
+    const postMonths =
+        getPostMonths();
 
-    if (validImages.length === 0) {
-        calendarYear = null;
-        calendarMonth = null;
+    if (
+        postMonths.length ===
+        0
+    ) {
+        calendarYear =
+            null;
+
+        calendarMonth =
+            null;
 
         return;
     }
 
-    const sortedImages = [
-        ...validImages
-    ].sort(
-        (a, b) =>
-            b.name.localeCompare(
-                a.name
-            )
-    );
-
-    const latestImage =
-        sortedImages[0];
-
-    const dateText =
-        latestImage.name.substring(
-            0,
-            8
-        );
+    const latestMonth =
+        postMonths[
+            postMonths.length - 1
+        ];
 
     calendarYear =
         Number(
-            dateText.substring(
+            latestMonth.substring(
                 0,
                 4
             )
@@ -153,40 +391,11 @@ function setInitialCalendarMonth() {
 
     calendarMonth =
         Number(
-            dateText.substring(
+            latestMonth.substring(
                 4,
                 6
             )
         );
-}
-
-
-/*
- * ========================================
- * 投稿日の取得
- * ========================================
- */
-
-function getPostDates() {
-    const postDates =
-        new Set();
-
-    images.forEach(
-        (image) => {
-            const match =
-                image.name.match(
-                    /^(\d{8})_/
-                );
-
-            if (match) {
-                postDates.add(
-                    match[1]
-                );
-            }
-        }
-    );
-
-    return postDates;
 }
 
 
@@ -214,7 +423,9 @@ function renderCalendar() {
 
     const currentMonthKey =
         String(calendarYear) +
-        String(calendarMonth).padStart(
+        String(
+            calendarMonth
+        ).padStart(
             2,
             "0"
         );
@@ -277,7 +488,7 @@ function renderCalendar() {
 
 
     /*
-     * 年月タイトル
+     * 年月
      */
 
     const title =
@@ -329,10 +540,6 @@ function renderCalendar() {
             true;
     }
 
-
-    /*
-     * ヘッダーに追加
-     */
 
     header.appendChild(
         prevButton
@@ -424,7 +631,7 @@ function renderCalendar() {
 
 
     /*
-     * 月初までの空白
+     * 月初の空白
      */
 
     for (
@@ -490,14 +697,29 @@ function renderCalendar() {
                 "has-post"
             );
 
-            button.addEventListener(
-                "click",
-                () => {
-                    selectCalendarDate(
-                        dateKey
-                    );
-                }
-            );
+
+            /*
+             * メンバー選択中のみ
+             * 日付絞り込み可能
+             */
+
+            if (
+                memberSelect.value
+            ) {
+                button.addEventListener(
+                    "click",
+                    () => {
+                        selectCalendarDate(
+                            dateKey
+                        );
+                    }
+                );
+            } else {
+                button.classList.add(
+                    "all-members-post"
+                );
+            }
+
         } else {
             button.disabled =
                 true;
@@ -505,7 +727,7 @@ function renderCalendar() {
 
 
         /*
-         * 選択中の日
+         * 選択中
          */
 
         if (
@@ -529,11 +751,14 @@ function renderCalendar() {
 
     /*
      * ========================================
-     * 日付絞り込み解除
+     * すべて表示
      * ========================================
      */
 
-    if (selectedDate) {
+    if (
+        selectedDate &&
+        memberSelect.value
+    ) {
         const clearButton =
             document.createElement(
                 "button"
@@ -613,7 +838,9 @@ function changeCalendarMonth(
 
     const currentMonth =
         String(calendarYear) +
-        String(calendarMonth).padStart(
+        String(
+            calendarMonth
+        ).padStart(
             2,
             "0"
         );
@@ -661,11 +888,16 @@ function changeCalendarMonth(
             )
         );
 
-    selectedDate = null;
+    selectedDate =
+        null;
 
     renderCalendar();
 
-    updateImages();
+    if (
+        memberSelect.value
+    ) {
+        updateImages();
+    }
 }
 
 
@@ -697,80 +929,6 @@ function selectCalendarDate(
 
 /*
  * ========================================
- * 投稿日が存在する月の取得
- * ========================================
- */
-
-function getPostMonths() {
-    const postMonths =
-        new Set();
-
-    images.forEach(
-        (image) => {
-            const match =
-                image.name.match(
-                    /^(\d{6})\d{2}_/
-                );
-
-            if (match) {
-                postMonths.add(
-                    match[1]
-                );
-            }
-        }
-    );
-
-    return Array.from(
-        postMonths
-    ).sort();
-}
-
-
-/*
- * ========================================
- * メンバー画像取得
- * ========================================
- */
-
-async function loadMemberImages(memberKey) {
-    clearGallery();
-
-    try {
-        const response = await fetch(
-            `/api/images?member=${encodeURIComponent(memberKey)}`
-        );
-
-        if (!response.ok) {
-            throw new Error(
-                "画像一覧の取得に失敗しました。"
-            );
-        }
-
-        const data = await response.json();
-
-        images = data.images;
-
-        selectedDate = null;
-
-        setInitialCalendarMonth();
-
-        renderCalendar();
-
-        updateImages();
-
-    } catch (error) {
-        console.error(error);
-
-        imageIds = [];
-
-        gallery.textContent =
-            "画像の読み込みに失敗しました。";
-    }
-}
-
-
-/*
- * ========================================
  * 絞り込み・並び替え
  * ========================================
  */
@@ -780,6 +938,7 @@ function updateImages() {
         filteredImages =
             images.filter(
                 (image) =>
+                    image.name &&
                     image.name.startsWith(
                         `${selectedDate}_`
                     )
@@ -840,46 +999,67 @@ function clearGallery() {
 function renderGallery() {
     clearGallery();
 
-    if (imageIds.length === 0) {
-        gallery.textContent =
-            "画像がありません。";
+    if (
+        imageIds.length ===
+        0
+    ) {
+        if (
+            memberSelect.value
+        ) {
+            gallery.textContent =
+                "画像がありません。";
+        }
 
         return;
     }
 
-    imageIds.forEach((fileId, index) => {
-        const item =
-            document.createElement("div");
+    imageIds.forEach(
+        (fileId, index) => {
+            const item =
+                document.createElement(
+                    "div"
+                );
 
-        item.className =
-            "gallery-item";
+            item.className =
+                "gallery-item";
 
-        const img =
-            document.createElement("img");
+            const img =
+                document.createElement(
+                    "img"
+                );
 
-        img.src =
-            getThumbnailUrl(fileId);
+            img.src =
+                getThumbnailUrl(
+                    fileId
+                );
 
-        img.alt =
-            `画像 ${index + 1}`;
+            img.alt =
+                `画像 ${index + 1}`;
 
-        img.loading =
-            "lazy";
+            img.loading =
+                "lazy";
 
-        img.decoding =
-            "async";
+            img.decoding =
+                "async";
 
-        item.addEventListener(
-            "click",
-            () => {
-                openLightbox(index);
-            }
-        );
+            item.addEventListener(
+                "click",
+                () => {
+                    openLightbox(
+                        index
+                    );
+                }
+            );
 
-        item.appendChild(img);
+            item.appendChild(
+                img
+            );
 
-        gallery.appendChild(item);
-    });
+            gallery.appendChild(
+                item
+            );
+        }
+    );
 }
 
 
@@ -890,11 +1070,15 @@ function renderGallery() {
  */
 
 function openLightbox(index) {
-    if (imageIds.length === 0) {
+    if (
+        imageIds.length ===
+        0
+    ) {
         return;
     }
 
-    currentIndex = index;
+    currentIndex =
+        index;
 
     updateLightbox();
 
@@ -931,10 +1115,14 @@ function closeLightbox() {
 
 function updateLightbox() {
     const fileId =
-        imageIds[currentIndex];
+        imageIds[
+            currentIndex
+        ];
 
     lightboxImage.src =
-        getThumbnailUrl(fileId);
+        getThumbnailUrl(
+            fileId
+        );
 
     lightboxImage.alt =
         `画像 ${currentIndex + 1}`;
@@ -951,13 +1139,18 @@ function updateLightbox() {
  */
 
 function showPrevious() {
-    if (imageIds.length === 0) {
+    if (
+        imageIds.length ===
+        0
+    ) {
         return;
     }
 
     currentIndex--;
 
-    if (currentIndex < 0) {
+    if (
+        currentIndex < 0
+    ) {
         currentIndex =
             imageIds.length - 1;
     }
@@ -973,7 +1166,10 @@ function showPrevious() {
  */
 
 function showNext() {
-    if (imageIds.length === 0) {
+    if (
+        imageIds.length ===
+        0
+    ) {
         return;
     }
 
@@ -983,7 +1179,8 @@ function showNext() {
         currentIndex >=
         imageIds.length
     ) {
-        currentIndex = 0;
+        currentIndex =
+            0;
     }
 
     updateLightbox();
@@ -997,7 +1194,9 @@ function showNext() {
  */
 
 document
-    .getElementById("closeButton")
+    .getElementById(
+        "closeButton"
+    )
     .addEventListener(
         "click",
         closeLightbox
@@ -1011,7 +1210,9 @@ document
  */
 
 document
-    .getElementById("prevButton")
+    .getElementById(
+        "prevButton"
+    )
     .addEventListener(
         "click",
         showPrevious
@@ -1025,7 +1226,9 @@ document
  */
 
 document
-    .getElementById("nextButton")
+    .getElementById(
+        "nextButton"
+    )
     .addEventListener(
         "click",
         showNext
@@ -1107,7 +1310,8 @@ lightbox.addEventListener(
     "touchstart",
     (event) => {
         touchStartX =
-            event.changedTouches[0]
+            event
+                .changedTouches[0]
                 .screenX;
     }
 );
@@ -1117,7 +1321,8 @@ lightbox.addEventListener(
     "touchend",
     (event) => {
         touchEndX =
-            event.changedTouches[0]
+            event
+                .changedTouches[0]
                 .screenX;
 
         handleSwipe();

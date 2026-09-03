@@ -95,6 +95,17 @@ const gallery =
                 lightbox.open(
                     index
                 );
+            },
+
+        onArticleClick:
+            async ({
+                articleId,
+                memberKey
+            }) => {
+                await loadBlogDetail(
+                    articleId,
+                    memberKey
+                );
             }
     });
 
@@ -960,4 +971,75 @@ function updateImages() {
     lightbox.setImages(
         imageIds
     );
+}
+
+
+/*
+ * ========================================
+ * ブログ詳細取得
+ * ========================================
+ */
+
+async function loadBlogDetail(
+    articleId,
+    memberKey
+) {
+    const group =
+        groupSelect.value;
+
+    const targetMemberKey =
+        memberKey ||
+        memberSelect.value;
+
+    if (
+        !targetMemberKey
+    ) {
+        console.error(
+            "ブログのメンバーを特定できません。"
+        );
+
+        return;
+    }
+
+    try {
+        const params =
+            new URLSearchParams({
+                group:
+                    group,
+
+                member:
+                    targetMemberKey,
+
+                articleId:
+                    articleId
+            });
+
+        const response =
+            await fetch(
+                `/api/blog?${params.toString()}`
+            );
+
+        if (
+            !response.ok
+        ) {
+            throw new Error(
+                "ブログ詳細の取得に失敗しました。"
+            );
+        }
+
+        const blogData =
+            await response.json();
+
+        console.log(
+            "ブログ詳細:",
+            blogData
+        );
+
+    } catch (
+        error
+    ) {
+        console.error(
+            error
+        );
+    }
 }

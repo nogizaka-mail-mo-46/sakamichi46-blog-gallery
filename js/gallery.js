@@ -87,11 +87,25 @@ export function createGallery({
                 img.alt =
                     `画像 ${index + 1}`;
 
-                img.loading =
-                    "lazy";
-
                 img.decoding =
                     "async";
+
+                if (
+                    index <
+                    4
+                ) {
+                    img.loading =
+                        "eager";
+
+                    img.fetchPriority =
+                        "high";
+                } else {
+                    img.loading =
+                        "lazy";
+
+                    img.fetchPriority =
+                        "low";
+                }
 
                 item.addEventListener(
                     "click",

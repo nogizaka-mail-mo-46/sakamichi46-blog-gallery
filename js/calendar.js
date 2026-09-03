@@ -28,7 +28,9 @@ export function createCalendar({
         const selectedDate =
             getSelectedDate();
 
-        if (!selectedDate) {
+        if (
+            !selectedDate
+        ) {
             selectedDateTitle.textContent =
                 "";
 
@@ -533,24 +535,27 @@ export function createCalendar({
                     "has-post"
                 );
 
+                /*
+                 * メンバー未選択時も
+                 * 投稿日はクリック可能
+                 */
+
+                button.addEventListener(
+                    "click",
+                    async () => {
+                        await onDateSelect(
+                            dateKey
+                        );
+                    }
+                );
 
                 /*
-                 * メンバー選択中のみ
-                 * 日付クリック可能
+                 * 全メンバー投稿日
                  */
 
                 if (
-                    isMemberSelected()
+                    !isMemberSelected()
                 ) {
-                    button.addEventListener(
-                        "click",
-                        () => {
-                            onDateSelect(
-                                dateKey
-                            );
-                        }
-                    );
-                } else {
                     button.classList.add(
                         "all-members-post"
                     );
@@ -592,8 +597,7 @@ export function createCalendar({
          */
 
         if (
-            selectedDate &&
-            isMemberSelected()
+            selectedDate
         ) {
             const clearButton =
                 document.createElement(

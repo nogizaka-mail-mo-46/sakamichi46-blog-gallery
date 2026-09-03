@@ -88,9 +88,6 @@ function escapeDriveQueryValue(
 /*
  * ========================================
  * 指定フォルダ内の画像取得
- *
- * namePrefixを指定した場合は
- * Google Drive側で先に候補を絞る
  * ========================================
  */
 
@@ -183,12 +180,6 @@ async function getImagesFromFolder(
                         return false;
                     }
 
-                    /*
-                     * Driveの contains は
-                     * 前方一致専用ではないため、
-                     * 最後にstartsWithで厳密チェック
-                     */
-
                     if (
                         namePrefix &&
                         (
@@ -255,9 +246,6 @@ function getTargetMembers(
 /*
  * ========================================
  * 投稿日取得
- *
- * カレンダー作成用なので
- * ここだけは全期間を見る必要がある
  * ========================================
  */
 
@@ -317,28 +305,21 @@ async function getPostDates(
 
 /*
  * ========================================
- * カレンダー用投稿日取得
- *
- * Cloudflare Cache APIを使用
+ * カレンダーキャッシュキー作成
  * ========================================
  */
 
-async function getCachedPostDates(
+function createCalendarCacheKey(
     request,
-    accessToken,
     group
 ) {
-    const cache =
-        caches.default;
-
     const cacheUrl =
         new URL(
             request.url
         );
 
     /*
-     * キャッシュキーを
-     * カレンダー専用に固定
+     * 不要なquery parameterを除去
      */
 
     cacheUrl.search =
@@ -358,37 +339,52 @@ async function getCachedPostDates(
         );
     }
 
+    return new Request(
+        cacheUrl.toString(),
+        {
+            method:
+                "GET"
+        }
+    );
+}
+
+
+/*
+ * ========================================
+ * カレンダーキャッシュ確認
+ * ========================================
+ */
+
+async function getCachedCalendarResponse(
+    request,
+    group
+) {
+    const cache =
+        caches.default;
+
     const cacheKey =
-        new Request(
-            cacheUrl.toString(),
-            {
-                method:
-                    "GET"
-            }
+        createCalendarCacheKey(
+            request,
+            group
         );
 
-
-    /*
-     * キャッシュ確認
-     */
-
-    const cachedResponse =
-        await cache.match(
-            cacheKey
-        );
-
-    if (
-        cachedResponse
-    ) {
-        return cachedResponse;
-    }
+    return await cache.match(
+        cacheKey
+    );
+}
 
 
-    /*
-     * キャッシュなし
-     * → Google Driveから生成
-     */
+/*
+ * ========================================
+ * カレンダー投稿日をキャッシュ保存
+ * ========================================
+ */
 
+async function createAndCacheCalendarResponse(
+    request,
+    accessToken,
+    group
+) {
     const postDates =
         await getPostDates(
             accessToken,
@@ -404,20 +400,19 @@ async function getCachedPostDates(
                 postDates
         });
 
-
-    /*
-     * 1時間キャッシュ
-     */
-
     response.headers.set(
         "Cache-Control",
         "public, max-age=3600"
     );
 
+    const cache =
+        caches.default;
 
-    /*
-     * レスポンスをキャッシュ
-     */
+    const cacheKey =
+        createCalendarCacheKey(
+            request,
+            group
+        );
 
     await cache.put(
         cacheKey,
@@ -710,6 +705,89 @@ export async function onRequestGet(
     }
 
 
+    /*
+     * ========================================
+     * カレンダー投稿日一覧
+     *
+     * member/date/monthすべて未指定
+     *
+     * ここだけGoogle Token取得より先に
+     * Cloudflare Cacheを見る
+     * ========================================
+     */
+
+    if (
+        !memberKey &&
+        !date &&
+        !month
+    ) {
+        try {
+            const cachedResponse =
+                await getCachedCalendarResponse(
+                    request,
+                    group
+                );
+
+            /*
+             * キャッシュヒット
+             *
+             * Googleへ一切アクセスせず
+             * そのまま返却
+             */
+
+            if (
+                cachedResponse
+            ) {
+                return cachedResponse;
+            }
+
+
+            /*
+             * キャッシュなしの場合のみ
+             * Google Access Token取得
+             */
+
+            const accessToken =
+                await getGoogleAccessToken(
+                    env
+                );
+
+            return await createAndCacheCalendarResponse(
+                request,
+                accessToken,
+                group
+            );
+
+        } catch (
+            error
+        ) {
+            console.error(
+                error
+            );
+
+            return Response.json(
+                {
+                    error:
+                        "投稿日一覧の取得中にエラーが発生しました。"
+                },
+                {
+                    status:
+                        500
+                }
+            );
+        }
+    }
+
+
+    /*
+     * ========================================
+     * ここから下は画像取得
+     *
+     * Google APIを使用するので
+     * Access Tokenを取得
+     * ========================================
+     */
+
     try {
         const accessToken =
             await getGoogleAccessToken(
@@ -764,11 +842,6 @@ export async function onRequestGet(
             }
 
 
-            /*
-             * date/monthに応じて
-             * Drive側で先に絞る
-             */
-
             let namePrefix =
                 null;
 
@@ -794,7 +867,7 @@ export async function onRequestGet(
 
 
             /*
-             * 念のため最終チェック
+             * 最終チェック
              */
 
             if (
@@ -859,7 +932,7 @@ export async function onRequestGet(
         /*
          * ========================================
          * メンバー未指定
-         * date指定あり
+         * date指定
          * ========================================
          */
 
@@ -889,7 +962,7 @@ export async function onRequestGet(
         /*
          * ========================================
          * メンバー未指定
-         * month指定あり
+         * month指定
          * ========================================
          */
 
@@ -916,18 +989,15 @@ export async function onRequestGet(
         }
 
 
-        /*
-         * ========================================
-         * date・month指定なし
-         *
-         * カレンダー用投稿日一覧
-         * ========================================
-         */
-
-        return await getCachedPostDates(
-            request,
-            accessToken,
-            group
+        return Response.json(
+            {
+                error:
+                    "不正なリクエストです。"
+            },
+            {
+                status:
+                    400
+            }
         );
 
     } catch (

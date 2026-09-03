@@ -10,12 +10,23 @@ export const members = {
     },
 
     /*
+     * 乃木坂46（4期生）
+     */    
+    teresa_ikeda: {
+        name: "林 瑠奈",
+        group: "nogizaka46",
+        folderId: "1vrwog9PWlKiFo604TVIrD9CFbvVe0umi",
+        blogDataFolderId: "1kIfZL0snHrbbuwnu8JyVNhmtIrBmuTdY"
+    },
+
+    /*
      * 乃木坂46（5期生）
      */    
     teresa_ikeda: {
         name: "池田 瑛紗",
         group: "nogizaka46",
-        folderId: "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt"
+        folderId: "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt",
+        blogDataFolderId: "1yE-qJGnw5gp6rWSVmXOpDMzwW96tmzu8"
     },
         
     /*

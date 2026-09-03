@@ -19,6 +19,11 @@ const calendar =
         "calendar"
     );
 
+const selectedDateTitle =
+    document.getElementById(
+        "selectedDateTitle"
+    );
+
 const gallery =
     document.getElementById(
         "gallery"
@@ -82,11 +87,68 @@ function getThumbnailUrl(fileId) {
 
 async function initialize() {
     await loadMembers();
-    
+
     await loadAllPostDates();
 }
 
 initialize();
+
+
+/*
+ * ========================================
+ * メンバー一覧取得
+ * ========================================
+ */
+
+async function loadMembers() {
+    try {
+        const response =
+            await fetch(
+                "/api/members"
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "メンバー一覧の取得に失敗しました。"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        if (
+            !Array.isArray(
+                data.members
+            )
+        ) {
+            return;
+        }
+
+        data.members.forEach(
+            (member) => {
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    member.key;
+
+                option.textContent =
+                    member.name;
+
+                memberSelect.appendChild(
+                    option
+                );
+            }
+        );
+
+    } catch (error) {
+        console.error(
+            error
+        );
+    }
+}
 
 
 /*
@@ -123,6 +185,8 @@ async function loadAllPostDates() {
         selectedDate =
             null;
 
+        updateSelectedDateTitle();
+
         setInitialCalendarMonth();
 
         renderCalendar();
@@ -134,55 +198,6 @@ async function loadAllPostDates() {
 
         calendar.textContent =
             "カレンダーの読み込みに失敗しました。";
-    }
-}
-
-
-/*
- * ========================================
- * 全メンバーの一覧取得
- * ========================================
- */
-
-async function loadMembers() {
-    try {
-        const response =
-            await fetch(
-                "/api/members"
-            );
-
-        if (!response.ok) {
-            throw new Error(
-                "メンバー一覧の取得に失敗しました。"
-            );
-        }
-
-        const data =
-            await response.json();
-
-        data.members.forEach(
-            (member) => {
-                const option =
-                    document.createElement(
-                        "option"
-                    );
-
-                option.value =
-                    member.key;
-
-                option.textContent =
-                    member.name;
-
-                memberSelect.appendChild(
-                    option
-                );
-            }
-        );
-
-    } catch (error) {
-        console.error(
-            error
-        );
     }
 }
 
@@ -207,6 +222,8 @@ memberSelect.addEventListener(
         filteredImages = [];
 
         imageIds = [];
+
+        updateSelectedDateTitle();
 
         clearGallery();
 
@@ -293,6 +310,8 @@ async function loadMemberImages(
         selectedDate =
             null;
 
+        updateSelectedDateTitle();
+
         setInitialCalendarMonth();
 
         renderCalendar();
@@ -309,6 +328,11 @@ async function loadMemberImages(
         filteredImages = [];
 
         imageIds = [];
+
+        selectedDate =
+            null;
+
+        updateSelectedDateTitle();
 
         calendar.innerHTML = "";
 
@@ -329,7 +353,9 @@ function getPostDates() {
      * メンバー選択中
      */
 
-    if (memberSelect.value) {
+    if (
+        memberSelect.value
+    ) {
         const postDates =
             new Set();
 
@@ -452,6 +478,57 @@ function setInitialCalendarMonth() {
 
 /*
  * ========================================
+ * 選択中の日付タイトル
+ * ========================================
+ */
+
+function updateSelectedDateTitle() {
+    if (!selectedDate) {
+        selectedDateTitle.textContent =
+            "";
+
+        selectedDateTitle.classList.remove(
+            "visible"
+        );
+
+        return;
+    }
+
+    const year =
+        Number(
+            selectedDate.substring(
+                0,
+                4
+            )
+        );
+
+    const month =
+        Number(
+            selectedDate.substring(
+                4,
+                6
+            )
+        );
+
+    const day =
+        Number(
+            selectedDate.substring(
+                6,
+                8
+            )
+        );
+
+    selectedDateTitle.textContent =
+        `${year}年${month}月${day}日のブログ`;
+
+    selectedDateTitle.classList.add(
+        "visible"
+    );
+}
+
+
+/*
+ * ========================================
  * カレンダー表示
  * ========================================
  */
@@ -473,7 +550,9 @@ function renderCalendar() {
         getPostMonths();
 
     const currentMonthKey =
-        String(calendarYear) +
+        String(
+            calendarYear
+        ) +
         String(
             calendarMonth
         ).padStart(
@@ -591,6 +670,10 @@ function renderCalendar() {
             true;
     }
 
+
+    /*
+     * ヘッダー追加
+     */
 
     header.appendChild(
         prevButton
@@ -778,7 +861,7 @@ function renderCalendar() {
 
 
         /*
-         * 選択中
+         * 選択中の日
          */
 
         if (
@@ -802,7 +885,7 @@ function renderCalendar() {
 
     /*
      * ========================================
-     * すべて表示
+     * 日付絞り込み解除
      * ========================================
      */
 
@@ -829,6 +912,8 @@ function renderCalendar() {
             () => {
                 selectedDate =
                     null;
+
+                updateSelectedDateTitle();
 
                 renderCalendar();
 
@@ -888,7 +973,9 @@ function changeCalendarMonth(
     }
 
     const currentMonth =
-        String(calendarYear) +
+        String(
+            calendarYear
+        ) +
         String(
             calendarMonth
         ).padStart(
@@ -921,7 +1008,9 @@ function changeCalendarMonth(
     }
 
     const nextMonth =
-        postMonths[nextIndex];
+        postMonths[
+            nextIndex
+        ];
 
     calendarYear =
         Number(
@@ -941,6 +1030,8 @@ function changeCalendarMonth(
 
     selectedDate =
         null;
+
+    updateSelectedDateTitle();
 
     renderCalendar();
 
@@ -972,6 +1063,8 @@ function selectCalendarDate(
             dateKey;
     }
 
+    updateSelectedDateTitle();
+
     renderCalendar();
 
     updateImages();
@@ -985,7 +1078,11 @@ function selectCalendarDate(
  */
 
 function updateImages() {
-    if (selectedDate) {
+    updateSelectedDateTitle();
+
+    if (
+        selectedDate
+    ) {
         filteredImages =
             images.filter(
                 (image) =>
@@ -1037,7 +1134,8 @@ function updateImages() {
  */
 
 function clearGallery() {
-    gallery.innerHTML = "";
+    gallery.innerHTML =
+        "";
 }
 
 
@@ -1120,7 +1218,9 @@ function renderGallery() {
  * ========================================
  */
 
-function openLightbox(index) {
+function openLightbox(
+    index
+) {
     if (
         imageIds.length ===
         0
@@ -1352,9 +1452,11 @@ document.addEventListener(
  * ========================================
  */
 
-let touchStartX = 0;
+let touchStartX =
+    0;
 
-let touchEndX = 0;
+let touchEndX =
+    0;
 
 
 lightbox.addEventListener(

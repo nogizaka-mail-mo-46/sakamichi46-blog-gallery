@@ -13,6 +13,114 @@ function getThumbnailUrl(
 
 /*
  * ========================================
+ * ブログ単位グループ化
+ * ========================================
+ */
+
+function groupImagesByArticle(
+    images,
+    sortOrder
+) {
+    const articleMap =
+        new Map();
+
+    images.forEach(
+        image => {
+            const articleId =
+                image.articleId ||
+                image.id;
+
+            if (
+                !articleMap.has(
+                    articleId
+                )
+            ) {
+                articleMap.set(
+                    articleId,
+                    {
+                        articleId:
+                            articleId,
+
+                        title:
+                            image.title ||
+                            "タイトルなし",
+
+                        blogTimestamp:
+                            image.blogTimestamp ||
+                            "",
+
+                        images:
+                            []
+                    }
+                );
+            }
+
+            articleMap
+                .get(
+                    articleId
+                )
+                .images
+                .push(
+                    image
+                );
+        }
+    );
+
+    const articles =
+        Array.from(
+            articleMap.values()
+        );
+
+    articles.forEach(
+        article => {
+            article.images.sort(
+                (
+                    a,
+                    b
+                ) =>
+                    (
+                        Number(
+                            a.imageIndex
+                        ) ||
+                        0
+                    ) -
+                    (
+                        Number(
+                            b.imageIndex
+                        ) ||
+                        0
+                    )
+            );
+        }
+    );
+
+    articles.sort(
+        (
+            a,
+            b
+        ) => {
+            const result =
+                a.blogTimestamp.localeCompare(
+                    b.blogTimestamp
+                );
+
+            if (
+                sortOrder ===
+                    "asc"
+            ) {
+                return result;
+            }
+
+            return -result;
+        }
+    );
+
+    return articles;
+}
+
+
+/*
+ * ========================================
  * ギャラリー
  * ========================================
  */
@@ -25,6 +133,16 @@ export function createGallery({
 
     /*
      * ========================================
+     * 表示中画像
+     * ========================================
+     */
+
+    let displayedImages =
+        [];
+
+
+    /*
+     * ========================================
      * ギャラリー初期化
      * ========================================
      */
@@ -32,6 +150,9 @@ export function createGallery({
     function clear() {
         element.innerHTML =
             "";
+
+        displayedImages =
+            [];
     }
 
 
@@ -42,13 +163,15 @@ export function createGallery({
      */
 
     function render(
-        imageIds,
-        memberSelected
+        images,
+        memberSelected,
+        sortOrder =
+            "desc"
     ) {
         clear();
 
         if (
-            imageIds.length ===
+            images.length ===
                 0
         ) {
             if (
@@ -61,70 +184,151 @@ export function createGallery({
             return;
         }
 
-        imageIds.forEach(
-            (
-                fileId,
-                index
-            ) => {
-                const item =
+        const articles =
+            groupImagesByArticle(
+                images,
+                sortOrder
+            );
+
+        articles.forEach(
+            article => {
+                const articleElement =
+                    document.createElement(
+                        "section"
+                    );
+
+                articleElement.className =
+                    "gallery-article";
+
+
+                /*
+                 * ========================================
+                 * ブログタイトル
+                 * ========================================
+                 */
+
+                const titleElement =
+                    document.createElement(
+                        "h3"
+                    );
+
+                titleElement.className =
+                    "gallery-article-title";
+
+                titleElement.textContent =
+                    article.title;
+
+                titleElement.dataset.articleId =
+                    article.articleId;
+
+                articleElement.appendChild(
+                    titleElement
+                );
+
+
+                /*
+                 * ========================================
+                 * ブログ画像
+                 * ========================================
+                 */
+
+                const imagesElement =
                     document.createElement(
                         "div"
                     );
 
-                item.className =
-                    "gallery-item";
+                imagesElement.className =
+                    "gallery-article-images";
 
-                const img =
-                    document.createElement(
-                        "img"
-                    );
+                article.images.forEach(
+                    image => {
+                        const index =
+                            displayedImages.length;
 
-                img.src =
-                    getThumbnailUrl(
-                        fileId
-                    );
+                        displayedImages.push(
+                            image
+                        );
 
-                img.alt =
-                    `画像 ${index + 1}`;
+                        const item =
+                            document.createElement(
+                                "div"
+                            );
 
-                img.decoding =
-                    "async";
+                        item.className =
+                            "gallery-item";
 
-                if (
-                    index <
-                    4
-                ) {
-                    img.loading =
-                        "eager";
+                        const img =
+                            document.createElement(
+                                "img"
+                            );
 
-                    img.fetchPriority =
-                        "high";
-                } else {
-                    img.loading =
-                        "lazy";
+                        img.src =
+                            getThumbnailUrl(
+                                image.id
+                            );
 
-                    img.fetchPriority =
-                        "low";
-                }
+                        img.alt =
+                            article.title;
 
-                item.addEventListener(
-                    "click",
-                    () => {
-                        onImageClick(
-                            index
+                        img.decoding =
+                            "async";
+
+                        if (
+                            index <
+                                4
+                        ) {
+                            img.loading =
+                                "eager";
+
+                            img.fetchPriority =
+                                "high";
+                        } else {
+                            img.loading =
+                                "lazy";
+
+                            img.fetchPriority =
+                                "low";
+                        }
+
+                        item.addEventListener(
+                            "click",
+                            () => {
+                                onImageClick(
+                                    index
+                                );
+                            }
+                        );
+
+                        item.appendChild(
+                            img
+                        );
+
+                        imagesElement.appendChild(
+                            item
                         );
                     }
                 );
 
-                item.appendChild(
-                    img
+                articleElement.appendChild(
+                    imagesElement
                 );
 
                 element.appendChild(
-                    item
+                    articleElement
                 );
             }
         );
+    }
+
+
+    /*
+     * ========================================
+     * 表示中画像取得
+     * ========================================
+     */
+
+    function getDisplayedImages() {
+        return displayedImages;
     }
 
 
@@ -139,6 +343,9 @@ export function createGallery({
             clear,
 
         render:
-            render
+            render,
+
+        getDisplayedImages:
+            getDisplayedImages
     };
 }

@@ -317,6 +317,119 @@ async function getPostDates(
 
 /*
  * ========================================
+ * カレンダー用投稿日取得
+ *
+ * Cloudflare Cache APIを使用
+ * ========================================
+ */
+
+async function getCachedPostDates(
+    request,
+    accessToken,
+    group
+) {
+    const cache =
+        caches.default;
+
+    const cacheUrl =
+        new URL(
+            request.url
+        );
+
+    /*
+     * キャッシュキーを
+     * カレンダー専用に固定
+     */
+
+    cacheUrl.search =
+        "";
+
+    cacheUrl.searchParams.set(
+        "calendar",
+        "1"
+    );
+
+    if (
+        group
+    ) {
+        cacheUrl.searchParams.set(
+            "group",
+            group
+        );
+    }
+
+    const cacheKey =
+        new Request(
+            cacheUrl.toString(),
+            {
+                method:
+                    "GET"
+            }
+        );
+
+
+    /*
+     * キャッシュ確認
+     */
+
+    const cachedResponse =
+        await cache.match(
+            cacheKey
+        );
+
+    if (
+        cachedResponse
+    ) {
+        return cachedResponse;
+    }
+
+
+    /*
+     * キャッシュなし
+     * → Google Driveから生成
+     */
+
+    const postDates =
+        await getPostDates(
+            accessToken,
+            group
+        );
+
+    const response =
+        Response.json({
+            group:
+                group,
+
+            postDates:
+                postDates
+        });
+
+
+    /*
+     * 1時間キャッシュ
+     */
+
+    response.headers.set(
+        "Cache-Control",
+        "public, max-age=3600"
+    );
+
+
+    /*
+     * レスポンスをキャッシュ
+     */
+
+    await cache.put(
+        cacheKey,
+        response.clone()
+    );
+
+    return response;
+}
+
+
+/*
+ * ========================================
  * 指定日の画像取得
  * ========================================
  */
@@ -811,19 +924,11 @@ export async function onRequestGet(
          * ========================================
          */
 
-        const postDates =
-            await getPostDates(
-                accessToken,
-                group
-            );
-
-        return Response.json({
-            group:
-                group,
-
-            postDates:
-                postDates
-        });
+        return await getCachedPostDates(
+            request,
+            accessToken,
+            group
+        );
 
     } catch (
         error

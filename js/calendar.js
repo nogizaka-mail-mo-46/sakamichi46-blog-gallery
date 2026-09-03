@@ -18,92 +18,93 @@ export function createCalendar({
 }) {
 
 
-/*
- * ========================================
- * 選択日タイトル
- * ========================================
- */
-
-function updateSelectedDateTitle() {
-    const selectedDate =
-        getSelectedDate();
-
     /*
-     * 日付選択中
+     * ========================================
+     * 選択日タイトル
+     * ========================================
      */
 
-    if (
-        selectedDate
-    ) {
-        const year =
-            Number(
-                selectedDate.substring(
-                    0,
-                    4
-                )
+    function updateSelectedDateTitle() {
+        const selectedDate =
+            getSelectedDate();
+
+
+        /*
+         * 日付選択中
+         */
+
+        if (
+            selectedDate
+        ) {
+            const year =
+                Number(
+                    selectedDate.substring(
+                        0,
+                        4
+                    )
+                );
+
+            const month =
+                Number(
+                    selectedDate.substring(
+                        4,
+                        6
+                    )
+                );
+
+            const day =
+                Number(
+                    selectedDate.substring(
+                        6,
+                        8
+                    )
+                );
+
+            selectedDateTitle.textContent =
+                `${year}年${month}月${day}日のブログ`;
+
+            selectedDateTitle.classList.add(
+                "visible"
             );
 
-        const month =
-            Number(
-                selectedDate.substring(
-                    4,
-                    6
-                )
+            return;
+        }
+
+
+        /*
+         * 日付未選択
+         * → 表示中の月
+         */
+
+        const calendarYear =
+            getCalendarYear();
+
+        const calendarMonth =
+            getCalendarMonth();
+
+        if (
+            calendarYear ===
+                null ||
+            calendarMonth ===
+                null
+        ) {
+            selectedDateTitle.textContent =
+                "";
+
+            selectedDateTitle.classList.remove(
+                "visible"
             );
 
-        const day =
-            Number(
-                selectedDate.substring(
-                    6,
-                    8
-                )
-            );
+            return;
+        }
 
         selectedDateTitle.textContent =
-            `${year}年${month}月${day}日のブログ`;
+            `${calendarYear}年${calendarMonth}月のブログ`;
 
         selectedDateTitle.classList.add(
             "visible"
         );
-
-        return;
     }
-
-
-    /*
-     * 日付未選択
-     * → 表示中の月
-     */
-
-    const calendarYear =
-        getCalendarYear();
-
-    const calendarMonth =
-        getCalendarMonth();
-
-    if (
-        calendarYear ===
-            null ||
-        calendarMonth ===
-            null
-    ) {
-        selectedDateTitle.textContent =
-            "";
-
-        selectedDateTitle.classList.remove(
-            "visible"
-        );
-
-        return;
-    }
-
-    selectedDateTitle.textContent =
-        `${calendarYear}年${calendarMonth}月のブログ`;
-
-    selectedDateTitle.classList.add(
-        "visible"
-    );
-}
 
 
     /*
@@ -187,7 +188,7 @@ function updateSelectedDateTitle() {
 
         if (
             postMonths.length ===
-            0
+                0
         ) {
             return;
         }
@@ -210,7 +211,7 @@ function updateSelectedDateTitle() {
 
         if (
             currentIndex ===
-            -1
+                -1
         ) {
             return;
         }
@@ -222,7 +223,7 @@ function updateSelectedDateTitle() {
         if (
             nextIndex < 0 ||
             nextIndex >=
-            postMonths.length
+                postMonths.length
         ) {
             return;
         }
@@ -350,7 +351,7 @@ function updateSelectedDateTitle() {
 
         if (
             currentMonthIndex <=
-            0
+                0
         ) {
             prevButton.disabled =
                 true;
@@ -567,6 +568,7 @@ function updateSelectedDateTitle() {
                     "has-post"
                 );
 
+
                 /*
                  * メンバー未選択時も
                  * 投稿日はクリック可能
@@ -580,6 +582,7 @@ function updateSelectedDateTitle() {
                         );
                     }
                 );
+
 
                 /*
                  * 全メンバー投稿日
@@ -605,7 +608,7 @@ function updateSelectedDateTitle() {
 
             if (
                 selectedDate ===
-                dateKey
+                    dateKey
             ) {
                 button.classList.add(
                     "selected"

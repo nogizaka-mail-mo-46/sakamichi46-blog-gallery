@@ -173,6 +173,15 @@ body {
     background: #f5f5f5;
 }
 
+.calendar-nav:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.calendar-nav:disabled:hover {
+    background: #fff;
+}
+
 /* =========================
    ギャラリー
 ========================= */

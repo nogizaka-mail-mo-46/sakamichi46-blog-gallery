@@ -1,6 +1,12 @@
 import { members } from "../data/members.js";
 
 
+/*
+ * ========================================
+ * Google Access Token取得
+ * ========================================
+ */
+
 async function getGoogleAccessToken(env) {
     const tokenResponse = await fetch(
         "https://oauth2.googleapis.com/token",
@@ -46,6 +52,12 @@ async function getGoogleAccessToken(env) {
     return tokenData.access_token;
 }
 
+
+/*
+ * ========================================
+ * 指定フォルダ内の画像取得
+ * ========================================
+ */
 
 async function getImagesFromFolder(
     accessToken,
@@ -124,6 +136,56 @@ async function getImagesFromFolder(
 }
 
 
+/*
+ * ========================================
+ * 全メンバーの投稿日取得
+ * ========================================
+ */
+
+async function getAllPostDates(
+    accessToken
+) {
+    const postDates =
+        new Set();
+
+    for (
+        const member of
+        Object.values(members)
+    ) {
+        const images =
+            await getImagesFromFolder(
+                accessToken,
+                member.folderId
+            );
+
+        images.forEach(
+            (image) => {
+                const match =
+                    image.name.match(
+                        /^(\d{8})_/
+                    );
+
+                if (match) {
+                    postDates.add(
+                        match[1]
+                    );
+                }
+            }
+        );
+    }
+
+    return Array.from(
+        postDates
+    ).sort();
+}
+
+
+/*
+ * ========================================
+ * API
+ * ========================================
+ */
+
 export async function onRequestGet(context) {
     const {
         request,
@@ -134,40 +196,58 @@ export async function onRequestGet(context) {
         new URL(request.url);
 
     const memberKey =
-        url.searchParams.get("member");
-
-    if (!memberKey) {
-        return Response.json(
-            {
-                error:
-                    "memberが指定されていません。"
-            },
-            {
-                status: 400
-            }
+        url.searchParams.get(
+            "member"
         );
-    }
-
-    const member =
-        members[memberKey];
-
-    if (!member) {
-        return Response.json(
-            {
-                error:
-                    "存在しないメンバーです。"
-            },
-            {
-                status: 404
-            }
-        );
-    }
 
     try {
         const accessToken =
             await getGoogleAccessToken(
                 env
             );
+
+
+        /*
+         * ========================================
+         * メンバー未指定
+         *
+         * 全メンバーの投稿日だけ返す
+         * ========================================
+         */
+
+        if (!memberKey) {
+            const postDates =
+                await getAllPostDates(
+                    accessToken
+                );
+
+            return Response.json({
+                postDates:
+                    postDates
+            });
+        }
+
+
+        /*
+         * ========================================
+         * メンバー指定あり
+         * ========================================
+         */
+
+        const member =
+            members[memberKey];
+
+        if (!member) {
+            return Response.json(
+                {
+                    error:
+                        "存在しないメンバーです。"
+                },
+                {
+                    status: 404
+                }
+            );
+        }
 
         const images =
             await getImagesFromFolder(
@@ -177,11 +257,8 @@ export async function onRequestGet(context) {
 
         images.sort(
             (a, b) =>
-                new Date(
-                    b.createdTime
-                ) -
-                new Date(
-                    a.createdTime
+                b.name.localeCompare(
+                    a.name
                 )
         );
 
@@ -199,7 +276,9 @@ export async function onRequestGet(context) {
         });
 
     } catch (error) {
-        console.error(error);
+        console.error(
+            error
+        );
 
         return Response.json(
             {

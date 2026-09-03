@@ -1,3 +1,16 @@
+import {
+    createCalendar
+} from "./calendar.js";
+
+import {
+    createGallery
+} from "./gallery.js";
+
+import {
+    createLightbox
+} from "./lightbox.js";
+
+
 /*
  * ========================================
  * DOM
@@ -14,7 +27,7 @@ const sortSelect =
         "sortSelect"
     );
 
-const calendar =
+const calendarElement =
     document.getElementById(
         "calendar"
     );
@@ -24,30 +37,15 @@ const selectedDateTitle =
         "selectedDateTitle"
     );
 
-const gallery =
+const galleryElement =
     document.getElementById(
         "gallery"
-    );
-
-const lightbox =
-    document.getElementById(
-        "lightbox"
-    );
-
-const lightboxImage =
-    document.getElementById(
-        "lightboxImage"
-    );
-
-const imageCounter =
-    document.getElementById(
-        "imageCounter"
     );
 
 
 /*
  * ========================================
- * 画像・カレンダーデータ
+ * 状態
  * ========================================
  */
 
@@ -55,11 +53,7 @@ let images = [];
 
 let filteredImages = [];
 
-let imageIds = [];
-
 let allPostDates = [];
-
-let currentIndex = 0;
 
 let calendarYear = null;
 
@@ -70,18 +64,116 @@ let selectedDate = null;
 
 /*
  * ========================================
- * Google Drive画像URL
+ * ライトボックス
  * ========================================
  */
 
-function getThumbnailUrl(fileId) {
-    return `/image/${fileId}`;
-}
+const lightbox =
+    createLightbox();
 
 
 /*
  * ========================================
- * ページ初期化
+ * ギャラリー
+ * ========================================
+ */
+
+const gallery =
+    createGallery({
+        element:
+            galleryElement,
+
+        onImageClick:
+            (index) => {
+                lightbox.open(
+                    index
+                );
+            }
+    });
+
+
+/*
+ * ========================================
+ * カレンダー
+ * ========================================
+ */
+
+const calendar =
+    createCalendar({
+        element:
+            calendarElement,
+
+        selectedDateTitle:
+            selectedDateTitle,
+
+        getPostDates:
+            () =>
+                getPostDates(),
+
+        getCalendarYear:
+            () =>
+                calendarYear,
+
+        getCalendarMonth:
+            () =>
+                calendarMonth,
+
+        getSelectedDate:
+            () =>
+                selectedDate,
+
+        isMemberSelected:
+            () =>
+                Boolean(
+                    memberSelect.value
+                ),
+
+        onDateSelect:
+            (dateKey) => {
+                selectCalendarDate(
+                    dateKey
+                );
+            },
+
+        onMonthChange:
+            (year, month) => {
+                calendarYear =
+                    year;
+
+                calendarMonth =
+                    month;
+
+                selectedDate =
+                    null;
+
+                calendar.updateSelectedDateTitle();
+
+                calendar.render();
+
+                if (
+                    memberSelect.value
+                ) {
+                    updateImages();
+                }
+            },
+
+        onClearDate:
+            () => {
+                selectedDate =
+                    null;
+
+                calendar.updateSelectedDateTitle();
+
+                calendar.render();
+
+                updateImages();
+            }
+    });
+
+
+/*
+ * ========================================
+ * 初期化
  * ========================================
  */
 
@@ -158,7 +250,8 @@ async function loadMembers() {
  */
 
 async function loadAllPostDates() {
-    calendar.innerHTML = "";
+    calendarElement.innerHTML =
+        "";
 
     try {
         const response =
@@ -185,18 +278,18 @@ async function loadAllPostDates() {
         selectedDate =
             null;
 
-        updateSelectedDateTitle();
+        calendar.updateSelectedDateTitle();
 
         setInitialCalendarMonth();
 
-        renderCalendar();
+        calendar.render();
 
     } catch (error) {
         console.error(
             error
         );
 
-        calendar.textContent =
+        calendarElement.textContent =
             "カレンダーの読み込みに失敗しました。";
     }
 }
@@ -221,11 +314,13 @@ memberSelect.addEventListener(
 
         filteredImages = [];
 
-        imageIds = [];
+        calendar.updateSelectedDateTitle();
 
-        updateSelectedDateTitle();
+        gallery.clear();
 
-        clearGallery();
+        lightbox.setImages(
+            []
+        );
 
 
         /*
@@ -280,9 +375,9 @@ sortSelect.addEventListener(
 async function loadMemberImages(
     memberKey
 ) {
-    clearGallery();
+    gallery.clear();
 
-    calendar.innerHTML =
+    calendarElement.innerHTML =
         "読み込み中...";
 
     try {
@@ -310,11 +405,11 @@ async function loadMemberImages(
         selectedDate =
             null;
 
-        updateSelectedDateTitle();
+        calendar.updateSelectedDateTitle();
 
         setInitialCalendarMonth();
 
-        renderCalendar();
+        calendar.render();
 
         updateImages();
 
@@ -327,16 +422,19 @@ async function loadMemberImages(
 
         filteredImages = [];
 
-        imageIds = [];
-
         selectedDate =
             null;
 
-        updateSelectedDateTitle();
+        lightbox.setImages(
+            []
+        );
 
-        calendar.innerHTML = "";
+        calendar.updateSelectedDateTitle();
 
-        gallery.textContent =
+        calendarElement.innerHTML =
+            "";
+
+        galleryElement.textContent =
             "画像の読み込みに失敗しました。";
     }
 }
@@ -396,7 +494,7 @@ function getPostDates() {
 
 /*
  * ========================================
- * 投稿日が存在する月の取得
+ * 投稿日が存在する月
  * ========================================
  */
 
@@ -478,573 +576,6 @@ function setInitialCalendarMonth() {
 
 /*
  * ========================================
- * 選択中の日付タイトル
- * ========================================
- */
-
-function updateSelectedDateTitle() {
-    if (!selectedDate) {
-        selectedDateTitle.textContent =
-            "";
-
-        selectedDateTitle.classList.remove(
-            "visible"
-        );
-
-        return;
-    }
-
-    const year =
-        Number(
-            selectedDate.substring(
-                0,
-                4
-            )
-        );
-
-    const month =
-        Number(
-            selectedDate.substring(
-                4,
-                6
-            )
-        );
-
-    const day =
-        Number(
-            selectedDate.substring(
-                6,
-                8
-            )
-        );
-
-    selectedDateTitle.textContent =
-        `${year}年${month}月${day}日のブログ`;
-
-    selectedDateTitle.classList.add(
-        "visible"
-    );
-}
-
-
-/*
- * ========================================
- * カレンダー表示
- * ========================================
- */
-
-function renderCalendar() {
-    calendar.innerHTML = "";
-
-    if (
-        calendarYear === null ||
-        calendarMonth === null
-    ) {
-        return;
-    }
-
-    const postDates =
-        getPostDates();
-
-    const postMonths =
-        getPostMonths();
-
-    const currentMonthKey =
-        String(
-            calendarYear
-        ) +
-        String(
-            calendarMonth
-        ).padStart(
-            2,
-            "0"
-        );
-
-    const currentMonthIndex =
-        postMonths.indexOf(
-            currentMonthKey
-        );
-
-
-    /*
-     * ========================================
-     * ヘッダー
-     * ========================================
-     */
-
-    const header =
-        document.createElement(
-            "div"
-        );
-
-    header.className =
-        "calendar-header";
-
-
-    /*
-     * 前の投稿月
-     */
-
-    const prevButton =
-        document.createElement(
-            "button"
-        );
-
-    prevButton.type =
-        "button";
-
-    prevButton.className =
-        "calendar-nav";
-
-    prevButton.textContent =
-        "‹";
-
-    prevButton.addEventListener(
-        "click",
-        () => {
-            changeCalendarMonth(
-                -1
-            );
-        }
-    );
-
-    if (
-        currentMonthIndex <=
-        0
-    ) {
-        prevButton.disabled =
-            true;
-    }
-
-
-    /*
-     * 年月
-     */
-
-    const title =
-        document.createElement(
-            "div"
-        );
-
-    title.className =
-        "calendar-title";
-
-    title.textContent =
-        `${calendarYear}年${calendarMonth}月`;
-
-
-    /*
-     * 次の投稿月
-     */
-
-    const nextButton =
-        document.createElement(
-            "button"
-        );
-
-    nextButton.type =
-        "button";
-
-    nextButton.className =
-        "calendar-nav";
-
-    nextButton.textContent =
-        "›";
-
-    nextButton.addEventListener(
-        "click",
-        () => {
-            changeCalendarMonth(
-                1
-            );
-        }
-    );
-
-    if (
-        currentMonthIndex ===
-        -1 ||
-        currentMonthIndex >=
-        postMonths.length - 1
-    ) {
-        nextButton.disabled =
-            true;
-    }
-
-
-    /*
-     * ヘッダー追加
-     */
-
-    header.appendChild(
-        prevButton
-    );
-
-    header.appendChild(
-        title
-    );
-
-    header.appendChild(
-        nextButton
-    );
-
-    calendar.appendChild(
-        header
-    );
-
-
-    /*
-     * ========================================
-     * 曜日
-     * ========================================
-     */
-
-    const weekdayRow =
-        document.createElement(
-            "div"
-        );
-
-    weekdayRow.className =
-        "calendar-weekdays";
-
-    [
-        "日",
-        "月",
-        "火",
-        "水",
-        "木",
-        "金",
-        "土"
-    ].forEach(
-        (weekday) => {
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-            item.textContent =
-                weekday;
-
-            weekdayRow.appendChild(
-                item
-            );
-        }
-    );
-
-    calendar.appendChild(
-        weekdayRow
-    );
-
-
-    /*
-     * ========================================
-     * 日付
-     * ========================================
-     */
-
-    const days =
-        document.createElement(
-            "div"
-        );
-
-    days.className =
-        "calendar-days";
-
-    const firstDay =
-        new Date(
-            calendarYear,
-            calendarMonth - 1,
-            1
-        ).getDay();
-
-    const lastDate =
-        new Date(
-            calendarYear,
-            calendarMonth,
-            0
-        ).getDate();
-
-
-    /*
-     * 月初の空白
-     */
-
-    for (
-        let i = 0;
-        i < firstDay;
-        i++
-    ) {
-        const empty =
-            document.createElement(
-                "div"
-            );
-
-        empty.className =
-            "calendar-day empty";
-
-        days.appendChild(
-            empty
-        );
-    }
-
-
-    /*
-     * 1日〜月末
-     */
-
-    for (
-        let day = 1;
-        day <= lastDate;
-        day++
-    ) {
-        const button =
-            document.createElement(
-                "button"
-            );
-
-        button.type =
-            "button";
-
-        button.className =
-            "calendar-day";
-
-        button.textContent =
-            day;
-
-        const dateKey =
-            formatDateKey(
-                calendarYear,
-                calendarMonth,
-                day
-            );
-
-
-        /*
-         * 投稿日
-         */
-
-        if (
-            postDates.has(
-                dateKey
-            )
-        ) {
-            button.classList.add(
-                "has-post"
-            );
-
-
-            /*
-             * メンバー選択中のみ
-             * 日付絞り込み可能
-             */
-
-            if (
-                memberSelect.value
-            ) {
-                button.addEventListener(
-                    "click",
-                    () => {
-                        selectCalendarDate(
-                            dateKey
-                        );
-                    }
-                );
-            } else {
-                button.classList.add(
-                    "all-members-post"
-                );
-            }
-
-        } else {
-            button.disabled =
-                true;
-        }
-
-
-        /*
-         * 選択中の日
-         */
-
-        if (
-            selectedDate ===
-            dateKey
-        ) {
-            button.classList.add(
-                "selected"
-            );
-        }
-
-        days.appendChild(
-            button
-        );
-    }
-
-    calendar.appendChild(
-        days
-    );
-
-
-    /*
-     * ========================================
-     * 日付絞り込み解除
-     * ========================================
-     */
-
-    if (
-        selectedDate &&
-        memberSelect.value
-    ) {
-        const clearButton =
-            document.createElement(
-                "button"
-            );
-
-        clearButton.type =
-            "button";
-
-        clearButton.className =
-            "calendar-clear";
-
-        clearButton.textContent =
-            "すべて表示";
-
-        clearButton.addEventListener(
-            "click",
-            () => {
-                selectedDate =
-                    null;
-
-                updateSelectedDateTitle();
-
-                renderCalendar();
-
-                updateImages();
-            }
-        );
-
-        calendar.appendChild(
-            clearButton
-        );
-    }
-}
-
-
-/*
- * ========================================
- * 日付キー生成
- * ========================================
- */
-
-function formatDateKey(
-    year,
-    month,
-    day
-) {
-    return (
-        String(year) +
-        String(month).padStart(
-            2,
-            "0"
-        ) +
-        String(day).padStart(
-            2,
-            "0"
-        )
-    );
-}
-
-
-/*
- * ========================================
- * 投稿月へ移動
- * ========================================
- */
-
-function changeCalendarMonth(
-    offset
-) {
-    const postMonths =
-        getPostMonths();
-
-    if (
-        postMonths.length ===
-        0
-    ) {
-        return;
-    }
-
-    const currentMonth =
-        String(
-            calendarYear
-        ) +
-        String(
-            calendarMonth
-        ).padStart(
-            2,
-            "0"
-        );
-
-    const currentIndex =
-        postMonths.indexOf(
-            currentMonth
-        );
-
-    if (
-        currentIndex ===
-        -1
-    ) {
-        return;
-    }
-
-    const nextIndex =
-        currentIndex +
-        offset;
-
-    if (
-        nextIndex < 0 ||
-        nextIndex >=
-        postMonths.length
-    ) {
-        return;
-    }
-
-    const nextMonth =
-        postMonths[
-            nextIndex
-        ];
-
-    calendarYear =
-        Number(
-            nextMonth.substring(
-                0,
-                4
-            )
-        );
-
-    calendarMonth =
-        Number(
-            nextMonth.substring(
-                4,
-                6
-            )
-        );
-
-    selectedDate =
-        null;
-
-    updateSelectedDateTitle();
-
-    renderCalendar();
-
-    if (
-        memberSelect.value
-    ) {
-        updateImages();
-    }
-}
-
-
-/*
- * ========================================
  * 日付選択
  * ========================================
  */
@@ -1063,9 +594,9 @@ function selectCalendarDate(
             dateKey;
     }
 
-    updateSelectedDateTitle();
+    calendar.updateSelectedDateTitle();
 
-    renderCalendar();
+    calendar.render();
 
     updateImages();
 }
@@ -1073,12 +604,12 @@ function selectCalendarDate(
 
 /*
  * ========================================
- * 絞り込み・並び替え
+ * 画像絞り込み・並び替え
  * ========================================
  */
 
 function updateImages() {
-    updateSelectedDateTitle();
+    calendar.updateSelectedDateTitle();
 
     if (
         selectedDate
@@ -1117,394 +648,20 @@ function updateImages() {
         }
     );
 
-    imageIds =
+    const imageIds =
         filteredImages.map(
             (image) =>
                 image.id
         );
 
-    renderGallery();
-}
+    lightbox.setImages(
+        imageIds
+    );
 
-
-/*
- * ========================================
- * ギャラリー初期化
- * ========================================
- */
-
-function clearGallery() {
-    gallery.innerHTML =
-        "";
-}
-
-
-/*
- * ========================================
- * ギャラリー表示
- * ========================================
- */
-
-function renderGallery() {
-    clearGallery();
-
-    if (
-        imageIds.length ===
-        0
-    ) {
-        if (
+    gallery.render(
+        imageIds,
+        Boolean(
             memberSelect.value
-        ) {
-            gallery.textContent =
-                "画像がありません。";
-        }
-
-        return;
-    }
-
-    imageIds.forEach(
-        (fileId, index) => {
-            const item =
-                document.createElement(
-                    "div"
-                );
-
-            item.className =
-                "gallery-item";
-
-            const img =
-                document.createElement(
-                    "img"
-                );
-
-            img.src =
-                getThumbnailUrl(
-                    fileId
-                );
-
-            img.alt =
-                `画像 ${index + 1}`;
-
-            img.loading =
-                "lazy";
-
-            img.decoding =
-                "async";
-
-            item.addEventListener(
-                "click",
-                () => {
-                    openLightbox(
-                        index
-                    );
-                }
-            );
-
-            item.appendChild(
-                img
-            );
-
-            gallery.appendChild(
-                item
-            );
-        }
+        )
     );
-}
-
-
-/*
- * ========================================
- * ライトボックスを開く
- * ========================================
- */
-
-function openLightbox(
-    index
-) {
-    if (
-        imageIds.length ===
-        0
-    ) {
-        return;
-    }
-
-    currentIndex =
-        index;
-
-    updateLightbox();
-
-    lightbox.classList.add(
-        "active"
-    );
-
-    document.body.style.overflow =
-        "hidden";
-}
-
-
-/*
- * ========================================
- * ライトボックスを閉じる
- * ========================================
- */
-
-function closeLightbox() {
-    lightbox.classList.remove(
-        "active"
-    );
-
-    document.body.style.overflow =
-        "";
-}
-
-
-/*
- * ========================================
- * ライトボックス更新
- * ========================================
- */
-
-function updateLightbox() {
-    const fileId =
-        imageIds[
-            currentIndex
-        ];
-
-    lightboxImage.src =
-        getThumbnailUrl(
-            fileId
-        );
-
-    lightboxImage.alt =
-        `画像 ${currentIndex + 1}`;
-
-    imageCounter.textContent =
-        `${currentIndex + 1} / ${imageIds.length}`;
-}
-
-
-/*
- * ========================================
- * 前の画像
- * ========================================
- */
-
-function showPrevious() {
-    if (
-        imageIds.length ===
-        0
-    ) {
-        return;
-    }
-
-    currentIndex--;
-
-    if (
-        currentIndex < 0
-    ) {
-        currentIndex =
-            imageIds.length - 1;
-    }
-
-    updateLightbox();
-}
-
-
-/*
- * ========================================
- * 次の画像
- * ========================================
- */
-
-function showNext() {
-    if (
-        imageIds.length ===
-        0
-    ) {
-        return;
-    }
-
-    currentIndex++;
-
-    if (
-        currentIndex >=
-        imageIds.length
-    ) {
-        currentIndex =
-            0;
-    }
-
-    updateLightbox();
-}
-
-
-/*
- * ========================================
- * 閉じるボタン
- * ========================================
- */
-
-document
-    .getElementById(
-        "closeButton"
-    )
-    .addEventListener(
-        "click",
-        closeLightbox
-    );
-
-
-/*
- * ========================================
- * 前へボタン
- * ========================================
- */
-
-document
-    .getElementById(
-        "prevButton"
-    )
-    .addEventListener(
-        "click",
-        showPrevious
-    );
-
-
-/*
- * ========================================
- * 次へボタン
- * ========================================
- */
-
-document
-    .getElementById(
-        "nextButton"
-    )
-    .addEventListener(
-        "click",
-        showNext
-    );
-
-
-/*
- * ========================================
- * 背景クリックで閉じる
- * ========================================
- */
-
-lightbox.addEventListener(
-    "click",
-    (event) => {
-        if (
-            event.target ===
-            lightbox
-        ) {
-            closeLightbox();
-        }
-    }
-);
-
-
-/*
- * ========================================
- * キーボード操作
- * ========================================
- */
-
-document.addEventListener(
-    "keydown",
-    (event) => {
-        if (
-            !lightbox.classList.contains(
-                "active"
-            )
-        ) {
-            return;
-        }
-
-        if (
-            event.key ===
-            "Escape"
-        ) {
-            closeLightbox();
-        }
-
-        if (
-            event.key ===
-            "ArrowLeft"
-        ) {
-            showPrevious();
-        }
-
-        if (
-            event.key ===
-            "ArrowRight"
-        ) {
-            showNext();
-        }
-    }
-);
-
-
-/*
- * ========================================
- * スマホのスワイプ操作
- * ========================================
- */
-
-let touchStartX =
-    0;
-
-let touchEndX =
-    0;
-
-
-lightbox.addEventListener(
-    "touchstart",
-    (event) => {
-        touchStartX =
-            event
-                .changedTouches[0]
-                .screenX;
-    }
-);
-
-
-lightbox.addEventListener(
-    "touchend",
-    (event) => {
-        touchEndX =
-            event
-                .changedTouches[0]
-                .screenX;
-
-        handleSwipe();
-    }
-);
-
-
-/*
- * ========================================
- * スワイプ判定
- * ========================================
- */
-
-function handleSwipe() {
-    const difference =
-        touchEndX -
-        touchStartX;
-
-    if (
-        difference <
-        -50
-    ) {
-        showNext();
-    }
-
-    if (
-        difference >
-        50
-    ) {
-        showPrevious();
-    }
 }

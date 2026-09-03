@@ -1,0 +1,289 @@
+/*
+ * ========================================
+ * メンバー選択
+ * ========================================
+ */
+
+const memberSelect = document.getElementById("memberSelect");
+
+memberSelect.addEventListener("change", async () => {
+    const member = memberSelect.value;
+
+    if (!member) {
+        return;
+    }
+
+    console.log("selected member:", member);
+});
+
+
+/*
+ * ========================================
+ * Google Drive画像のファイルID
+ * ========================================
+ *
+ * ここに表示したい画像のIDを追加するだけ。
+ *
+ */
+
+const imageIds = [
+    // 現在テストできている画像
+    "18M8jhD8mKgmI9_bfN-RL9e5NgKwSFTSU",
+    "1zuHEWysXZU8NzTB5yhpvOOrgCzOTBBfk",
+    "1KZdUpX5aC7s5lwsk8UX4Yey26-Ro-NX5",
+    "1nwbhIdXDh6q0x72st_rpvIjjeBlPQ9LD",
+    "1QoXpapPyHF3_00Y7L_OHLij89oMsZOVr",
+    "1g435MDSo0lLYg7MHBK2KpHAFmKr1Iab3"
+];
+
+
+/*
+ * ========================================
+ * Google Drive画像URL
+ * ========================================
+ */
+
+function getThumbnailUrl(fileId) {
+    return `/image/${fileId}`;
+}
+
+
+/*
+ * ========================================
+ * ギャラリー生成
+ * ========================================
+ */
+
+const gallery = document.getElementById("gallery");
+
+imageIds.forEach((fileId, index) => {
+    const item = document.createElement("div");
+
+    item.className = "gallery-item";
+
+    const img = document.createElement("img");
+
+    img.src = getThumbnailUrl(fileId);
+    img.alt = `画像 ${index + 1}`;
+
+    /*
+     * 画面に近づいたときに読み込む
+     */
+    img.loading = "lazy";
+    img.decoding = "async";
+
+    /*
+     * 画像クリック
+     */
+    item.addEventListener("click", () => {
+        openLightbox(index);
+    });
+
+    item.appendChild(img);
+
+    gallery.appendChild(item);
+});
+
+
+/*
+ * ========================================
+ * ライトボックス
+ * ========================================
+ */
+
+const lightbox = document.getElementById("lightbox");
+
+const lightboxImage = document.getElementById("lightboxImage");
+
+const imageCounter = document.getElementById("imageCounter");
+
+let currentIndex = 0;
+
+
+function openLightbox(index) {
+    if (imageIds.length === 0) {
+        return;
+    }
+
+    currentIndex = index;
+
+    updateLightbox();
+
+    lightbox.classList.add("active");
+
+    document.body.style.overflow = "hidden";
+}
+
+
+function closeLightbox() {
+    lightbox.classList.remove("active");
+
+    document.body.style.overflow = "";
+}
+
+
+function updateLightbox() {
+    const fileId = imageIds[currentIndex];
+
+    lightboxImage.src = getThumbnailUrl(fileId);
+
+    lightboxImage.alt = `画像 ${currentIndex + 1}`;
+
+    imageCounter.textContent =
+        `${currentIndex + 1} / ${imageIds.length}`;
+}
+
+
+/*
+ * ========================================
+ * 前へ
+ * ========================================
+ */
+
+function showPrevious() {
+    if (imageIds.length === 0) {
+        return;
+    }
+
+    currentIndex--;
+
+    if (currentIndex < 0) {
+        currentIndex = imageIds.length - 1;
+    }
+
+    updateLightbox();
+}
+
+
+/*
+ * ========================================
+ * 次へ
+ * ========================================
+ */
+
+function showNext() {
+    if (imageIds.length === 0) {
+        return;
+    }
+
+    currentIndex++;
+
+    if (currentIndex >= imageIds.length) {
+        currentIndex = 0;
+    }
+
+    updateLightbox();
+}
+
+
+/*
+ * ========================================
+ * ボタン
+ * ========================================
+ */
+
+document
+    .getElementById("closeButton")
+    .addEventListener(
+        "click",
+        closeLightbox
+    );
+
+document
+    .getElementById("prevButton")
+    .addEventListener(
+        "click",
+        showPrevious
+    );
+
+document
+    .getElementById("nextButton")
+    .addEventListener(
+        "click",
+        showNext
+    );
+
+
+/*
+ * ========================================
+ * 背景クリックで閉じる
+ * ========================================
+ */
+
+lightbox.addEventListener("click", (event) => {
+    if (event.target === lightbox) {
+        closeLightbox();
+    }
+});
+
+
+/*
+ * ========================================
+ * キーボード操作
+ * ========================================
+ *
+ * ← 前の画像
+ * → 次の画像
+ * ESC 閉じる
+ *
+ */
+
+document.addEventListener("keydown", (event) => {
+    if (!lightbox.classList.contains("active")) {
+        return;
+    }
+
+    if (event.key === "Escape") {
+        closeLightbox();
+    }
+
+    if (event.key === "ArrowLeft") {
+        showPrevious();
+    }
+
+    if (event.key === "ArrowRight") {
+        showNext();
+    }
+});
+
+
+/*
+ * ========================================
+ * スマホのスワイプ操作
+ * ========================================
+ */
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+lightbox.addEventListener("touchstart", (event) => {
+    touchStartX =
+        event.changedTouches[0].screenX;
+});
+
+lightbox.addEventListener("touchend", (event) => {
+    touchEndX =
+        event.changedTouches[0].screenX;
+
+    handleSwipe();
+});
+
+
+function handleSwipe() {
+    const difference =
+        touchEndX - touchStartX;
+
+    /*
+     * 左スワイプ → 次
+     */
+    if (difference < -50) {
+        showNext();
+    }
+
+    /*
+     * 右スワイプ → 前
+     */
+    if (difference > 50) {
+        showPrevious();
+    }
+}

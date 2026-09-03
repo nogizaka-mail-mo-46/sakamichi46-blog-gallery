@@ -491,6 +491,7 @@ async function getCachedCalendarResponse(
  */
 
 async function createAndCacheCalendarResponse(
+    context,
     request,
     accessToken,
     group
@@ -524,9 +525,11 @@ async function createAndCacheCalendarResponse(
             group
         );
 
-    await cache.put(
-        cacheKey,
-        response.clone()
+    context.waitUntil(
+        cache.put(
+            cacheKey,
+            response.clone()
+        )
     );
 
     return response;
@@ -540,6 +543,7 @@ async function createAndCacheCalendarResponse(
  */
 
 async function createAndCacheMemberCalendarResponse(
+    context,
     request,
     accessToken,
     group,
@@ -584,9 +588,11 @@ async function createAndCacheMemberCalendarResponse(
             memberKey
         );
 
-    await cache.put(
-        cacheKey,
-        response.clone()
+    context.waitUntil(
+        cache.put(
+            cacheKey,
+            response.clone()
+        )
     );
 
     return response;
@@ -889,7 +895,7 @@ export async function onRequestGet(
      *
      * member/date/monthすべて未指定
      *
-     * ここだけGoogle Token取得より先に
+     * Google Token取得より先に
      * Cloudflare Cacheを見る
      * ========================================
      */
@@ -905,6 +911,7 @@ export async function onRequestGet(
                     request,
                     group
                 );
+
 
             /*
              * キャッシュヒット
@@ -931,6 +938,7 @@ export async function onRequestGet(
                 );
 
             return await createAndCacheCalendarResponse(
+                context,
                 request,
                 accessToken,
                 group
@@ -955,6 +963,14 @@ export async function onRequestGet(
             );
         }
     }
+
+
+    /*
+     * ========================================
+     * メンバーカレンダー投稿日一覧
+     * ========================================
+     */
+
     if (
         memberKey &&
         !date &&
@@ -1017,6 +1033,7 @@ export async function onRequestGet(
                 );
 
             return await createAndCacheMemberCalendarResponse(
+                context,
                 request,
                 accessToken,
                 group,
@@ -1116,6 +1133,7 @@ export async function onRequestGet(
             ) {
                 namePrefix =
                     `${date}_`;
+
             } else if (
                 month
             ) {

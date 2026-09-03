@@ -245,6 +245,46 @@ function getTargetMembers(
 
 /*
  * ========================================
+ * 一定件数ずつ並列処理
+ * ========================================
+ */
+
+async function processInBatches(
+    items,
+    batchSize,
+    processor
+) {
+    const results = [];
+
+    for (
+        let i = 0;
+        i < items.length;
+        i += batchSize
+    ) {
+        const batch =
+            items.slice(
+                i,
+                i + batchSize
+            );
+
+        const batchResults =
+            await Promise.all(
+                batch.map(
+                    processor
+                )
+            );
+
+        results.push(
+            ...batchResults
+        );
+    }
+
+    return results;
+}
+
+
+/*
+ * ========================================
  * 投稿日取得
  * ========================================
  */
@@ -426,6 +466,8 @@ async function createAndCacheCalendarResponse(
 /*
  * ========================================
  * 指定日の画像取得
+ *
+ * 5メンバーずつ並列取得
  * ========================================
  */
 
@@ -434,8 +476,6 @@ async function getImagesByDate(
     date,
     group
 ) {
-    const result = [];
-
     const targetMembers =
         getTargetMembers(
             group
@@ -444,46 +484,50 @@ async function getImagesByDate(
     const namePrefix =
         `${date}_`;
 
-    for (
-        const [
-            memberKey,
-            member
-        ] of targetMembers
-    ) {
-        const images =
-            await getImagesFromFolder(
-                accessToken,
-                member.folderId,
-                namePrefix
-            );
+    const memberResults =
+        await processInBatches(
+            targetMembers,
+            5,
+            async ([
+                memberKey,
+                member
+            ]) => {
+                const images =
+                    await getImagesFromFolder(
+                        accessToken,
+                        member.folderId,
+                        namePrefix
+                    );
 
-        images.forEach(
-            (image) => {
-                result.push({
-                    id:
-                        image.id,
+                return images.map(
+                    (image) => ({
+                        id:
+                            image.id,
 
-                    name:
-                        image.name,
+                        name:
+                            image.name,
 
-                    mimeType:
-                        image.mimeType,
+                        mimeType:
+                            image.mimeType,
 
-                    createdTime:
-                        image.createdTime,
+                        createdTime:
+                            image.createdTime,
 
-                    memberKey:
-                        memberKey,
+                        memberKey:
+                            memberKey,
 
-                    memberName:
-                        member.name,
+                        memberName:
+                            member.name,
 
-                    group:
-                        member.group
-                });
+                        group:
+                            member.group
+                    })
+                );
             }
         );
-    }
+
+    const result =
+        memberResults.flat();
 
     result.sort(
         (a, b) =>
@@ -499,6 +543,8 @@ async function getImagesByDate(
 /*
  * ========================================
  * 指定月の画像取得
+ *
+ * 5メンバーずつ並列取得
  * ========================================
  */
 
@@ -507,53 +553,55 @@ async function getImagesByMonth(
     month,
     group
 ) {
-    const result = [];
-
     const targetMembers =
         getTargetMembers(
             group
         );
 
-    for (
-        const [
-            memberKey,
-            member
-        ] of targetMembers
-    ) {
-        const images =
-            await getImagesFromFolder(
-                accessToken,
-                member.folderId,
-                month
-            );
+    const memberResults =
+        await processInBatches(
+            targetMembers,
+            5,
+            async ([
+                memberKey,
+                member
+            ]) => {
+                const images =
+                    await getImagesFromFolder(
+                        accessToken,
+                        member.folderId,
+                        month
+                    );
 
-        images.forEach(
-            (image) => {
-                result.push({
-                    id:
-                        image.id,
+                return images.map(
+                    (image) => ({
+                        id:
+                            image.id,
 
-                    name:
-                        image.name,
+                        name:
+                            image.name,
 
-                    mimeType:
-                        image.mimeType,
+                        mimeType:
+                            image.mimeType,
 
-                    createdTime:
-                        image.createdTime,
+                        createdTime:
+                            image.createdTime,
 
-                    memberKey:
-                        memberKey,
+                        memberKey:
+                            memberKey,
 
-                    memberName:
-                        member.name,
+                        memberName:
+                            member.name,
 
-                    group:
-                        member.group
-                });
+                        group:
+                            member.group
+                    })
+                );
             }
         );
-    }
+
+    const result =
+        memberResults.flat();
 
     result.sort(
         (a, b) =>

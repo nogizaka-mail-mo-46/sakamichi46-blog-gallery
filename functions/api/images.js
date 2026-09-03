@@ -66,13 +66,38 @@ async function getGoogleAccessToken(
 
 /*
  * ========================================
+ * Drive検索用文字列のエスケープ
+ * ========================================
+ */
+
+function escapeDriveQueryValue(
+    value
+) {
+    return value
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
+}
+
+
+/*
+ * ========================================
  * 指定フォルダ内の画像取得
+ *
+ * namePrefixを指定した場合は
+ * Google Drive側で先に候補を絞る
  * ========================================
  */
 
 async function getImagesFromFolder(
     accessToken,
-    folderId
+    folderId,
+    namePrefix = null
 ) {
     const images = [];
 
@@ -80,10 +105,25 @@ async function getImagesFromFolder(
         null;
 
     do {
+        const queryParts = [
+            `'${escapeDriveQueryValue(folderId)}' in parents`,
+            "trashed = false"
+        ];
+
+        if (
+            namePrefix
+        ) {
+            queryParts.push(
+                `name contains '${escapeDriveQueryValue(namePrefix)}'`
+            );
+        }
+
         const params =
             new URLSearchParams({
                 q:
-                    `'${folderId}' in parents and trashed = false`,
+                    queryParts.join(
+                        " and "
+                    ),
 
                 pageSize:
                     "1000",
@@ -133,11 +173,36 @@ async function getImagesFromFolder(
 
         const imageFiles =
             driveData.files.filter(
-                (file) =>
-                    file.mimeType &&
-                    file.mimeType.startsWith(
-                        "image/"
-                    )
+                (file) => {
+                    if (
+                        !file.mimeType ||
+                        !file.mimeType.startsWith(
+                            "image/"
+                        )
+                    ) {
+                        return false;
+                    }
+
+                    /*
+                     * Driveの contains は
+                     * 前方一致専用ではないため、
+                     * 最後にstartsWithで厳密チェック
+                     */
+
+                    if (
+                        namePrefix &&
+                        (
+                            !file.name ||
+                            !file.name.startsWith(
+                                namePrefix
+                            )
+                        )
+                    ) {
+                        return false;
+                    }
+
+                    return true;
+                }
             );
 
         images.push(
@@ -190,6 +255,9 @@ function getTargetMembers(
 /*
  * ========================================
  * 投稿日取得
+ *
+ * カレンダー作成用なので
+ * ここだけは全期間を見る必要がある
  * ========================================
  */
 
@@ -265,6 +333,9 @@ async function getImagesByDate(
             group
         );
 
+    const namePrefix =
+        `${date}_`;
+
     for (
         const [
             memberKey,
@@ -274,19 +345,11 @@ async function getImagesByDate(
         const images =
             await getImagesFromFolder(
                 accessToken,
-                member.folderId
+                member.folderId,
+                namePrefix
             );
 
-        const matchedImages =
-            images.filter(
-                (image) =>
-                    image.name &&
-                    image.name.startsWith(
-                        `${date}_`
-                    )
-            );
-
-        matchedImages.forEach(
+        images.forEach(
             (image) => {
                 result.push({
                     id:
@@ -352,19 +415,11 @@ async function getImagesByMonth(
         const images =
             await getImagesFromFolder(
                 accessToken,
-                member.folderId
+                member.folderId,
+                month
             );
 
-        const matchedImages =
-            images.filter(
-                (image) =>
-                    image.name &&
-                    image.name.startsWith(
-                        month
-                    )
-            );
-
-        matchedImages.forEach(
+        images.forEach(
             (image) => {
                 result.push({
                     id:
@@ -578,12 +633,6 @@ export async function onRequestGet(
                 );
             }
 
-
-            /*
-             * groupとmemberの
-             * 組み合わせチェック
-             */
-
             if (
                 group &&
                 member.group !==
@@ -602,15 +651,37 @@ export async function onRequestGet(
             }
 
 
+            /*
+             * date/monthに応じて
+             * Drive側で先に絞る
+             */
+
+            let namePrefix =
+                null;
+
+            if (
+                date
+            ) {
+                namePrefix =
+                    `${date}_`;
+            } else if (
+                month
+            ) {
+                namePrefix =
+                    month;
+            }
+
+
             let images =
                 await getImagesFromFolder(
                     accessToken,
-                    member.folderId
+                    member.folderId,
+                    namePrefix
                 );
 
 
             /*
-             * date指定あり
+             * 念のため最終チェック
              */
 
             if (
@@ -625,11 +696,6 @@ export async function onRequestGet(
                             )
                     );
             }
-
-
-            /*
-             * month指定あり
-             */
 
             if (
                 month
@@ -741,7 +807,7 @@ export async function onRequestGet(
          * ========================================
          * date・month指定なし
          *
-         * 投稿日一覧
+         * カレンダー用投稿日一覧
          * ========================================
          */
 

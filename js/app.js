@@ -17,6 +17,11 @@ import {
  * ========================================
  */
 
+const groupSelect =
+    document.getElementById(
+        "groupSelect"
+    );
+
 const memberSelect =
     document.getElementById(
         "memberSelect"
@@ -148,9 +153,9 @@ const calendar =
 
                 calendar.updateSelectedDateTitle();
 
+
                 /*
-                 * メンバー未選択時は
-                 * 日付検索で取得した画像を消す
+                 * メンバー未選択
                  */
 
                 if (
@@ -167,11 +172,12 @@ const calendar =
                     );
                 }
 
+
                 calendar.render();
 
+
                 /*
-                 * メンバー選択中は
-                 * 画像一覧を全件表示へ戻す
+                 * メンバー選択中
                  */
 
                 if (
@@ -197,10 +203,68 @@ const calendar =
 async function initialize() {
     await loadMembers();
 
-    await loadAllPostDates();
+    await loadGroupPostDates();
 }
 
 initialize();
+
+
+/*
+ * ========================================
+ * グループ変更
+ * ========================================
+ */
+
+groupSelect.addEventListener(
+    "change",
+    async () => {
+        /*
+         * 状態リセット
+         */
+
+        memberSelect.value =
+            "";
+
+        images = [];
+
+        filteredImages = [];
+
+        allPostDates = [];
+
+        selectedDate =
+            null;
+
+        calendarYear =
+            null;
+
+        calendarMonth =
+            null;
+
+        gallery.clear();
+
+        lightbox.setImages(
+            []
+        );
+
+        calendar.updateSelectedDateTitle();
+
+
+        /*
+         * 選択グループの
+         * メンバー一覧取得
+         */
+
+        await loadMembers();
+
+
+        /*
+         * 選択グループの
+         * 投稿日取得
+         */
+
+        await loadGroupPostDates();
+    }
+);
 
 
 /*
@@ -210,10 +274,37 @@ initialize();
  */
 
 async function loadMembers() {
+    const group =
+        groupSelect.value;
+
+
+    /*
+     * 既存option削除
+     */
+
+    memberSelect.innerHTML =
+        "";
+
+    const placeholder =
+        document.createElement(
+            "option"
+        );
+
+    placeholder.value =
+        "";
+
+    placeholder.textContent =
+        "メンバーを選択";
+
+    memberSelect.appendChild(
+        placeholder
+    );
+
+
     try {
         const response =
             await fetch(
-                "/api/members"
+                `/api/members?group=${encodeURIComponent(group)}`
             );
 
         if (
@@ -266,25 +357,30 @@ async function loadMembers() {
 
 /*
  * ========================================
- * 全メンバーの投稿日取得
+ * 選択グループの投稿日取得
  * ========================================
  */
 
-async function loadAllPostDates() {
+async function loadGroupPostDates() {
+    const group =
+        groupSelect.value;
+
     calendarElement.innerHTML =
-        "";
+        "読み込み中...";
+
+    gallery.clear();
 
     try {
         const response =
             await fetch(
-                "/api/images"
+                `/api/images?group=${encodeURIComponent(group)}`
             );
 
         if (
             !response.ok
         ) {
             throw new Error(
-                "全メンバーの投稿日取得に失敗しました。"
+                "投稿日取得に失敗しました。"
             );
         }
 
@@ -324,6 +420,8 @@ async function loadAllPostDates() {
             error
         );
 
+        allPostDates = [];
+
         calendarElement.textContent =
             "カレンダーの読み込みに失敗しました。";
     }
@@ -332,7 +430,7 @@ async function loadAllPostDates() {
 
 /*
  * ========================================
- * メンバー選択
+ * メンバー変更
  * ========================================
  */
 
@@ -360,12 +458,15 @@ memberSelect.addEventListener(
 
         /*
          * メンバー未選択
+         *
+         * 選択グループ全体の
+         * カレンダーへ戻る
          */
 
         if (
             !member
         ) {
-            await loadAllPostDates();
+            await loadGroupPostDates();
 
             return;
         }
@@ -412,6 +513,9 @@ sortSelect.addEventListener(
 async function loadMemberImages(
     memberKey
 ) {
+    const group =
+        groupSelect.value;
+
     gallery.clear();
 
     calendarElement.innerHTML =
@@ -420,7 +524,7 @@ async function loadMemberImages(
     try {
         const response =
             await fetch(
-                `/api/images?member=${encodeURIComponent(memberKey)}`
+                `/api/images?group=${encodeURIComponent(group)}&member=${encodeURIComponent(memberKey)}`
             );
 
         if (
@@ -483,20 +587,24 @@ async function loadMemberImages(
 
 /*
  * ========================================
- * 指定日の全メンバー画像取得
+ * 指定日の
+ * グループ全メンバー画像取得
  * ========================================
  */
 
-async function loadAllMemberImagesByDate(
+async function loadGroupImagesByDate(
     dateKey
 ) {
+    const group =
+        groupSelect.value;
+
     galleryElement.textContent =
         "読み込み中...";
 
     try {
         const response =
             await fetch(
-                `/api/images?date=${encodeURIComponent(dateKey)}`
+                `/api/images?group=${encodeURIComponent(group)}&date=${encodeURIComponent(dateKey)}`
             );
 
         if (
@@ -588,6 +696,8 @@ function getPostDates() {
 
     /*
      * メンバー未選択
+     *
+     * 選択グループ全体
      */
 
     return new Set(
@@ -689,7 +799,6 @@ async function selectCalendarDate(
 ) {
     /*
      * 同じ日を再クリック
-     * → 選択解除
      */
 
     if (
@@ -702,10 +811,6 @@ async function selectCalendarDate(
     }
 
 
-    /*
-     * 新しい日付を選択
-     */
-
     selectedDate =
         dateKey;
 
@@ -716,9 +821,6 @@ async function selectCalendarDate(
 
     /*
      * メンバー選択中
-     *
-     * すでに全画像を取得済みなので
-     * クライアント側で絞り込み
      */
 
     if (
@@ -733,11 +835,11 @@ async function selectCalendarDate(
     /*
      * メンバー未選択
      *
-     * 選択日の全メンバー画像だけ
-     * APIから取得
+     * 選択グループの
+     * その日の画像を取得
      */
 
-    await loadAllMemberImagesByDate(
+    await loadGroupImagesByDate(
         dateKey
     );
 }
@@ -758,8 +860,6 @@ function clearSelectedDate() {
 
     /*
      * メンバー選択中
-     *
-     * 全画像表示へ戻る
      */
 
     if (
@@ -775,9 +875,6 @@ function clearSelectedDate() {
 
     /*
      * メンバー未選択
-     *
-     * 日付検索で取得した画像を消して
-     * カレンダーのみへ戻る
      */
 
     images = [];
@@ -803,13 +900,10 @@ function clearSelectedDate() {
 function updateImages() {
     calendar.updateSelectedDateTitle();
 
+
     /*
-     * メンバー選択中の場合のみ
-     * selectedDateで絞り込む
-     *
-     * メンバー未選択の場合は
-     * APIですでにその日の画像だけ
-     * 取得している
+     * メンバー選択中のみ
+     * 日付で絞り込み
      */
 
     if (
@@ -829,6 +923,11 @@ function updateImages() {
             ...images
         ];
     }
+
+
+    /*
+     * 並び替え
+     */
 
     const sortOrder =
         sortSelect.value;
@@ -850,6 +949,11 @@ function updateImages() {
         }
     );
 
+
+    /*
+     * Lightbox
+     */
+
     const imageIds =
         filteredImages.map(
             (image) =>
@@ -859,6 +963,11 @@ function updateImages() {
     lightbox.setImages(
         imageIds
     );
+
+
+    /*
+     * Gallery
+     */
 
     gallery.render(
         imageIds,

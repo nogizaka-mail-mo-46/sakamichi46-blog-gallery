@@ -88,6 +88,7 @@ let calendarMonth = null;
 
 let selectedDate = null;
 
+let galleryScrollPosition = 0;
 
 /*
  * ========================================
@@ -974,6 +975,14 @@ blogDetailBackButton.addEventListener(
 
         blogDetail.innerHTML =
             "";
+
+        window.scrollTo({
+            top:
+                galleryScrollPosition,
+
+            behavior:
+                "auto"
+        });
     }
 );
 
@@ -1249,6 +1258,9 @@ function renderBlogDetail(
      * ========================================
      */
 
+    galleryScrollPosition =
+        window.scrollY;
+    
     galleryView.hidden =
         true;
 

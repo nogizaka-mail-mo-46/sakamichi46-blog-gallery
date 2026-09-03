@@ -6,9 +6,9 @@
 
 const memberSelect = document.getElementById("memberSelect");
 
-const dateSelect = document.getElementById("dateSelect");
-
 const sortSelect = document.getElementById("sortSelect");
+
+const calendar = document.getElementById("calendar");
 
 const gallery = document.getElementById("gallery");
 
@@ -33,6 +33,12 @@ let imageIds = [];
 
 let currentIndex = 0;
 
+let calendarYear = null;
+
+let calendarMonth = null;
+
+let selectedDate = null;
+
 
 /*
  * ========================================
@@ -55,7 +61,19 @@ memberSelect.addEventListener("change", async () => {
     const member = memberSelect.value;
 
     if (!member) {
+        images = [];
+
+        filteredImages = [];
+        
         imageIds = [];
+
+        selectedDate = null;
+
+        calendarYear = null;
+
+        calendarMonth = null;
+
+        calendar.innerHTML = "";
 
         clearGallery();
 
@@ -64,27 +82,6 @@ memberSelect.addEventListener("change", async () => {
 
     await loadMemberImages(member);
 });
-
-
-/*
- * ========================================
- * 日付変更
- * ========================================
- */
-
-dateSelect.addEventListener(
-    "change",
-    () => {
-        if (
-            images.length ===
-            0
-        ) {
-            return;
-        }
-
-        updateImages();
-    }
-);
 
 
 /*
@@ -103,6 +100,453 @@ sortSelect.addEventListener(
         updateImages();
     }
 );
+
+
+/*
+ * ========================================
+ * カレンダー初期月
+ * ========================================
+ */
+
+function setInitialCalendarMonth() {
+    if (images.length === 0) {
+        calendarYear = null;
+        calendarMonth = null;
+
+        return;
+    }
+
+    const sortedImages = [
+        ...images
+    ].sort(
+        (a, b) =>
+            b.name.localeCompare(
+                a.name
+            )
+    );
+
+    const latestImage =
+        sortedImages[0];
+
+    const dateText =
+        latestImage.name.substring(
+            0,
+            8
+        );
+
+    calendarYear =
+        Number(
+            dateText.substring(
+                0,
+                4
+            )
+        );
+
+    calendarMonth =
+        Number(
+            dateText.substring(
+                4,
+                6
+            )
+        );
+}
+
+
+/*
+ * ========================================
+ * 投稿日の取得
+ * ========================================
+ */
+
+function getPostDates() {
+    const postDates =
+        new Set();
+
+    images.forEach(
+        (image) => {
+            const match =
+                image.name.match(
+                    /^(\d{8})_/
+                );
+
+            if (match) {
+                postDates.add(
+                    match[1]
+                );
+            }
+        }
+    );
+
+    return postDates;
+}
+
+
+/*
+ * ========================================
+ * カレンダー表示
+ * ========================================
+ */
+
+function renderCalendar() {
+    calendar.innerHTML = "";
+
+    if (
+        calendarYear === null ||
+        calendarMonth === null
+    ) {
+        return;
+    }
+
+    const postDates =
+        getPostDates();
+
+    const header =
+        document.createElement(
+            "div"
+        );
+
+    header.className =
+        "calendar-header";
+
+    const prevButton =
+        document.createElement(
+            "button"
+        );
+
+    prevButton.type =
+        "button";
+
+    prevButton.className =
+        "calendar-nav";
+
+    prevButton.textContent =
+        "‹";
+
+    prevButton.addEventListener(
+        "click",
+        () => {
+            changeCalendarMonth(
+                -1
+            );
+        }
+    );
+
+    const title =
+        document.createElement(
+            "div"
+        );
+
+    title.className =
+        "calendar-title";
+
+    title.textContent =
+        `${calendarYear}年${calendarMonth}月`;
+
+    const nextButton =
+        document.createElement(
+            "button"
+        );
+
+    nextButton.type =
+        "button";
+
+    nextButton.className =
+        "calendar-nav";
+
+    nextButton.textContent =
+        "›";
+
+    nextButton.addEventListener(
+        "click",
+        () => {
+            changeCalendarMonth(
+                1
+            );
+        }
+    );
+
+    header.appendChild(
+        prevButton
+    );
+
+    header.appendChild(
+        title
+    );
+
+    header.appendChild(
+        nextButton
+    );
+
+    calendar.appendChild(
+        header
+    );
+
+
+    const weekdayRow =
+        document.createElement(
+            "div"
+        );
+
+    weekdayRow.className =
+        "calendar-weekdays";
+
+    [
+        "日",
+        "月",
+        "火",
+        "水",
+        "木",
+        "金",
+        "土"
+    ].forEach(
+        (weekday) => {
+            const item =
+                document.createElement(
+                    "div"
+                );
+
+            item.textContent =
+                weekday;
+
+            weekdayRow.appendChild(
+                item
+            );
+        }
+    );
+
+    calendar.appendChild(
+        weekdayRow
+    );
+
+
+    const days =
+        document.createElement(
+            "div"
+        );
+
+    days.className =
+        "calendar-days";
+
+    const firstDay =
+        new Date(
+            calendarYear,
+            calendarMonth - 1,
+            1
+        ).getDay();
+
+    const lastDate =
+        new Date(
+            calendarYear,
+            calendarMonth,
+            0
+        ).getDate();
+
+
+    for (
+        let i = 0;
+        i < firstDay;
+        i++
+    ) {
+        const empty =
+            document.createElement(
+                "div"
+            );
+
+        empty.className =
+            "calendar-day empty";
+
+        days.appendChild(
+            empty
+        );
+    }
+
+
+    for (
+        let day = 1;
+        day <= lastDate;
+        day++
+    ) {
+        const button =
+            document.createElement(
+                "button"
+            );
+
+        button.type =
+            "button";
+
+        button.className =
+            "calendar-day";
+
+        button.textContent =
+            day;
+
+        const dateKey =
+            formatDateKey(
+                calendarYear,
+                calendarMonth,
+                day
+            );
+
+        if (
+            postDates.has(
+                dateKey
+            )
+        ) {
+            button.classList.add(
+                "has-post"
+            );
+
+            button.addEventListener(
+                "click",
+                () => {
+                    selectCalendarDate(
+                        dateKey
+                    );
+                }
+            );
+        } else {
+            button.disabled =
+                true;
+        }
+
+        if (
+            selectedDate ===
+            dateKey
+        ) {
+            button.classList.add(
+                "selected"
+            );
+        }
+
+        days.appendChild(
+            button
+        );
+    }
+
+    calendar.appendChild(
+        days
+    );
+
+
+    if (selectedDate) {
+        const clearButton =
+            document.createElement(
+                "button"
+            );
+
+        clearButton.type =
+            "button";
+
+        clearButton.className =
+            "calendar-clear";
+
+        clearButton.textContent =
+            "すべて表示";
+
+        clearButton.addEventListener(
+            "click",
+            () => {
+                selectedDate =
+                    null;
+
+                renderCalendar();
+
+                updateImages();
+            }
+        );
+
+        calendar.appendChild(
+            clearButton
+        );
+    }
+}
+
+
+/*
+ * ========================================
+ * 日付キー生成
+ * ========================================
+ */
+
+function formatDateKey(
+    year,
+    month,
+    day
+) {
+    return (
+        String(year) +
+        String(month).padStart(
+            2,
+            "0"
+        ) +
+        String(day).padStart(
+            2,
+            "0"
+        )
+    );
+}
+
+
+/*
+ * ========================================
+ * カレンダー月移動
+ * ========================================
+ */
+
+function changeCalendarMonth(
+    offset
+) {
+    calendarMonth +=
+        offset;
+
+    if (
+        calendarMonth ===
+        0
+    ) {
+        calendarMonth =
+            12;
+
+        calendarYear--;
+    }
+
+    if (
+        calendarMonth ===
+        13
+    ) {
+        calendarMonth =
+            1;
+
+        calendarYear++;
+    }
+
+    renderCalendar();
+}
+
+
+/*
+ * ========================================
+ * 日付選択
+ * ========================================
+ */
+
+function selectCalendarDate(
+    dateKey
+) {
+    if (
+        selectedDate ===
+        dateKey
+    ) {
+        selectedDate =
+            null;
+    } else {
+        selectedDate =
+            dateKey;
+    }
+
+    renderCalendar();
+
+    updateImages();
+}
 
 
 /*
@@ -129,6 +573,10 @@ async function loadMemberImages(memberKey) {
 
         images = data.images;
 
+        setInitialCalendarMonth();
+
+        renderCalendar();
+
         updateImages();
 
         renderGallery();
@@ -151,21 +599,12 @@ async function loadMemberImages(memberKey) {
  */
 
 function updateImages() {
-    const selectedDate =
-        dateSelect.value;
-
     if (selectedDate) {
-        const dateKey =
-            selectedDate.replaceAll(
-                "-",
-                ""
-            );
-
         filteredImages =
             images.filter(
                 (image) =>
                     image.name.startsWith(
-                        `${dateKey}_`
+                        `${selectedDate}_`
                     )
             );
     } else {

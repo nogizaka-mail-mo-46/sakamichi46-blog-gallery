@@ -1,3 +1,117 @@
+/*
+ * ========================================
+ * Google Access Tokenキャッシュ
+ * ========================================
+ */
+
+let cachedAccessToken =
+    null;
+
+let accessTokenExpiresAt =
+    0;
+
+let accessTokenPromise =
+    null;
+
+
+/*
+ * ========================================
+ * Google Access Token取得
+ * ========================================
+ */
+
+async function getGoogleAccessToken(
+    env
+) {
+    const now =
+        Date.now();
+
+    if (
+        cachedAccessToken &&
+        now <
+            accessTokenExpiresAt
+    ) {
+        return cachedAccessToken;
+    }
+
+    if (
+        accessTokenPromise
+    ) {
+        return await accessTokenPromise;
+    }
+
+    accessTokenPromise =
+        (async () => {
+            const tokenResponse =
+                await fetch(
+                    "https://oauth2.googleapis.com/token",
+                    {
+                        method:
+                            "POST",
+
+                        headers: {
+                            "Content-Type":
+                                "application/x-www-form-urlencoded"
+                        },
+
+                        body:
+                            new URLSearchParams({
+                                client_id:
+                                    env.GOOGLE_CLIENT_ID,
+
+                                client_secret:
+                                    env.GOOGLE_CLIENT_SECRET,
+
+                                refresh_token:
+                                    env.GOOGLE_REFRESH_TOKEN,
+
+                                grant_type:
+                                    "refresh_token"
+                            })
+                    }
+                );
+
+            const tokenData =
+                await tokenResponse.json();
+
+            if (
+                !tokenResponse.ok
+            ) {
+                throw new Error(
+                    JSON.stringify(
+                        tokenData
+                    )
+                );
+            }
+
+            cachedAccessToken =
+                tokenData.access_token;
+
+            const expiresIn =
+                Number(
+                    tokenData.expires_in
+                ) || 3600;
+
+            accessTokenExpiresAt =
+                Date.now() +
+                Math.max(
+                    expiresIn - 60,
+                    60
+                ) *
+                    1000;
+
+            return cachedAccessToken;
+        })();
+
+    try {
+        return await accessTokenPromise;
+
+    } finally {
+        accessTokenPromise =
+            null;
+    }
+}
+
 export async function onRequestGet(
     context
 ) {
@@ -167,56 +281,9 @@ export async function onRequestGet(
          * Google Access Token取得
          */
 
-        const tokenResponse =
-            await fetch(
-                "https://oauth2.googleapis.com/token",
-                {
-                    method:
-                        "POST",
-
-                    headers: {
-                        "Content-Type":
-                            "application/x-www-form-urlencoded"
-                    },
-
-                    body:
-                        new URLSearchParams({
-                            client_id:
-                                env.GOOGLE_CLIENT_ID,
-
-                            client_secret:
-                                env.GOOGLE_CLIENT_SECRET,
-
-                            refresh_token:
-                                env.GOOGLE_REFRESH_TOKEN,
-
-                            grant_type:
-                                "refresh_token"
-                        })
-                }
-            );
-
-        const tokenData =
-            await tokenResponse.json();
-
-        if (
-            !tokenResponse.ok
-        ) {
-            return new Response(
-                JSON.stringify(
-                    tokenData,
-                    null,
-                    2
-                ),
-                {
-                    status:
-                        500,
-
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    }
-                }
+        const accessToken =
+            await getGoogleAccessToken(
+                env
             );
         }
 
@@ -231,7 +298,7 @@ export async function onRequestGet(
                 {
                     headers: {
                         Authorization:
-                            `Bearer ${tokenData.access_token}`
+                            `Bearer ${accessToken}`
                     }
                 }
             );

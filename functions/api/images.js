@@ -19,6 +19,11 @@ import {
     getCachedCalendarResponse
 } from "../lib/calendar-cache.js";
 
+import {
+    cacheImageListResponse,
+    getCachedImageListResponse
+} from "../lib/image-list-cache.js";
+
 
 export async function onRequestGet(
     context
@@ -56,7 +61,49 @@ export async function onRequestGet(
 
     /*
      * ========================================
-     * date形式チェック
+     * グループ確認
+     * ========================================
+     */
+
+    if (
+        !group
+    ) {
+        return Response.json(
+            {
+                error:
+                    "groupを指定してください。"
+            },
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+    const targetMembers =
+        getTargetMembers(
+            group
+        );
+
+    if (
+        targetMembers.length === 0
+    ) {
+        return Response.json(
+            {
+                error:
+                    "指定されたグループが見つかりません。"
+            },
+            {
+                status:
+                    404
+            }
+        );
+    }
+
+
+    /*
+     * ========================================
+     * 日付確認
      * ========================================
      */
 
@@ -69,7 +116,7 @@ export async function onRequestGet(
         return Response.json(
             {
                 error:
-                    "dateの形式が正しくありません。"
+                    "dateはYYYYMMDD形式で指定してください。"
             },
             {
                 status:
@@ -81,7 +128,7 @@ export async function onRequestGet(
 
     /*
      * ========================================
-     * month形式チェック
+     * 月確認
      * ========================================
      */
 
@@ -94,7 +141,7 @@ export async function onRequestGet(
         return Response.json(
             {
                 error:
-                    "monthの形式が正しくありません。"
+                    "monthはYYYYMM形式で指定してください。"
             },
             {
                 status:
@@ -106,7 +153,7 @@ export async function onRequestGet(
 
     /*
      * ========================================
-     * dateとmonth同時指定チェック
+     * dateとmonthの同時指定は禁止
      * ========================================
      */
 
@@ -129,33 +176,7 @@ export async function onRequestGet(
 
     /*
      * ========================================
-     * group存在チェック
-     * ========================================
-     */
-
-    if (
-        group &&
-        getTargetMembers(
-            group
-        ).length ===
-            0
-    ) {
-        return Response.json(
-            {
-                error:
-                    "存在しないグループです。"
-            },
-            {
-                status:
-                    404
-            }
-        );
-    }
-
-
-    /*
-     * ========================================
-     * カレンダー投稿日一覧
+     * グループ全体の投稿日取得
      * ========================================
      */
 
@@ -188,18 +209,18 @@ export async function onRequestGet(
                 accessToken,
                 group
             );
-
         } catch (
             error
         ) {
             console.error(
+                "Calendar API error:",
                 error
             );
 
             return Response.json(
                 {
                     error:
-                        "投稿日一覧の取得中にエラーが発生しました。"
+                        "投稿日情報の取得に失敗しました。"
                 },
                 {
                     status:
@@ -212,16 +233,17 @@ export async function onRequestGet(
 
     /*
      * ========================================
-     * メンバーカレンダー投稿日一覧
+     * メンバー確認
      * ========================================
      */
 
+    let member =
+        null;
+
     if (
-        memberKey &&
-        !date &&
-        !month
+        memberKey
     ) {
-        const member =
+        member =
             members[
                 memberKey
             ];
@@ -232,7 +254,7 @@ export async function onRequestGet(
             return Response.json(
                 {
                     error:
-                        "存在しないメンバーです。"
+                        "指定されたメンバーが見つかりません。"
                 },
                 {
                     status:
@@ -242,22 +264,34 @@ export async function onRequestGet(
         }
 
         if (
-            group &&
             member.group !==
-                group
+            group
         ) {
             return Response.json(
                 {
                     error:
-                        "指定されたグループにそのメンバーは存在しません。"
+                        "指定されたメンバーはこのグループに所属していません。"
                 },
                 {
                     status:
-                        404
+                        400
                 }
             );
         }
+    }
 
+
+    /*
+     * ========================================
+     * メンバー個別の投稿日取得
+     * ========================================
+     */
+
+    if (
+        memberKey &&
+        !date &&
+        !month
+    ) {
         try {
             const cachedResponse =
                 await getCachedCalendarResponse(
@@ -285,18 +319,18 @@ export async function onRequestGet(
                 memberKey,
                 member
             );
-
         } catch (
             error
         ) {
             console.error(
+                "Member calendar API error:",
                 error
             );
 
             return Response.json(
                 {
                     error:
-                        "メンバー投稿日一覧の取得中にエラーが発生しました。"
+                        "投稿日情報の取得に失敗しました。"
                 },
                 {
                     status:
@@ -309,56 +343,49 @@ export async function onRequestGet(
 
     /*
      * ========================================
-     * 画像取得
+     * 画像一覧キャッシュ確認
      * ========================================
      */
 
     try {
+        const cachedResponse =
+            await getCachedImageListResponse(
+                request,
+                group,
+                memberKey,
+                date,
+                month
+            );
+
+        if (
+            cachedResponse
+        ) {
+            return cachedResponse;
+        }
+
+
+        /*
+         * ========================================
+         * キャッシュなしの場合のみ
+         * Google Access Token取得
+         * ========================================
+         */
+
         const accessToken =
             await getGoogleAccessToken(
                 env
             );
 
+
+        /*
+         * ========================================
+         * メンバー指定あり
+         * ========================================
+         */
+
         if (
             memberKey
         ) {
-            const member =
-                members[
-                    memberKey
-                ];
-
-            if (
-                !member
-            ) {
-                return Response.json(
-                    {
-                        error:
-                            "存在しないメンバーです。"
-                    },
-                    {
-                        status:
-                            404
-                    }
-                );
-            }
-
-            if (
-                group &&
-                member.group !==
-                    group
-            ) {
-                return Response.json(
-                    {
-                        error:
-                            "指定されたグループにそのメンバーは存在しません。"
-                    },
-                    {
-                        status:
-                            404
-                    }
-                );
-            }
-
             let namePrefix =
                 null;
 
@@ -367,7 +394,6 @@ export async function onRequestGet(
             ) {
                 namePrefix =
                     `${date}_`;
-
             } else if (
                 month
             ) {
@@ -375,68 +401,65 @@ export async function onRequestGet(
                     month;
             }
 
-            let images =
+            const images =
                 await getImagesFromFolder(
                     accessToken,
                     member.folderId,
                     namePrefix
                 );
 
-            if (
-                date
-            ) {
-                images =
-                    images.filter(
-                        (image) =>
-                            image.name &&
-                            image.name.startsWith(
-                                `${date}_`
-                            )
-                    );
-            }
-
-            if (
-                month
-            ) {
-                images =
-                    images.filter(
-                        (image) =>
-                            image.name &&
-                            image.name.startsWith(
-                                month
-                            )
-                    );
-            }
-
             images.sort(
-                (a, b) =>
+                (
+                    a,
+                    b
+                ) =>
                     b.name.localeCompare(
                         a.name
                     )
             );
 
-            return Response.json({
-                member: {
-                    key:
-                        memberKey,
+            const response =
+                Response.json({
+                    member: {
+                        key:
+                            memberKey,
 
-                    name:
-                        member.name,
+                        name:
+                            member.name,
 
-                    group:
-                        member.group
-                },
+                        group:
+                            member.group
+                    },
 
-                date:
-                    date,
+                    date:
+                        date,
 
-                month:
-                    month,
+                    month:
+                        month,
 
-                images:
-                    images
-            });
+                    images:
+                        images
+                });
+
+            cacheImageListResponse(
+                context,
+                request,
+                group,
+                memberKey,
+                date,
+                month,
+                response
+            );
+
+            return response;
         }
+
+
+        /*
+         * ========================================
+         * グループ全体・日付指定
+         * ========================================
+         */
 
         if (
             date
@@ -448,17 +471,37 @@ export async function onRequestGet(
                     group
                 );
 
-            return Response.json({
-                group:
-                    group,
+            const response =
+                Response.json({
+                    group:
+                        group,
 
-                date:
-                    date,
+                    date:
+                        date,
 
-                images:
-                    images
-            });
+                    images:
+                        images
+                });
+
+            cacheImageListResponse(
+                context,
+                request,
+                group,
+                memberKey,
+                date,
+                month,
+                response
+            );
+
+            return response;
         }
+
+
+        /*
+         * ========================================
+         * グループ全体・月指定
+         * ========================================
+         */
 
         if (
             month
@@ -470,40 +513,60 @@ export async function onRequestGet(
                     group
                 );
 
-            return Response.json({
-                group:
-                    group,
+            const response =
+                Response.json({
+                    group:
+                        group,
 
-                month:
-                    month,
+                    month:
+                        month,
 
-                images:
-                    images
-            });
+                    images:
+                        images
+                });
+
+            cacheImageListResponse(
+                context,
+                request,
+                group,
+                memberKey,
+                date,
+                month,
+                response
+            );
+
+            return response;
         }
+
+
+        /*
+         * ========================================
+         * 想定外
+         * ========================================
+         */
 
         return Response.json(
             {
                 error:
-                    "不正なリクエストです。"
+                    "dateまたはmonthを指定してください。"
             },
             {
                 status:
                     400
             }
         );
-
     } catch (
         error
     ) {
         console.error(
+            "Images API error:",
             error
         );
 
         return Response.json(
             {
                 error:
-                    "画像一覧の取得中にエラーが発生しました。"
+                    "画像一覧の取得に失敗しました。"
             },
             {
                 status:

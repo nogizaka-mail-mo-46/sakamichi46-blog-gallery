@@ -28,6 +28,16 @@ export const members = {
         folderId: "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt",
         blogDataFolderId: "1yE-qJGnw5gp6rWSVmXOpDMzwW96tmzu8"
     },
+
+    /*
+     * 乃木坂46（6期生）
+     */    
+    hinano_okoshi: {
+        name: "大越 ひなの",
+        group: "nogizaka46",
+        folderId: "1_tuGgMBmqmTn_Pct185xaYIekQ_GjHTy",
+        blogDataFolderId: "1xkIkRM0S7ESCkPee52LHUGxZgm2KZzIv"
+    },
         
     /*
      * 櫻坂46（2期生）

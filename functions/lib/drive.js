@@ -3,16 +3,17 @@ import {
 } from "../data/member-data.js";
 
 
-/*
- * ========================================
- * Drive検索用文字列のエスケープ
- * ========================================
+/**
+ * ============================================
+ * ★ Google Drive query用文字列エスケープ
+ * ============================================
  */
-
 function escapeDriveQueryValue(
     value
 ) {
-    return value
+    return String(
+        value
+    )
         .replace(
             /\\/g,
             "\\\\"
@@ -24,62 +25,83 @@ function escapeDriveQueryValue(
 }
 
 
-/*
- * ========================================
- * 指定フォルダ内の画像取得
- * ========================================
+/**
+ * ============================================
+ * ★ 指定フォルダから画像一覧取得
+ *
+ * 【namePrefix】
+ * - null      → 全画像
+ * - YYYYMM    → 指定月
+ * - YYYYMMDD_ → 指定日
+ *
+ * 【properties】
+ * - articleId
+ * - title
+ * - imageIndex
+ * - blogDate
+ * - blogTimestamp
+ * - memberId
+ * - groupId
+ * ============================================
  */
-
 export async function getImagesFromFolder(
     accessToken,
     folderId,
     namePrefix = null
 ) {
-    const images = [];
+    const files =
+        [];
 
     let pageToken =
         null;
 
     do {
-        const queryParts = [
-            `'${escapeDriveQueryValue(folderId)}' in parents`,
-            "trashed = false"
-        ];
+        let query =
+            `'${escapeDriveQueryValue(
+                folderId
+            )}' in parents and trashed = false`;
 
         if (
             namePrefix
         ) {
-            queryParts.push(
-                `name contains '${escapeDriveQueryValue(namePrefix)}'`
-            );
+            query +=
+                ` and name contains '${escapeDriveQueryValue(
+                    namePrefix
+                )}'`;
         }
 
-        const params =
-            new URLSearchParams({
-                q:
-                    queryParts.join(
-                        " and "
-                    ),
+        const url =
+            new URL(
+                "https://www.googleapis.com/drive/v3/files"
+            );
 
-                pageSize:
-                    "1000",
+        url.searchParams.set(
+            "q",
+            query
+        );
 
-                fields:
-                    "nextPageToken,files(id,name,mimeType,createdTime)"
-            });
+        url.searchParams.set(
+            "pageSize",
+            "1000"
+        );
+
+        url.searchParams.set(
+            "fields",
+            "nextPageToken,files(id,name,mimeType,createdTime,properties)"
+        );
 
         if (
             pageToken
         ) {
-            params.set(
+            url.searchParams.set(
                 "pageToken",
                 pageToken
             );
         }
 
-        const driveResponse =
+        const response =
             await fetch(
-                `https://www.googleapis.com/drive/v3/files?${params.toString()}`,
+                url.toString(),
                 {
                     headers: {
                         Authorization:
@@ -89,113 +111,156 @@ export async function getImagesFromFolder(
             );
 
         if (
-            !driveResponse.ok
+            !response.ok
         ) {
             const errorText =
-                await driveResponse.text();
-
-            console.error(
-                "Google Drive API error:",
-                errorText
-            );
+                await response.text();
 
             throw new Error(
-                "Google Driveの画像一覧取得に失敗しました。"
+                `Google Drive API error: ${response.status} ${errorText}`
             );
         }
 
-        const driveData =
-            await driveResponse.json();
+        const data =
+            await response.json();
 
-        const imageFiles =
-            driveData.files.filter(
-                (file) => {
-                    if (
-                        !file.mimeType ||
-                        !file.mimeType.startsWith(
+        const pageFiles =
+            (
+                data.files ||
+                []
+            )
+                .filter(
+                    file =>
+                        file.mimeType &&
+                        file.mimeType.startsWith(
                             "image/"
                         )
-                    ) {
-                        return false;
-                    }
-
-                    if (
-                        namePrefix &&
-                        (
-                            !file.name ||
-                            !file.name.startsWith(
-                                namePrefix
-                            )
+                )
+                .filter(
+                    file =>
+                        !namePrefix ||
+                        file.name.startsWith(
+                            namePrefix
                         )
-                    ) {
-                        return false;
-                    }
+                )
+                .map(
+                    file => ({
+                        id:
+                            file.id,
 
-                    return true;
-                }
-            );
+                        name:
+                            file.name,
 
-        images.push(
-            ...imageFiles
+                        mimeType:
+                            file.mimeType,
+
+                        createdTime:
+                            file.createdTime,
+
+                        articleId:
+                            file.properties?.articleId ||
+                            null,
+
+                        title:
+                            file.properties?.title ||
+                            "",
+
+                        imageIndex:
+                            Number(
+                                file.properties?.imageIndex ||
+                                0
+                            ),
+
+                        blogDate:
+                            file.properties?.blogDate ||
+                            null,
+
+                        blogTimestamp:
+                            file.properties?.blogTimestamp ||
+                            null,
+
+                        memberId:
+                            file.properties?.memberId ||
+                            null,
+
+                        groupId:
+                            file.properties?.groupId ||
+                            null
+                    })
+                );
+
+        files.push(
+            ...pageFiles
         );
 
         pageToken =
-            driveData.nextPageToken ||
+            data.nextPageToken ||
             null;
 
     } while (
         pageToken
     );
 
-    return images;
+    return files;
 }
 
 
-/*
- * ========================================
- * 投稿日取得用の軽量画像一覧取得
- * ========================================
+/**
+ * ============================================
+ * ★ 指定フォルダから画像ファイル名のみ取得
+ *
+ * カレンダー生成用。
+ * 不要なmetadataを取得しない。
+ * ============================================
  */
-
 async function getImageNamesFromFolder(
     accessToken,
     folderId
 ) {
-    const imageNames = [];
+    const names =
+        [];
 
     let pageToken =
         null;
 
     do {
-        const params =
-            new URLSearchParams({
-                q:
-                    [
-                        `'${escapeDriveQueryValue(folderId)}' in parents`,
-                        "trashed = false"
-                    ].join(
-                        " and "
-                    ),
+        const query =
+            `'${escapeDriveQueryValue(
+                folderId
+            )}' in parents and trashed = false`;
 
-                pageSize:
-                    "1000",
+        const url =
+            new URL(
+                "https://www.googleapis.com/drive/v3/files"
+            );
 
-                fields:
-                    "nextPageToken,files(name,mimeType)"
-            });
+        url.searchParams.set(
+            "q",
+            query
+        );
+
+        url.searchParams.set(
+            "pageSize",
+            "1000"
+        );
+
+        url.searchParams.set(
+            "fields",
+            "nextPageToken,files(name,mimeType)"
+        );
 
         if (
             pageToken
         ) {
-            params.set(
+            url.searchParams.set(
                 "pageToken",
                 pageToken
             );
         }
 
-        const driveResponse =
+        const response =
             await fetch(
-                `https://www.googleapis.com/drive/v3/files?${params.toString()}`,
+                url.toString(),
                 {
                     headers: {
                         Authorization:
@@ -205,98 +270,101 @@ async function getImageNamesFromFolder(
             );
 
         if (
-            !driveResponse.ok
+            !response.ok
         ) {
             const errorText =
-                await driveResponse.text();
-
-            console.error(
-                "Google Drive API error:",
-                errorText
-            );
+                await response.text();
 
             throw new Error(
-                "Google Driveの投稿日一覧取得に失敗しました。"
+                `Google Drive API error: ${response.status} ${errorText}`
             );
         }
 
-        const driveData =
-            await driveResponse.json();
+        const data =
+            await response.json();
 
-        const names =
-            driveData.files
+        const pageNames =
+            (
+                data.files ||
+                []
+            )
                 .filter(
-                    (file) =>
+                    file =>
                         file.mimeType &&
                         file.mimeType.startsWith(
                             "image/"
-                        ) &&
-                        file.name
+                        )
                 )
                 .map(
-                    (file) =>
+                    file =>
                         file.name
                 );
 
-        imageNames.push(
-            ...names
+        names.push(
+            ...pageNames
         );
 
         pageToken =
-            driveData.nextPageToken ||
+            data.nextPageToken ||
             null;
 
     } while (
         pageToken
     );
 
-    return imageNames;
+    return names;
 }
 
 
-/*
- * ========================================
- * 対象メンバー取得
- * ========================================
+/**
+ * ============================================
+ * ★ 指定グループのメンバー一覧取得
+ * ============================================
  */
-
 export function getTargetMembers(
     group
 ) {
     return Object.entries(
         members
-    ).filter(
-        ([
-            key,
-            member
-        ]) => {
-            if (
-                !group
-            ) {
-                return true;
-            }
-
-            return (
+    )
+        .filter(
+            (
+                [
+                    ,
+                    member
+                ]
+            ) =>
                 member.group ===
                 group
-            );
-        }
-    );
+        )
+        .map(
+            (
+                [
+                    memberKey,
+                    member
+                ]
+            ) => ({
+                memberKey:
+                    memberKey,
+
+                ...member
+            })
+        );
 }
 
 
-/*
- * ========================================
- * 一定件数ずつ並列処理
- * ========================================
+/**
+ * ============================================
+ * ★ 配列を指定件数ずつ並列処理
+ * ============================================
  */
-
 async function processInBatches(
     items,
     batchSize,
     processor
 ) {
-    const results = [];
+    const results =
+        [];
 
     for (
         let i = 0;
@@ -325,14 +393,11 @@ async function processInBatches(
 }
 
 
-/*
- * ========================================
- * 投稿日取得
- *
- * 5メンバーずつ並列取得
- * ========================================
+/**
+ * ============================================
+ * ★ グループ全体の投稿日一覧取得
+ * ============================================
  */
-
 export async function getPostDates(
     accessToken,
     group
@@ -342,80 +407,29 @@ export async function getPostDates(
             group
         );
 
-    const memberPostDates =
+    const memberNames =
         await processInBatches(
             targetMembers,
             5,
-            async ([
-                memberKey,
-                member
-            ]) => {
-                const imageNames =
-                    await getImageNamesFromFolder(
-                        accessToken,
-                        member.folderId
-                    );
-
-                const postDates =
-                    new Set();
-
-                imageNames.forEach(
-                    (imageName) => {
-                        const match =
-                            imageName.match(
-                                /^(\d{8})_/
-                            );
-
-                        if (
-                            match
-                        ) {
-                            postDates.add(
-                                match[1]
-                            );
-                        }
-                    }
-                );
-
-                return Array.from(
-                    postDates
+            async member => {
+                return await getImageNamesFromFolder(
+                    accessToken,
+                    member.folderId
                 );
             }
         );
 
     const postDates =
-        new Set(
-            memberPostDates.flat()
-        );
-
-    return Array.from(
-        postDates
-    ).sort();
-}
-
-
-/*
- * ========================================
- * メンバー投稿日取得
- * ========================================
- */
-
-export async function getMemberPostDates(
-    accessToken,
-    member
-) {
-    const postDates =
         new Set();
 
-    const imageNames =
-        await getImageNamesFromFolder(
-            accessToken,
-            member.folderId
-        );
-
-    imageNames.forEach(
-        (imageName) => {
+    for (
+        const names of memberNames
+    ) {
+        for (
+            const name of names
+        ) {
             const match =
-                imageName.match(
+                name.match(
                     /^(\d{8})_/
                 );
 
@@ -427,22 +441,60 @@ export async function getMemberPostDates(
                 );
             }
         }
-    );
+    }
 
-    return Array.from(
-        postDates
-    ).sort();
+    return [
+        ...postDates
+    ].sort();
 }
 
 
-/*
- * ========================================
- * 指定日の画像取得
- *
- * 5メンバーずつ並列取得
- * ========================================
+/**
+ * ============================================
+ * ★ メンバー単体の投稿日一覧取得
+ * ============================================
  */
+export async function getMemberPostDates(
+    accessToken,
+    member
+) {
+    const names =
+        await getImageNamesFromFolder(
+            accessToken,
+            member.folderId
+        );
 
+    const postDates =
+        new Set();
+
+    for (
+        const name of names
+    ) {
+        const match =
+            name.match(
+                /^(\d{8})_/
+            );
+
+        if (
+            match
+        ) {
+            postDates.add(
+                match[1]
+            );
+        }
+    }
+
+    return [
+        ...postDates
+    ].sort();
+}
+
+
+/**
+ * ============================================
+ * ★ グループ全体から指定日の画像取得
+ * ============================================
+ */
 export async function getImagesByDate(
     accessToken,
     date,
@@ -456,14 +508,11 @@ export async function getImagesByDate(
     const namePrefix =
         `${date}_`;
 
-    const memberResults =
+    const memberImages =
         await processInBatches(
             targetMembers,
             5,
-            async ([
-                memberKey,
-                member
-            ]) => {
+            async member => {
                 const images =
                     await getImagesFromFolder(
                         accessToken,
@@ -472,21 +521,11 @@ export async function getImagesByDate(
                     );
 
                 return images.map(
-                    (image) => ({
-                        id:
-                            image.id,
-
-                        name:
-                            image.name,
-
-                        mimeType:
-                            image.mimeType,
-
-                        createdTime:
-                            image.createdTime,
+                    image => ({
+                        ...image,
 
                         memberKey:
-                            memberKey,
+                            member.memberKey,
 
                         memberName:
                             member.name,
@@ -498,28 +537,25 @@ export async function getImagesByDate(
             }
         );
 
-    const result =
-        memberResults.flat();
-
-    result.sort(
-        (a, b) =>
-            b.name.localeCompare(
-                a.name
-            )
-    );
-
-    return result;
+    return memberImages
+        .flat()
+        .sort(
+            (
+                a,
+                b
+            ) =>
+                b.name.localeCompare(
+                    a.name
+                )
+        );
 }
 
 
-/*
- * ========================================
- * 指定月の画像取得
- *
- * 5メンバーずつ並列取得
- * ========================================
+/**
+ * ============================================
+ * ★ グループ全体から指定月の画像取得
+ * ============================================
  */
-
 export async function getImagesByMonth(
     accessToken,
     month,
@@ -530,14 +566,11 @@ export async function getImagesByMonth(
             group
         );
 
-    const memberResults =
+    const memberImages =
         await processInBatches(
             targetMembers,
             5,
-            async ([
-                memberKey,
-                member
-            ]) => {
+            async member => {
                 const images =
                     await getImagesFromFolder(
                         accessToken,
@@ -546,21 +579,11 @@ export async function getImagesByMonth(
                     );
 
                 return images.map(
-                    (image) => ({
-                        id:
-                            image.id,
-
-                        name:
-                            image.name,
-
-                        mimeType:
-                            image.mimeType,
-
-                        createdTime:
-                            image.createdTime,
+                    image => ({
+                        ...image,
 
                         memberKey:
-                            memberKey,
+                            member.memberKey,
 
                         memberName:
                             member.name,
@@ -572,15 +595,15 @@ export async function getImagesByMonth(
             }
         );
 
-    const result =
-        memberResults.flat();
-
-    result.sort(
-        (a, b) =>
-            b.name.localeCompare(
-                a.name
-            )
-    );
-
-    return result;
+    return memberImages
+        .flat()
+        .sort(
+            (
+                a,
+                b
+            ) =>
+                b.name.localeCompare(
+                    a.name
+                )
+        );
 }

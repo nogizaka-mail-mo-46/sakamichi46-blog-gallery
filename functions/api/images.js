@@ -1,6 +1,6 @@
 import {
     members
-} from "../data/members.js";
+} from "../data/member-data.js";
 
 import {
     getGoogleAccessToken

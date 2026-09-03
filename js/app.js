@@ -90,6 +90,8 @@ let selectedDate = null;
 
 let galleryScrollPosition = 0;
 
+let currentBlogDetail = null;
+
 /*
  * ========================================
  * ライトボックス
@@ -967,6 +969,46 @@ sortSelect.addEventListener(
 blogDetailBackButton.addEventListener(
     "click",
     () => {
+        history.back();
+    }
+);
+
+
+/*
+ * ========================================
+ * ブラウザ履歴変更
+ * ========================================
+ */
+
+window.addEventListener(
+    "popstate",
+    () => {
+        if (
+            window.location.hash.startsWith(
+                "#blog-"
+            )
+        ) {
+            if (
+                currentBlogDetail
+            ) {
+                galleryView.hidden =
+                    true;
+
+                blogDetailView.hidden =
+                    false;
+
+                window.scrollTo({
+                    top:
+                        0,
+
+                    behavior:
+                        "auto"
+                });
+            }
+
+            return;
+        }
+
         blogDetailView.hidden =
             true;
 
@@ -1260,12 +1302,27 @@ function renderBlogDetail(
 
     galleryScrollPosition =
         window.scrollY;
-    
+
+    currentBlogDetail =
+        blogData;
+
     galleryView.hidden =
         true;
 
     blogDetailView.hidden =
         false;
+
+    history.pushState(
+        {
+            view:
+                "blog-detail",
+
+            articleId:
+                blogData.articleId
+        },
+        "",
+        `#blog-${blogData.articleId}`
+    );
 
     window.scrollTo({
         top:

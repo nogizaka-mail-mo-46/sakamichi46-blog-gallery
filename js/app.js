@@ -481,31 +481,23 @@ async function loadMemberPostDates(
             !response.ok
         ) {
             throw new Error(
-                "メンバー画像一覧の取得に失敗しました。"
+                "メンバー投稿日一覧の取得に失敗しました。"
             );
         }
 
         const data =
             await response.json();
 
-        const memberImages =
+        memberPostDates =
             Array.isArray(
-                data.images
+                data.postDates
             )
-                ? data.images
+                ? data.postDates
                 : [];
 
-        memberPostDates =
-            getPostDatesFromImages(
-                memberImages
-            );
-
         images = [];
-
         filteredImages = [];
-
-        selectedDate =
-            null;
+        selectedDate = null;
 
         setInitialCalendarMonth();
 
@@ -523,9 +515,7 @@ async function loadMemberPostDates(
         );
 
         images = [];
-
         filteredImages = [];
-
         memberPostDates = [];
 
         lightbox.setImages(
@@ -538,47 +528,6 @@ async function loadMemberPostDates(
         galleryElement.textContent =
             "画像の読み込みに失敗しました。";
     }
-}
-
-
-/*
- * ========================================
- * 画像から投稿日を作成
- * ========================================
- */
-
-function getPostDatesFromImages(
-    sourceImages
-) {
-    const postDates =
-        new Set();
-
-    sourceImages.forEach(
-        (image) => {
-            if (
-                !image.name
-            ) {
-                return;
-            }
-
-            const match =
-                image.name.match(
-                    /^(\d{8})_/
-                );
-
-            if (
-                match
-            ) {
-                postDates.add(
-                    match[1]
-                );
-            }
-        }
-    );
-
-    return Array.from(
-        postDates
-    ).sort();
 }
 
 

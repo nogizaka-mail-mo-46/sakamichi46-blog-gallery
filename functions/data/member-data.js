@@ -12,7 +12,7 @@ export const members = {
     /*
      * 乃木坂46（4期生）
      */    
-    teresa_ikeda: {
+    runa_hayashi: {
         name: "林 瑠奈",
         group: "nogizaka46",
         folderId: "1vrwog9PWlKiFo604TVIrD9CFbvVe0umi",

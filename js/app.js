@@ -109,7 +109,16 @@ sortSelect.addEventListener(
  */
 
 function setInitialCalendarMonth() {
-    if (images.length === 0) {
+    const validImages =
+        images.filter(
+            (image) =>
+                image.name &&
+                /^\d{8}_/.test(
+                    image.name
+                )
+        );
+
+    if (validImages.length === 0) {
         calendarYear = null;
         calendarMonth = null;
 
@@ -117,7 +126,7 @@ function setInitialCalendarMonth() {
     }
 
     const sortedImages = [
-        ...images
+        ...validImages
     ].sort(
         (a, b) =>
             b.name.localeCompare(
@@ -573,13 +582,13 @@ async function loadMemberImages(memberKey) {
 
         images = data.images;
 
+        selectedDate = null;
+
         setInitialCalendarMonth();
 
         renderCalendar();
 
         updateImages();
-
-        renderGallery();
 
     } catch (error) {
         console.error(error);

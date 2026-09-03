@@ -81,6 +81,8 @@ function getThumbnailUrl(fileId) {
  */
 
 async function initialize() {
+    await loadMembers();
+    
     await loadAllPostDates();
 }
 
@@ -132,6 +134,55 @@ async function loadAllPostDates() {
 
         calendar.textContent =
             "カレンダーの読み込みに失敗しました。";
+    }
+}
+
+
+/*
+ * ========================================
+ * 全メンバーの一覧取得
+ * ========================================
+ */
+
+async function loadMembers() {
+    try {
+        const response =
+            await fetch(
+                "/api/members"
+            );
+
+        if (!response.ok) {
+            throw new Error(
+                "メンバー一覧の取得に失敗しました。"
+            );
+        }
+
+        const data =
+            await response.json();
+
+        data.members.forEach(
+            (member) => {
+                const option =
+                    document.createElement(
+                        "option"
+                    );
+
+                option.value =
+                    member.key;
+
+                option.textContent =
+                    member.name;
+
+                memberSelect.appendChild(
+                    option
+                );
+            }
+        );
+
+    } catch (error) {
+        console.error(
+            error
+        );
     }
 }
 

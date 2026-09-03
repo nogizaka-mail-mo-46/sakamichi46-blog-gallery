@@ -209,6 +209,28 @@ function renderCalendar() {
     const postDates =
         getPostDates();
 
+    const postMonths =
+        getPostMonths();
+
+    const currentMonthKey =
+        String(calendarYear) +
+        String(calendarMonth).padStart(
+            2,
+            "0"
+        );
+
+    const currentMonthIndex =
+        postMonths.indexOf(
+            currentMonthKey
+        );
+
+
+    /*
+     * ========================================
+     * ヘッダー
+     * ========================================
+     */
+
     const header =
         document.createElement(
             "div"
@@ -216,6 +238,11 @@ function renderCalendar() {
 
     header.className =
         "calendar-header";
+
+
+    /*
+     * 前の投稿月
+     */
 
     const prevButton =
         document.createElement(
@@ -240,6 +267,19 @@ function renderCalendar() {
         }
     );
 
+    if (
+        currentMonthIndex <=
+        0
+    ) {
+        prevButton.disabled =
+            true;
+    }
+
+
+    /*
+     * 年月タイトル
+     */
+
     const title =
         document.createElement(
             "div"
@@ -250,6 +290,11 @@ function renderCalendar() {
 
     title.textContent =
         `${calendarYear}年${calendarMonth}月`;
+
+
+    /*
+     * 次の投稿月
+     */
 
     const nextButton =
         document.createElement(
@@ -274,6 +319,21 @@ function renderCalendar() {
         }
     );
 
+    if (
+        currentMonthIndex ===
+        -1 ||
+        currentMonthIndex >=
+        postMonths.length - 1
+    ) {
+        nextButton.disabled =
+            true;
+    }
+
+
+    /*
+     * ヘッダーに追加
+     */
+
     header.appendChild(
         prevButton
     );
@@ -290,6 +350,12 @@ function renderCalendar() {
         header
     );
 
+
+    /*
+     * ========================================
+     * 曜日
+     * ========================================
+     */
 
     const weekdayRow =
         document.createElement(
@@ -328,6 +394,12 @@ function renderCalendar() {
     );
 
 
+    /*
+     * ========================================
+     * 日付
+     * ========================================
+     */
+
     const days =
         document.createElement(
             "div"
@@ -351,6 +423,10 @@ function renderCalendar() {
         ).getDate();
 
 
+    /*
+     * 月初までの空白
+     */
+
     for (
         let i = 0;
         i < firstDay;
@@ -369,6 +445,10 @@ function renderCalendar() {
         );
     }
 
+
+    /*
+     * 1日〜月末
+     */
 
     for (
         let day = 1;
@@ -396,6 +476,11 @@ function renderCalendar() {
                 day
             );
 
+
+        /*
+         * 投稿日
+         */
+
         if (
             postDates.has(
                 dateKey
@@ -418,6 +503,11 @@ function renderCalendar() {
                 true;
         }
 
+
+        /*
+         * 選択中の日
+         */
+
         if (
             selectedDate ===
             dateKey
@@ -436,6 +526,12 @@ function renderCalendar() {
         days
     );
 
+
+    /*
+     * ========================================
+     * 日付絞り込み解除
+     * ========================================
+     */
 
     if (selectedDate) {
         const clearButton =
@@ -498,37 +594,78 @@ function formatDateKey(
 
 /*
  * ========================================
- * カレンダー月移動
+ * 投稿月へ移動
  * ========================================
  */
 
 function changeCalendarMonth(
     offset
 ) {
-    calendarMonth +=
+    const postMonths =
+        getPostMonths();
+
+    if (
+        postMonths.length ===
+        0
+    ) {
+        return;
+    }
+
+    const currentMonth =
+        String(calendarYear) +
+        String(calendarMonth).padStart(
+            2,
+            "0"
+        );
+
+    const currentIndex =
+        postMonths.indexOf(
+            currentMonth
+        );
+
+    if (
+        currentIndex ===
+        -1
+    ) {
+        return;
+    }
+
+    const nextIndex =
+        currentIndex +
         offset;
 
     if (
-        calendarMonth ===
-        0
+        nextIndex < 0 ||
+        nextIndex >=
+        postMonths.length
     ) {
-        calendarMonth =
-            12;
-
-        calendarYear--;
+        return;
     }
 
-    if (
-        calendarMonth ===
-        13
-    ) {
-        calendarMonth =
-            1;
+    const nextMonth =
+        postMonths[nextIndex];
 
-        calendarYear++;
-    }
+    calendarYear =
+        Number(
+            nextMonth.substring(
+                0,
+                4
+            )
+        );
+
+    calendarMonth =
+        Number(
+            nextMonth.substring(
+                4,
+                6
+            )
+        );
+
+    selectedDate = null;
 
     renderCalendar();
+
+    updateImages();
 }
 
 
@@ -555,6 +692,37 @@ function selectCalendarDate(
     renderCalendar();
 
     updateImages();
+}
+
+
+/*
+ * ========================================
+ * 投稿日が存在する月の取得
+ * ========================================
+ */
+
+function getPostMonths() {
+    const postMonths =
+        new Set();
+
+    images.forEach(
+        (image) => {
+            const match =
+                image.name.match(
+                    /^(\d{6})\d{2}_/
+                );
+
+            if (match) {
+                postMonths.add(
+                    match[1]
+                );
+            }
+        }
+    );
+
+    return Array.from(
+        postMonths
+    ).sort();
 }
 
 

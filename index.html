@@ -65,6 +65,17 @@
            ギャラリー
         ========================= */
 
+        #memberSelect {
+            width: 100%;
+            max-width: 320px;
+            padding: 10px 12px;
+            margin: 20px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            background: #fff;
+            font-size: 16px;
+        }
+        
         .gallery {
             display: grid;
 
@@ -356,6 +367,12 @@
 </div>
 
 <main>
+    <select id="memberSelect">
+        <option value="">メンバーを選択</option>
+        <option value="yoshida_ayano_christie">吉田 綾乃クリスティー</option>
+        <option value="member_02">メンバー02</option>
+        <option value="member_03">メンバー03</option>
+    </select>
     <div id="gallery" class="gallery"></div>
 </main>
 
@@ -406,6 +423,24 @@
 
 <script>
 
+    /*
+     * ========================================
+     * メンバー選択
+     * ========================================
+     */
+    
+    const memberSelect = document.getElementById("memberSelect");
+    
+    memberSelect.addEventListener("change", async () => {
+        const member = memberSelect.value;
+    
+        if (!member) {
+            return;
+        }
+
+        console.log("selected member:", member);
+    });
+    
     /*
      * ========================================
      * Google Drive画像のファイルID

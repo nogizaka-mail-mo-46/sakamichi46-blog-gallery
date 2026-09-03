@@ -940,35 +940,24 @@ function updateImages() {
     const sortOrder =
         sortSelect.value;
 
-    filteredImages.sort(
-        (a, b) => {
-            if (
-                sortOrder ===
-                "asc"
-            ) {
-                return a.name.localeCompare(
-                    b.name
-                );
-            }
-
-            return b.name.localeCompare(
-                a.name
-            );
-        }
+    gallery.render(
+        filteredImages,
+        Boolean(
+            memberSelect.value
+        ),
+        sortOrder
     );
 
+    const displayedImages =
+        gallery.getDisplayedImages();
+
     const imageIds =
-        filteredImages.map(
+        displayedImages.map(
             (image) =>
                 image.id
         );
 
     lightbox.setImages(
         imageIds
-    );
-
-    gallery.render(
-        imageIds,
-        true
     );
 }

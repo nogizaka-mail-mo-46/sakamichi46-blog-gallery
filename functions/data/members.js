@@ -29,7 +29,7 @@ export const members = {
     /*
      * 日向坂46（4期生）
      */
-    yoko-shogenji: {
+    yoko_shogenji: {
         name: "正源司 陽子",
         group: "hinatazaka46",
         folderId: "1mt7PO-xBZyh4-yE8aMl9KGAdpkH7S5ck"
@@ -38,7 +38,7 @@ export const members = {
     /*
      * 日向坂46（5期生）
      */
-    yu-sato: {
+    yu_sato: {
         name: "佐藤 優羽",
         group: "hinatazaka46",
         folderId: "1wCWo0QvcrGPR7Y5JXV6s0jRzVUHfbu2B"

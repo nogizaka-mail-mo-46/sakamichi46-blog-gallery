@@ -1,128 +1,317 @@
-export async function onRequestGet(context) {
-    const { request, env, params } = context;
+export async function onRequestGet(
+    context
+) {
+    const {
+        request,
+        env,
+        params
+    } = context;
 
-    // ログインセッションを確認
-    const cookieHeader = request.headers.get("Cookie") || "";
 
-    const match = cookieHeader.match(
-        /sakamichi_pages_session=([^;]+)/
-    );
+    /*
+     * ========================================
+     * ログインセッション確認
+     * ========================================
+     */
 
-    if (!match) {
+    const cookieHeader =
+        request.headers.get(
+            "Cookie"
+        ) || "";
+
+    const match =
+        cookieHeader.match(
+            /sakamichi_pages_session=([^;]+)/
+        );
+
+    if (
+        !match
+    ) {
         return new Response(
             "ログインが必要です。",
             {
-                status: 401,
-                headers: {
-                    "Content-Type": "text/plain; charset=UTF-8",
-                },
-            }
-        );
-    }
+                status:
+                    401,
 
-    // 正しいセッションか確認
-    const data = `${env.GOOGLE_ALLOWED_EMAIL}:${env.SESSION_SECRET}`;
-
-    const hash = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(data)
-    );
-
-    const expectedSession = Array.from(
-        new Uint8Array(hash)
-    )
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-
-    if (match[1] !== expectedSession) {
-        return new Response(
-            "ログインが必要です。",
-            { status: 401 }
-        );
-    }
-
-    // URLからGoogle DriveのファイルIDを取得
-    const fileId = params.fileId;
-
-    if (!fileId) {
-        return new Response(
-            "File ID is required",
-            { status: 400 }
-        );
-    }
-
-    try {
-        // Googleのアクセストークンを取得
-        const tokenResponse = await fetch(
-            "https://oauth2.googleapis.com/token",
-            {
-                method: "POST",
                 headers: {
                     "Content-Type":
-                        "application/x-www-form-urlencoded",
-                },
-                body: new URLSearchParams({
-                    client_id: env.GOOGLE_CLIENT_ID,
-                    client_secret: env.GOOGLE_CLIENT_SECRET,
-                    refresh_token: env.GOOGLE_REFRESH_TOKEN,
-                    grant_type: "refresh_token",
-                }),
+                        "text/plain; charset=UTF-8"
+                }
+            }
+        );
+    }
+
+
+    /*
+     * ========================================
+     * 正しいセッションか確認
+     * ========================================
+     */
+
+    const data =
+        `${env.GOOGLE_ALLOWED_EMAIL}:${env.SESSION_SECRET}`;
+
+    const hash =
+        await crypto.subtle.digest(
+            "SHA-256",
+            new TextEncoder().encode(
+                data
+            )
+        );
+
+    const expectedSession =
+        Array.from(
+            new Uint8Array(
+                hash
+            )
+        )
+            .map(
+                (b) =>
+                    b
+                        .toString(
+                            16
+                        )
+                        .padStart(
+                            2,
+                            "0"
+                        )
+            )
+            .join(
+                ""
+            );
+
+    if (
+        match[1] !==
+        expectedSession
+    ) {
+        return new Response(
+            "ログインが必要です。",
+            {
+                status:
+                    401
+            }
+        );
+    }
+
+
+    /*
+     * ========================================
+     * File ID取得
+     * ========================================
+     */
+
+    const fileId =
+        params.fileId;
+
+    if (
+        !fileId
+    ) {
+        return new Response(
+            "File ID is required",
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+
+    /*
+     * ========================================
+     * Cloudflareキャッシュ確認
+     * ========================================
+     */
+
+    const cache =
+        caches.default;
+
+    const cacheUrl =
+        new URL(
+            request.url
+        );
+
+    cacheUrl.search =
+        "";
+
+    const cacheKey =
+        new Request(
+            cacheUrl.toString(),
+            {
+                method:
+                    "GET"
             }
         );
 
-        const tokenData = await tokenResponse.json();
+    const cachedResponse =
+        await cache.match(
+            cacheKey
+        );
 
-        if (!tokenResponse.ok) {
-            return new Response(
-                JSON.stringify(tokenData, null, 2),
+    if (
+        cachedResponse
+    ) {
+        return cachedResponse;
+    }
+
+
+    /*
+     * ========================================
+     * Google Drive画像取得
+     * ========================================
+     */
+
+    try {
+
+
+        /*
+         * Google Access Token取得
+         */
+
+        const tokenResponse =
+            await fetch(
+                "https://oauth2.googleapis.com/token",
                 {
-                    status: 500,
+                    method:
+                        "POST",
+
                     headers: {
                         "Content-Type":
-                            "application/json",
+                            "application/x-www-form-urlencoded"
                     },
+
+                    body:
+                        new URLSearchParams({
+                            client_id:
+                                env.GOOGLE_CLIENT_ID,
+
+                            client_secret:
+                                env.GOOGLE_CLIENT_SECRET,
+
+                            refresh_token:
+                                env.GOOGLE_REFRESH_TOKEN,
+
+                            grant_type:
+                                "refresh_token"
+                        })
+                }
+            );
+
+        const tokenData =
+            await tokenResponse.json();
+
+        if (
+            !tokenResponse.ok
+        ) {
+            return new Response(
+                JSON.stringify(
+                    tokenData,
+                    null,
+                    2
+                ),
+                {
+                    status:
+                        500,
+
+                    headers: {
+                        "Content-Type":
+                            "application/json"
+                    }
                 }
             );
         }
 
-        // Google Driveから画像を取得
-        const driveResponse = await fetch(
-            `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`,
-            {
-                headers: {
-                    Authorization:
-                        `Bearer ${tokenData.access_token}`,
-                },
-            }
-        );
 
-        if (!driveResponse.ok) {
+        /*
+         * Google Driveから画像取得
+         */
+
+        const driveResponse =
+            await fetch(
+                `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`,
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${tokenData.access_token}`
+                    }
+                }
+            );
+
+        if (
+            !driveResponse.ok
+        ) {
             return new Response(
                 `Google Drive API error: ${driveResponse.status}`,
-                { status: 502 }
+                {
+                    status:
+                        502
+                }
             );
         }
 
-        return new Response(
-            driveResponse.body,
-            {
-                status: 200,
-                headers: {
-                    "Content-Type":
-                        driveResponse.headers.get(
-                            "Content-Type"
-                        ) || "image/jpeg",
 
-                    "Cache-Control":
-                        "private, max-age=3600",
-                },
-            }
+        /*
+         * ========================================
+         * レスポンス生成
+         * ========================================
+         */
+
+        const response =
+            new Response(
+                driveResponse.body,
+                {
+                    status:
+                        200,
+
+                    headers: {
+                        "Content-Type":
+                            driveResponse.headers.get(
+                                "Content-Type"
+                            ) || "image/jpeg",
+
+                        "Cache-Control":
+                            "private, max-age=3600"
+                    }
+                }
+            );
+
+
+        /*
+         * ========================================
+         * Cloudflareキャッシュ保存
+         * ========================================
+         */
+
+        const cacheResponse =
+            response.clone();
+
+        cacheResponse.headers.set(
+            "Cache-Control",
+            "public, max-age=86400"
         );
 
-    } catch (error) {
+        context.waitUntil(
+            cache.put(
+                cacheKey,
+                cacheResponse
+            )
+        );
+
+
+        /*
+         * ブラウザへ返却
+         */
+
+        return response;
+
+    } catch (
+        error
+    ) {
         return new Response(
             `Proxy error: ${error.message}`,
-            { status: 500 }
+            {
+                status:
+                    500
+            }
         );
     }
 }

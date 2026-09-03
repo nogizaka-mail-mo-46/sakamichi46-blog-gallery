@@ -6,6 +6,7 @@ export const members = {
         name: "吉田 綾乃クリスティー",
         group: "nogizaka46",
         folderId: "1rIwQd6qnWUDFZRvHX6wmzobVk_sqsB3q"
+        blogDataFolderId: "1-67kUkIaF4mZjKOJW1mC0sQEH_zbfiCD"
     },
 
     /*

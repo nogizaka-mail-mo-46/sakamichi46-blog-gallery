@@ -49,6 +49,10 @@ function groupImagesByArticle(
                             image.blogTimestamp ||
                             "",
 
+                        memberKey:
+                            image.memberKey ||
+                            null,
+
                         images:
                             []
                     }
@@ -127,7 +131,8 @@ function groupImagesByArticle(
 
 export function createGallery({
     element,
-    onImageClick
+    onImageClick,
+    onArticleClick
 }) {
 
 
@@ -209,8 +214,11 @@ export function createGallery({
 
                 const titleElement =
                     document.createElement(
-                        "h3"
+                        "button"
                     );
+
+                titleElement.type =
+                    "button";
 
                 titleElement.className =
                     "gallery-article-title";
@@ -220,6 +228,24 @@ export function createGallery({
 
                 titleElement.dataset.articleId =
                     article.articleId;
+
+                titleElement.addEventListener(
+                    "click",
+                    () => {
+                        if (
+                            typeof onArticleClick ===
+                                "function"
+                        ) {
+                            onArticleClick({
+                                articleId:
+                                    article.articleId,
+
+                                memberKey:
+                                    article.memberKey
+                            });
+                        }
+                    }
+                );
 
                 articleElement.appendChild(
                     titleElement

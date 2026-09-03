@@ -183,6 +183,21 @@ body {
 }
 
 /* =========================
+   選択中の日付
+========================= */
+
+.selected-date-title {
+    display: none;
+    margin: 0 30px 4px;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.selected-date-title.visible {
+    display: block;
+}
+
+/* =========================
    ギャラリー
 ========================= */
 
@@ -479,6 +494,11 @@ body {
         width: 5px;
         height: 5px;
     }
+
+    .selected-date-title {
+        margin: 0 8px 4px;
+        font-size: 18px;
+    }    
     
     .gallery {
         grid-template-columns:

@@ -6,6 +6,8 @@
 
 const memberSelect = document.getElementById("memberSelect");
 
+const dateSelect = document.getElementById("dateSelect");
+
 const sortSelect = document.getElementById("sortSelect");
 
 const gallery = document.getElementById("gallery");
@@ -24,6 +26,8 @@ const imageCounter = document.getElementById("imageCounter");
  */
 
 let images = [];
+
+let filteredImages = [];
 
 let imageIds = [];
 
@@ -64,6 +68,27 @@ memberSelect.addEventListener("change", async () => {
 
 /*
  * ========================================
+ * 日付変更
+ * ========================================
+ */
+
+dateSelect.addEventListener(
+    "change",
+    () => {
+        if (
+            images.length ===
+            0
+        ) {
+            return;
+        }
+
+        updateImages();
+    }
+);
+
+
+/*
+ * ========================================
  * 並び順変更
  * ========================================
  */
@@ -75,7 +100,7 @@ sortSelect.addEventListener(
             return;
         }
 
-        sortImages();
+        updateImages();
     }
 );
 
@@ -104,7 +129,7 @@ async function loadMemberImages(memberKey) {
 
         images = data.images;
 
-        sortImages();
+        updateImages();
 
         renderGallery();
 
@@ -121,29 +146,59 @@ async function loadMemberImages(memberKey) {
 
 /*
  * ========================================
- * 並び替え
+ * 絞り込み・並び替え
  * ========================================
  */
 
-function sortImages() {
+function updateImages() {
+    const selectedDate =
+        dateSelect.value;
+
+    if (selectedDate) {
+        const dateKey =
+            selectedDate.replaceAll(
+                "-",
+                ""
+            );
+
+        filteredImages =
+            images.filter(
+                (image) =>
+                    image.name.startsWith(
+                        `${dateKey}_`
+                    )
+            );
+    } else {
+        filteredImages = [
+            ...images
+        ];
+    }
+
     const sortOrder =
         sortSelect.value;
 
-    images.sort((a, b) => {
-        if (sortOrder === "asc") {
-            return a.name.localeCompare(
-                b.name
+    filteredImages.sort(
+        (a, b) => {
+            if (
+                sortOrder ===
+                "asc"
+            ) {
+                return a.name.localeCompare(
+                    b.name
+                );
+            }
+
+            return b.name.localeCompare(
+                a.name
             );
         }
-
-        return b.name.localeCompare(
-            a.name
-        );
-    });
-
-    imageIds = images.map(
-        (image) => image.id
     );
+
+    imageIds =
+        filteredImages.map(
+            (image) =>
+                image.id
+        );
 
     renderGallery();
 }

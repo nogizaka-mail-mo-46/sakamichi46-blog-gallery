@@ -56,7 +56,8 @@ body {
    ギャラリー
 ========================= */
 
-#memberSelect {
+#memberSelect,
+#sortSelect {
     width: 100%;
     max-width: 320px;
     padding: 10px 12px;

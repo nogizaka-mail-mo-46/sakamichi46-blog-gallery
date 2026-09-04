@@ -151,16 +151,25 @@ const blogDetailController =
         blogDetail:
             blogDetail,
 
-        blogDetailBackButton:
-            blogDetailBackButton,
+        onOpen:
+            (
+                blogData
+            ) => {
 
-        getGroup:
-            () =>
-                groupSelect.value,
+                blogImagesController.hide();
 
-        getSelectedMember:
-            () =>
-                memberSelect.value
+                history.pushState(
+                    {
+                        view:
+                            "blog-detail",
+
+                        articleId:
+                            blogData.articleId
+                    },
+                    "",
+                    `#blog-${blogData.articleId}`
+                );
+            }
     });
 
 
@@ -181,13 +190,29 @@ const blogImagesController =
         blogImages:
             blogImages,
 
-        blogImagesBackButton:
-            blogImagesBackButton,
-
         lightbox:
-            lightbox
-    });
+            lightbox,
 
+        onOpen:
+            (
+                blog
+            ) => {
+
+                blogDetailController.hide();
+
+                history.pushState(
+                    {
+                        view:
+                            "blog-images",
+
+                        articleId:
+                            blog.articleId
+                    },
+                    "",
+                    `#blog-images-${blog.articleId}`
+                );
+            }
+    });
 
 /*
  * ========================================
@@ -1159,3 +1184,147 @@ function updateBlogs() {
         imageIds
     );
 }
+
+
+/*
+ * ========================================
+ * 戻るボタン
+ * ========================================
+ */
+
+blogDetailBackButton.addEventListener(
+    "click",
+    () => {
+
+        history.back();
+    }
+);
+
+blogImagesBackButton.addEventListener(
+    "click",
+    () => {
+
+        history.back();
+    }
+);
+
+
+
+/*
+ * ========================================
+ * ギャラリー表示
+ * ========================================
+ */
+
+function showGalleryView() {
+
+    blogDetailController.hide();
+
+    blogImagesController.hide();
+
+    galleryView.hidden =
+        false;
+}
+
+
+/*
+ * ========================================
+ * ブログ詳細表示
+ * ========================================
+ */
+
+function showBlogDetailView() {
+
+    blogImagesController.hide();
+
+    const shown =
+        blogDetailController.showCurrent();
+
+    if (
+        !shown
+    ) {
+        showGalleryView();
+    }
+}
+
+
+/*
+ * ========================================
+ * ブログ画像一覧表示
+ * ========================================
+ */
+
+function showBlogImagesView() {
+
+    blogDetailController.hide();
+
+    const shown =
+        blogImagesController.showCurrent();
+
+    if (
+        !shown
+    ) {
+        showGalleryView();
+    }
+}
+
+
+/*
+ * ========================================
+ * ブラウザ履歴変更
+ * ========================================
+ */
+
+window.addEventListener(
+    "popstate",
+    () => {
+
+        const hash =
+            window.location.hash;
+
+
+        /*
+         * ========================================
+         * ブログ画像一覧
+         * ========================================
+         */
+
+        if (
+            hash.startsWith(
+                "#blog-images-"
+            )
+        ) {
+
+            showBlogImagesView();
+
+            return;
+        }
+
+
+        /*
+         * ========================================
+         * ブログ詳細
+         * ========================================
+         */
+
+        if (
+            hash.startsWith(
+                "#blog-"
+            )
+        ) {
+
+            showBlogDetailView();
+
+            return;
+        }
+
+
+        /*
+         * ========================================
+         * ギャラリー
+         * ========================================
+         */
+
+        showGalleryView();
+    }
+);

@@ -1,21 +1,28 @@
-import {
-    fetchBlogDetail
-} from "./api.js";
+/*
+ * ========================================
+ * Google Drive画像URL
+ * ========================================
+ */
+
+function getImageUrl(
+    fileId
+) {
+    return `/image/${fileId}`;
+}
 
 
 /*
  * ========================================
- * ブログ詳細
+ * ブログ画像一覧
  * ========================================
  */
 
-export function createBlogDetail({
+export function createBlogImages({
     galleryView,
-    blogDetailView,
-    blogDetail,
-    blogDetailBackButton,
-    getGroup,
-    getSelectedMember
+    blogImagesView,
+    blogImages,
+    lightbox,
+    onOpen
 }) {
 
 
@@ -25,66 +32,67 @@ export function createBlogDetail({
      * ========================================
      */
 
-    let galleryScrollPosition =
-        0;
-
-    let currentBlogDetail =
+    let currentBlog =
         null;
 
 
     /*
      * ========================================
-     * 詳細取得
+     * 画像一覧表示
      * ========================================
      */
 
-    async function open({
+    function open({
         articleId,
-        memberKey
+        title,
+        memberKey,
+        images
     }) {
 
-        const group =
-            getGroup();
-
-        const targetMemberKey =
-            memberKey ||
-            getSelectedMember();
+        const blogImageList =
+            Array.isArray(
+                images
+            )
+                ? images.filter(
+                    image =>
+                        image &&
+                        image.fileId
+                )
+                : [];
 
         if (
-            !targetMemberKey
+            blogImageList.length ===
+                0
         ) {
-
-            console.error(
-                "ブログのメンバーを特定できません。"
-            );
-
             return;
         }
 
-        try {
+        currentBlog = {
+            articleId:
+                articleId,
 
-            const blogData =
-                await fetchBlogDetail({
-                    group:
-                        group,
+            title:
+                title,
 
-                    member:
-                        targetMemberKey,
+            memberKey:
+                memberKey,
 
-                    articleId:
-                        articleId
-                });
+            images:
+                blogImageList
+        };
 
-            render(
-                blogData
-            );
+        render(
+            currentBlog
+        );
 
-        } catch (
-            error
+        show();
+
+        if (
+            typeof onOpen ===
+                "function"
         ) {
-
-            console.error(
-                error
+            onOpen(
+                currentBlog
             );
         }
     }
@@ -92,15 +100,15 @@ export function createBlogDetail({
 
     /*
      * ========================================
-     * 詳細描画
+     * 画像一覧描画
      * ========================================
      */
 
     function render(
-        blogData
+        blog
     ) {
 
-        blogDetail.innerHTML =
+        blogImages.innerHTML =
             "";
 
 
@@ -116,14 +124,8 @@ export function createBlogDetail({
             );
 
         header.className =
-            "blog-detail-header";
+            "blog-images-header";
 
-
-        /*
-         * ========================================
-         * タイトル
-         * ========================================
-         */
 
         const title =
             document.createElement(
@@ -131,110 +133,74 @@ export function createBlogDetail({
             );
 
         title.className =
-            "blog-detail-title";
+            "blog-images-title";
 
         title.textContent =
-            blogData.title ||
+            blog.title ||
             "（無題）";
 
 
-        /*
-         * ========================================
-         * 日付・メンバー
-         * ========================================
-         */
-
-        const meta =
+        const count =
             document.createElement(
                 "div"
             );
 
-        meta.className =
-            "blog-detail-meta";
+        count.className =
+            "blog-images-count";
 
-        const date =
-            blogData.date
-                ? blogData.date.replace(
-                    /-/g,
-                    "."
-                )
-                : "";
-
-        const memberName =
-            blogData.member?.name ||
-            "";
-
-        meta.textContent =
-            [
-                date,
-                memberName
-            ]
-                .filter(
-                    Boolean
-                )
-                .join(
-                    " / "
-                );
+        count.textContent =
+            `${blog.images.length}枚`;
 
         header.appendChild(
             title
         );
 
         header.appendChild(
-            meta
+            count
         );
 
-        blogDetail.appendChild(
+        blogImages.appendChild(
             header
         );
 
 
         /*
          * ========================================
-         * 本文・画像
+         * 画像グリッド
          * ========================================
          */
 
-        const blocks =
-            Array.isArray(
-                blogData.blocks
-            )
-                ? blogData.blocks
-                : [];
+        const grid =
+            document.createElement(
+                "div"
+            );
 
-        blocks.forEach(
-            block => {
+        grid.className =
+            "blog-images-grid";
+
+        const imageIds =
+            blog.images.map(
+                image =>
+                    image.fileId
+            );
 
 
-                /*
-                 * ========================================
-                 * テキスト
-                 * ========================================
-                 */
+        blog.images.forEach(
+            (
+                image,
+                index
+            ) => {
 
-                if (
-                    block.type ===
-                        "text"
-                ) {
-
-                    const text =
-                        document.createElement(
-                            "div"
-                        );
-
-                    text.className =
-                        "blog-detail-text";
-
-                    text.textContent =
-                        block.text ||
-                        "";
-
-                    blogDetail.appendChild(
-                        text
+                const item =
+                    document.createElement(
+                        "button"
                     );
 
-                    return;
-                }
+                item.type =
+                    "button";
+
+                item.className =
+                    "blog-images-item";
 
 
                 /*
@@ -243,79 +209,120 @@ export function createBlogDetail({
                  * ========================================
                  */
 
+                const img =
+                    document.createElement(
+                        "img"
+                    );
+
+                img.src =
+                    getImageUrl(
+                        image.fileId
+                    );
+
+                img.alt =
+                    blog.title ||
+                    "ブログ画像";
+
+                img.decoding =
+                    "async";
+
                 if (
-                    block.type ===
-                        "image" &&
-                    block.fileId
+                    index <
+                        4
                 ) {
 
-                    const imageContainer =
-                        document.createElement(
-                            "div"
-                        );
+                    img.loading =
+                        "eager";
 
-                    imageContainer.className =
-                        "blog-detail-image";
+                    img.fetchPriority =
+                        "high";
 
-                    const image =
-                        document.createElement(
-                            "img"
-                        );
+                } else {
 
-                    image.src =
-                        `/image/${block.fileId}`;
-
-                    image.alt =
-                        blogData.title ||
-                        "";
-
-                    image.loading =
+                    img.loading =
                         "lazy";
 
-                    image.decoding =
-                        "async";
-
-                    imageContainer.appendChild(
-                        image
-                    );
-
-                    blogDetail.appendChild(
-                        imageContainer
-                    );
+                    img.fetchPriority =
+                        "low";
                 }
+
+
+                /*
+                 * ========================================
+                 * 画像番号
+                 * ========================================
+                 */
+
+                const indexLabel =
+                    document.createElement(
+                        "span"
+                    );
+
+                indexLabel.className =
+                    "blog-images-index";
+
+                indexLabel.textContent =
+                    String(
+                        image.imageIndex ||
+                        index + 1
+                    );
+
+
+                /*
+                 * ========================================
+                 * 画像クリック
+                 *
+                 * このブログ内だけで移動
+                 * ========================================
+                 */
+
+                item.addEventListener(
+                    "click",
+                    () => {
+
+                        lightbox.setImages(
+                            imageIds
+                        );
+
+                        lightbox.open(
+                            index
+                        );
+                    }
+                );
+
+                item.appendChild(
+                    img
+                );
+
+                item.appendChild(
+                    indexLabel
+                );
+
+                grid.appendChild(
+                    item
+                );
             }
         );
 
+        blogImages.appendChild(
+            grid
+        );
+    }
 
-        /*
-         * ========================================
-         * 詳細画面へ切り替え
-         * ========================================
-         */
 
-        galleryScrollPosition =
-            window.scrollY;
+    /*
+     * ========================================
+     * 画像一覧表示
+     * ========================================
+     */
 
-        currentBlogDetail =
-            blogData;
+    function show() {
 
         galleryView.hidden =
             true;
 
-        blogDetailView.hidden =
+        blogImagesView.hidden =
             false;
-
-        history.pushState(
-            {
-                view:
-                    "blog-detail",
-
-                articleId:
-                    blogData.articleId
-            },
-            "",
-            `#blog-${blogData.articleId}`
-        );
 
         window.scrollTo({
             top:
@@ -329,100 +336,51 @@ export function createBlogDetail({
 
     /*
      * ========================================
-     * ギャラリーへ戻る
+     * 画像一覧非表示
      * ========================================
      */
 
-    function showGallery() {
+    function hide() {
 
-        blogDetailView.hidden =
+        blogImagesView.hidden =
             true;
-
-        galleryView.hidden =
-            false;
-
-        blogDetail.innerHTML =
-            "";
-
-        window.scrollTo({
-            top:
-                galleryScrollPosition,
-
-            behavior:
-                "auto"
-        });
     }
 
 
     /*
      * ========================================
-     * 詳細画面再表示
+     * 現在の画像一覧を再表示
      * ========================================
      */
 
-    function showCurrentDetail() {
+    function showCurrent() {
 
         if (
-            !currentBlogDetail
+            !currentBlog
         ) {
-            return;
+            return false;
         }
 
-        galleryView.hidden =
-            true;
+        render(
+            currentBlog
+        );
 
-        blogDetailView.hidden =
-            false;
+        show();
 
-        window.scrollTo({
-            top:
-                0,
-
-            behavior:
-                "auto"
-        });
+        return true;
     }
 
 
     /*
      * ========================================
-     * 戻るボタン
+     * 現在のブログ取得
      * ========================================
      */
 
-    blogDetailBackButton.addEventListener(
-        "click",
-        () => {
+    function getCurrent() {
 
-            history.back();
-        }
-    );
-
-
-    /*
-     * ========================================
-     * ブラウザ履歴変更
-     * ========================================
-     */
-
-    window.addEventListener(
-        "popstate",
-        () => {
-
-            if (
-                window.location.hash.startsWith(
-                    "#blog-"
-                )
-            ) {
-
-                showCurrentDetail();
-
-                return;
-            }
-
-            showGallery();
-        }
-    );
+        return currentBlog;
+    }
 
 
     /*
@@ -435,10 +393,16 @@ export function createBlogDetail({
         open:
             open,
 
-        showGallery:
-            showGallery,
+        show:
+            show,
 
-        showCurrentDetail:
-            showCurrentDetail
+        hide:
+            hide,
+
+        showCurrent:
+            showCurrent,
+
+        getCurrent:
+            getCurrent
     };
 }

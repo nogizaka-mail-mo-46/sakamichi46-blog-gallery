@@ -44,6 +44,11 @@ export function createLightbox({
             "imageCounter"
         );
 
+    const lightboxThumbnails =
+        document.getElementById(
+            "lightboxThumbnails"
+        );
+
     const closeButton =
         document.getElementById(
             "closeButton"
@@ -100,6 +105,8 @@ export function createLightbox({
 
         currentIndex =
             0;
+
+        renderThumbnails();
     }
 
 
@@ -113,6 +120,94 @@ export function createLightbox({
 
         return lightbox.classList.contains(
             "active"
+        );
+    }
+
+
+    /*
+     * ========================================
+     * サムネイル生成
+     * ========================================
+     */
+
+    function renderThumbnails() {
+
+        lightboxThumbnails.innerHTML =
+            "";
+
+
+        if (
+            imageIds.length ===
+                0
+        ) {
+
+            return;
+        }
+
+
+        imageIds.forEach(
+            (
+                fileId,
+                index
+            ) => {
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+                button.type =
+                    "button";
+
+                button.className =
+                    "lightbox-thumbnail";
+
+                button.dataset.index =
+                    String(
+                        index
+                    );
+
+                button.setAttribute(
+                    "aria-label",
+                    `画像 ${index + 1} を表示`
+                );
+
+
+                const image =
+                    document.createElement(
+                        "img"
+                    );
+
+                image.src =
+                    getThumbnailUrl(
+                        fileId
+                    );
+
+                image.alt =
+                    `画像 ${index + 1}`;
+
+
+                button.appendChild(
+                    image
+                );
+
+
+                button.addEventListener(
+                    "click",
+                    () => {
+
+                        currentIndex =
+                            index;
+
+                        update();
+                    }
+                );
+
+
+                lightboxThumbnails.appendChild(
+                    button
+                );
+            }
         );
     }
 
@@ -262,6 +357,65 @@ export function createLightbox({
 
         imageCounter.textContent =
             `${currentIndex + 1} / ${imageIds.length}`;
+
+        updateThumbnailState();
+    }
+
+
+    /*
+     * ========================================
+     * サムネイル選択状態更新
+     * ========================================
+     */
+
+    function updateThumbnailState() {
+
+        const thumbnailButtons =
+            lightboxThumbnails.querySelectorAll(
+                ".lightbox-thumbnail"
+            );
+
+
+        thumbnailButtons.forEach(
+            (
+                button,
+                index
+            ) => {
+
+                const isActive =
+                    index ===
+                    currentIndex;
+
+                button.classList.toggle(
+                    "active",
+                    isActive
+                );
+
+                button.setAttribute(
+                    "aria-current",
+                    isActive
+                        ? "true"
+                        : "false"
+                );
+
+
+                if (
+                    isActive
+                ) {
+
+                    button.scrollIntoView({
+                        behavior:
+                            "smooth",
+
+                        block:
+                            "nearest",
+
+                        inline:
+                            "center"
+                    });
+                }
+            }
+        );
     }
 
 

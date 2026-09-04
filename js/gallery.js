@@ -13,113 +13,46 @@ function getThumbnailUrl(
 
 /*
  * ========================================
- * ブログ単位グループ化
+ * ブログ並び替え
  * ========================================
  */
 
-function groupImagesByArticle(
-    images,
+function sortBlogs(
+    blogs,
     sortOrder
 ) {
-    const articleMap =
-        new Map();
+    const result = [
+        ...blogs
+    ];
 
-    images.forEach(
-        image => {
-            const articleId =
-                image.articleId ||
-                image.id;
-
-            if (
-                !articleMap.has(
-                    articleId
-                )
-            ) {
-                articleMap.set(
-                    articleId,
-                    {
-                        articleId:
-                            articleId,
-
-                        title:
-                            image.title ||
-                            "タイトルなし",
-
-                        blogTimestamp:
-                            image.blogTimestamp ||
-                            "",
-
-                        memberKey:
-                            image.memberKey ||
-                            null,
-
-                        images:
-                            []
-                    }
-                );
-            }
-
-            articleMap
-                .get(
-                    articleId
-                )
-                .images
-                .push(
-                    image
-                );
-        }
-    );
-
-    const articles =
-        Array.from(
-            articleMap.values()
-        );
-
-    articles.forEach(
-        article => {
-            article.images.sort(
-                (
-                    a,
-                    b
-                ) =>
-                    (
-                        Number(
-                            a.imageIndex
-                        ) ||
-                        0
-                    ) -
-                    (
-                        Number(
-                            b.imageIndex
-                        ) ||
-                        0
-                    )
-            );
-        }
-    );
-
-    articles.sort(
+    result.sort(
         (
             a,
             b
         ) => {
-            const result =
-                a.blogTimestamp.localeCompare(
-                    b.blogTimestamp
+            const comparison =
+                String(
+                    a.timestamp ||
+                    ""
+                ).localeCompare(
+                    String(
+                        b.timestamp ||
+                        ""
+                    )
                 );
 
             if (
                 sortOrder ===
                     "asc"
             ) {
-                return result;
+                return comparison;
             }
 
-            return -result;
+            return -comparison;
         }
     );
 
-    return articles;
+    return result;
 }
 
 
@@ -132,13 +65,16 @@ function groupImagesByArticle(
 export function createGallery({
     element,
     onImageClick,
-    onArticleClick
+    onArticleClick,
+    onArticleImagesClick
 }) {
 
 
     /*
      * ========================================
      * 表示中画像
+     *
+     * ブログをまたいだライトボックス用
      * ========================================
      */
 
@@ -163,12 +99,36 @@ export function createGallery({
 
     /*
      * ========================================
+     * ブログ日付表示
+     * ========================================
+     */
+
+    function createDateText(
+        date
+    ) {
+        if (
+            !date
+        ) {
+            return "";
+        }
+
+        return String(
+            date
+        ).replace(
+            /-/g,
+            "."
+        );
+    }
+
+
+    /*
+     * ========================================
      * ギャラリー表示
      * ========================================
      */
 
     function render(
-        images,
+        blogs,
         memberSelected,
         sortOrder =
             "desc"
@@ -176,27 +136,38 @@ export function createGallery({
         clear();
 
         if (
-            images.length ===
+            !Array.isArray(
+                blogs
+            ) ||
+            blogs.length ===
                 0
         ) {
             if (
                 memberSelected
             ) {
                 element.textContent =
-                    "画像がありません。";
+                    "ブログがありません。";
             }
 
             return;
         }
 
-        const articles =
-            groupImagesByArticle(
-                images,
+        const sortedBlogs =
+            sortBlogs(
+                blogs,
                 sortOrder
             );
 
-        articles.forEach(
-            article => {
+
+        /*
+         * ========================================
+         * ブログごとに描画
+         * ========================================
+         */
+
+        sortedBlogs.forEach(
+            blog => {
+
                 const articleElement =
                     document.createElement(
                         "section"
@@ -204,6 +175,30 @@ export function createGallery({
 
                 articleElement.className =
                     "gallery-article";
+
+
+                /*
+                 * ========================================
+                 * ブログ日付
+                 * ========================================
+                 */
+
+                const dateElement =
+                    document.createElement(
+                        "div"
+                    );
+
+                dateElement.className =
+                    "gallery-article-date";
+
+                dateElement.textContent =
+                    createDateText(
+                        blog.date
+                    );
+
+                articleElement.appendChild(
+                    dateElement
+                );
 
 
                 /*
@@ -224,10 +219,12 @@ export function createGallery({
                     "gallery-article-title";
 
                 titleElement.textContent =
-                    article.title;
+                    blog.title ||
+                    "（無題）";
 
                 titleElement.dataset.articleId =
-                    article.articleId;
+                    blog.articleId ||
+                    "";
 
                 titleElement.addEventListener(
                     "click",
@@ -238,10 +235,11 @@ export function createGallery({
                         ) {
                             onArticleClick({
                                 articleId:
-                                    article.articleId,
+                                    blog.articleId,
 
                                 memberKey:
-                                    article.memberKey
+                                    blog.member?.key ||
+                                    null
                             });
                         }
                     }
@@ -254,90 +252,316 @@ export function createGallery({
 
                 /*
                  * ========================================
-                 * ブログ画像
+                 * 画像
                  * ========================================
                  */
 
-                const imagesElement =
-                    document.createElement(
-                        "div"
+                const blogImages =
+                    Array.isArray(
+                        blog.images
+                    )
+                        ? blog.images
+                        : [];
+
+
+                /*
+                 * ========================================
+                 * 画像ありブログ
+                 * ========================================
+                 */
+
+                if (
+                    blogImages.length >
+                        0
+                ) {
+
+                    const imagesElement =
+                        document.createElement(
+                            "div"
+                        );
+
+                    imagesElement.className =
+                        "gallery-article-images";
+
+
+                    /*
+                     * ========================================
+                     * 各画像
+                     * ========================================
+                     */
+
+                    blogImages.forEach(
+                        image => {
+
+                            /*
+                             * displayedImagesへ入れた時点の位置が
+                             * ライトボックスのグローバルindex
+                             */
+
+                            const globalIndex =
+                                displayedImages.length;
+
+                            displayedImages.push({
+                                ...image,
+
+                                articleId:
+                                    blog.articleId,
+
+                                title:
+                                    blog.title,
+
+                                timestamp:
+                                    blog.timestamp,
+
+                                date:
+                                    blog.date,
+
+                                member:
+                                    blog.member
+                            });
+
+
+                            const item =
+                                document.createElement(
+                                    "button"
+                                );
+
+                            item.type =
+                                "button";
+
+                            item.className =
+                                "gallery-item";
+
+
+                            const img =
+                                document.createElement(
+                                    "img"
+                                );
+
+                            img.src =
+                                getThumbnailUrl(
+                                    image.fileId
+                                );
+
+                            img.alt =
+                                blog.title ||
+                                "ブログ画像";
+
+                            img.decoding =
+                                "async";
+
+
+                            /*
+                             * ========================================
+                             * 最初の画像だけ優先読込
+                             * ========================================
+                             */
+
+                            if (
+                                globalIndex <
+                                    4
+                            ) {
+                                img.loading =
+                                    "eager";
+
+                                img.fetchPriority =
+                                    "high";
+
+                            } else {
+                                img.loading =
+                                    "lazy";
+
+                                img.fetchPriority =
+                                    "low";
+                            }
+
+
+                            /*
+                             * ========================================
+                             * 画像クリック
+                             *
+                             * 表示中全ブログをまたぐ
+                             * ライトボックスを開く
+                             * ========================================
+                             */
+
+                            item.addEventListener(
+                                "click",
+                                () => {
+                                    if (
+                                        typeof onImageClick ===
+                                            "function"
+                                    ) {
+                                        onImageClick(
+                                            globalIndex
+                                        );
+                                    }
+                                }
+                            );
+
+                            item.appendChild(
+                                img
+                            );
+
+                            imagesElement.appendChild(
+                                item
+                            );
+                        }
                     );
 
-                imagesElement.className =
-                    "gallery-article-images";
+                    articleElement.appendChild(
+                        imagesElement
+                    );
 
-                article.images.forEach(
-                    image => {
-                        const index =
-                            displayedImages.length;
 
-                        displayedImages.push(
-                            image
+                    /*
+                     * ========================================
+                     * 全画像を見る
+                     * ========================================
+                     */
+
+                    const imagesLink =
+                        document.createElement(
+                            "button"
                         );
 
-                        const item =
-                            document.createElement(
-                                "div"
-                            );
+                    imagesLink.type =
+                        "button";
 
-                        item.className =
-                            "gallery-item";
+                    imagesLink.className =
+                        "gallery-article-images-link";
 
-                        const img =
-                            document.createElement(
-                                "img"
-                            );
+                    imagesLink.textContent =
+                        `全${blogImages.length}枚を見る →`;
 
-                        img.src =
-                            getThumbnailUrl(
-                                image.id
-                            );
+                    imagesLink.addEventListener(
+                        "click",
+                        () => {
+                            if (
+                                typeof onArticleImagesClick ===
+                                    "function"
+                            ) {
+                                onArticleImagesClick({
+                                    articleId:
+                                        blog.articleId,
 
-                        img.alt =
-                            article.title;
+                                    title:
+                                        blog.title,
 
-                        img.decoding =
-                            "async";
+                                    memberKey:
+                                        blog.member?.key ||
+                                        null,
 
-                        if (
-                            index <
-                                4
-                        ) {
-                            img.loading =
-                                "eager";
-
-                            img.fetchPriority =
-                                "high";
-                        } else {
-                            img.loading =
-                                "lazy";
-
-                            img.fetchPriority =
-                                "low";
-                        }
-
-                        item.addEventListener(
-                            "click",
-                            () => {
-                                onImageClick(
-                                    index
-                                );
+                                    images:
+                                        blogImages
+                                });
                             }
+                        }
+                    );
+
+                    articleElement.appendChild(
+                        imagesLink
+                    );
+
+                } else {
+
+
+                    /*
+                     * ========================================
+                     * 画像なしブログ
+                     * ========================================
+                     */
+
+                    const emptyImageArea =
+                        document.createElement(
+                            "div"
                         );
 
-                        item.appendChild(
-                            img
-                        );
+                    emptyImageArea.className =
+                        "gallery-article-no-images";
 
-                        imagesElement.appendChild(
-                            item
+
+                    /*
+                     * ========================================
+                     * 本文プレビュー
+                     * ========================================
+                     */
+
+                    if (
+                        blog.previewText
+                    ) {
+
+                        const preview =
+                            document.createElement(
+                                "p"
+                            );
+
+                        preview.className =
+                            "gallery-article-preview";
+
+                        preview.textContent =
+                            blog.previewText;
+
+                        emptyImageArea.appendChild(
+                            preview
                         );
                     }
-                );
 
-                articleElement.appendChild(
-                    imagesElement
-                );
+
+                    /*
+                     * ========================================
+                     * ブログを読む
+                     * ========================================
+                     */
+
+                    const readButton =
+                        document.createElement(
+                            "button"
+                        );
+
+                    readButton.type =
+                        "button";
+
+                    readButton.className =
+                        "gallery-article-read-link";
+
+                    readButton.textContent =
+                        "ブログを読む →";
+
+                    readButton.addEventListener(
+                        "click",
+                        () => {
+                            if (
+                                typeof onArticleClick ===
+                                    "function"
+                            ) {
+                                onArticleClick({
+                                    articleId:
+                                        blog.articleId,
+
+                                    memberKey:
+                                        blog.member?.key ||
+                                        null
+                                });
+                            }
+                        }
+                    );
+
+                    emptyImageArea.appendChild(
+                        readButton
+                    );
+
+                    articleElement.appendChild(
+                        emptyImageArea
+                    );
+                }
+
+
+                /*
+                 * ========================================
+                 * ギャラリーへ追加
+                 * ========================================
+                 */
 
                 element.appendChild(
                     articleElement
@@ -350,11 +574,15 @@ export function createGallery({
     /*
      * ========================================
      * 表示中画像取得
+     *
+     * ブログをまたいだライトボックス用
      * ========================================
      */
 
     function getDisplayedImages() {
-        return displayedImages;
+        return [
+            ...displayedImages
+        ];
     }
 
 

@@ -2,88 +2,260 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="/css/style.css">
-    <link rel="stylesheet" href="/css/gallery.css">
-    <link rel="stylesheet" href="/css/blog-detail.css">
-    <link rel="stylesheet" href="/css/blog-images.css">
-    
+    <link
+        rel="stylesheet"
+        href="/css/style.css"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/gallery.css"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/blog-detail.css"
+    >
+    <link
+        rel="stylesheet"
+        href="/css/blog-images.css"
+    >
+
     <title>坂道グループブログギャラリー</title>
 </head>
 
 <body>
 
-<div class="header">
-    <h1>坂道グループブログギャラリー</h1>
-</div>
-
 <main>
+
+    <!-- =========================
+         ギャラリー画面
+    ========================= -->
+
     <div
         id="galleryView"
     >
-        <div class="group-row">
-            <select id="groupSelect">
-                <option value="nogizaka46">
-                    乃木坂46
-                </option>
 
-                <option value="sakurazaka46">
-                    櫻坂46
-                </option>
+        <!-- =========================
+             ヒーロー
+        ========================= -->
 
-                <option value="hinatazaka46">
-                    日向坂46
-                </option>
-            </select>
+        <section
+            id="hero"
+            class="hero hero-nogizaka46"
+        >
 
-            <a
-                href="/auth/logout"
-                class="logout-button"
+            <div
+                id="heroBackground"
+                class="hero-background"
+            ></div>
+
+            <div
+                class="hero-overlay"
+            ></div>
+
+            <div
+                class="hero-content"
             >
-                ログアウト
-            </a>
-        </div>
 
-        <div class="select-row">
-            <select id="memberSelect">
-                <option value="">
-                    メンバーを選択
-                </option>
-            </select>
+                <div
+                    class="hero-title-area"
+                >
+                    <h1
+                        id="heroTitle"
+                        class="hero-title"
+                    >
+                        乃木坂46
+                    </h1>
 
-            <select id="sortSelect">
-                <option value="desc">
-                    新しい順
-                </option>
+                    <div
+                        id="heroSubtitle"
+                        class="hero-subtitle"
+                    >
+                        NOGIZAKA46 BLOG GALLERY
+                    </div>
+                </div>
 
-                <option value="asc">
-                    古い順
-                </option>
-            </select>
-        </div>
+
+                <!-- =========================
+                     グループ切り替え
+                ========================= -->
+
+                <div
+                    class="hero-group-buttons"
+                    role="group"
+                    aria-label="グループを選択"
+                >
+
+                    <button
+                        type="button"
+                        class="hero-group-button active"
+                        data-group="nogizaka46"
+                        aria-pressed="true"
+                    >
+                        乃木坂46
+                    </button>
+
+                    <button
+                        type="button"
+                        class="hero-group-button"
+                        data-group="sakurazaka46"
+                        aria-pressed="false"
+                    >
+                        櫻坂46
+                    </button>
+
+                    <button
+                        type="button"
+                        class="hero-group-button"
+                        data-group="hinatazaka46"
+                        aria-pressed="false"
+                    >
+                        日向坂46
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             操作エリア
+        ========================= -->
 
         <div
-            id="calendar"
-            class="calendar"
-        ></div>
+            class="gallery-controls"
+        >
 
-        <div
-            id="selectedDateTitle"
-            class="selected-date-title"
-        ></div>
+            <!-- =========================
+                 グループ・ログアウト
+            ========================= -->
+
+            <div
+                class="group-row"
+            >
+
+                <select
+                    id="groupSelect"
+                    aria-label="グループを選択"
+                >
+                    <option
+                        value="nogizaka46"
+                    >
+                        乃木坂46
+                    </option>
+
+                    <option
+                        value="sakurazaka46"
+                    >
+                        櫻坂46
+                    </option>
+
+                    <option
+                        value="hinatazaka46"
+                    >
+                        日向坂46
+                    </option>
+                </select>
+
+                <a
+                    href="/auth/logout"
+                    class="logout-button"
+                >
+                    ログアウト
+                </a>
+
+            </div>
+
+
+            <!-- =========================
+                 メンバー・並び順
+            ========================= -->
+
+            <div
+                class="select-row"
+            >
+
+                <select
+                    id="memberSelect"
+                    aria-label="メンバーを選択"
+                >
+                    <option
+                        value=""
+                    >
+                        メンバーを選択
+                    </option>
+                </select>
+
+                <select
+                    id="sortSelect"
+                    aria-label="並び順を選択"
+                >
+                    <option
+                        value="desc"
+                    >
+                        新しい順
+                    </option>
+
+                    <option
+                        value="asc"
+                    >
+                        古い順
+                    </option>
+                </select>
+
+            </div>
+
+
+            <!-- =========================
+                 カレンダー
+            ========================= -->
+
+            <div
+                id="calendar"
+                class="calendar"
+            ></div>
+
+
+            <!-- =========================
+                 選択中の日付
+            ========================= -->
+
+            <div
+                id="selectedDateTitle"
+                class="selected-date-title"
+            ></div>
+
+        </div>
+
+
+        <!-- =========================
+             ギャラリー
+        ========================= -->
 
         <div
             id="gallery"
             class="gallery"
         ></div>
+
     </div>
+
+
+    <!-- =========================
+         ブログ詳細画面
+    ========================= -->
 
     <div
         id="blogDetailView"
         class="blog-detail-view"
         hidden
     >
+
         <button
             id="blogDetailBackButton"
             type="button"
@@ -97,13 +269,20 @@
             class="blog-detail"
         >
         </article>
+
     </div>
+
+
+    <!-- =========================
+         ブログ画像一覧画面
+    ========================= -->
 
     <div
         id="blogImagesView"
         class="blog-images-view"
         hidden
     >
+
         <button
             id="blogImagesBackButton"
             type="button"
@@ -117,7 +296,9 @@
             class="blog-images"
         >
         </section>
+
     </div>
+
 </main>
 
 
@@ -125,7 +306,10 @@
      拡大表示
 ========================= -->
 
-<div id="lightbox" class="lightbox">
+<div
+    id="lightbox"
+    class="lightbox"
+>
 
     <button
         id="closeButton"
@@ -158,12 +342,20 @@
         ›
     </button>
 
-    <div id="imageCounter" class="image-counter">
+    <div
+        id="imageCounter"
+        class="image-counter"
+    >
         1 / 1
     </div>
 
 </div>
 
-    <script type="module" src="/js/app.js"></script>
+
+<script
+    type="module"
+    src="/js/app.js"
+></script>
+
 </body>
 </html>

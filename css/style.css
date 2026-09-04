@@ -41,6 +41,228 @@ body {
 
 
 /* =========================
+   ヒーロー
+========================= */
+
+.hero {
+    position: relative;
+
+    min-height: 320px;
+
+    overflow: hidden;
+
+    display: flex;
+
+    align-items: center;
+
+    margin-bottom: 28px;
+
+    background: #ddd;
+}
+
+
+/* =========================
+   ヒーロー背景
+========================= */
+
+.hero-background {
+    position: absolute;
+
+    inset: 0;
+
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+
+    transform: scale(1.02);
+
+    transition:
+        opacity 0.35s ease,
+        background-image 0.35s ease;
+}
+
+
+/* =========================
+   グループ別背景
+========================= */
+
+.hero-nogizaka46
+.hero-background {
+    background-image:
+        url("/images/hero/nogizaka46.webp");
+}
+
+.hero-sakurazaka46
+.hero-background {
+    background-image:
+        url("/images/hero/sakurazaka46.webp");
+}
+
+.hero-hinatazaka46
+.hero-background {
+    background-image:
+        url("/images/hero/hinatazaka46.webp");
+}
+
+
+/* =========================
+   オーバーレイ
+========================= */
+
+.hero-overlay {
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(0, 0, 0, 0.28) 0%,
+            rgba(0, 0, 0, 0.12) 42%,
+            rgba(0, 0, 0, 0.02) 100%
+        );
+}
+
+
+/* =========================
+   ヒーロー内容
+========================= */
+
+.hero-content {
+    position: relative;
+
+    z-index: 2;
+
+    width: 100%;
+
+    max-width: 1180px;
+
+    margin: 0 auto;
+
+    padding:
+        44px
+        30px;
+
+    color: #fff;
+}
+
+
+/* =========================
+   タイトル
+========================= */
+
+.hero-title-area {
+    max-width: 520px;
+}
+
+.hero-title {
+    margin: 0;
+
+    font-size: 42px;
+    font-weight: 700;
+
+    line-height: 1.2;
+
+    letter-spacing: 0.02em;
+
+    text-shadow:
+        0 2px 12px
+        rgba(0, 0, 0, 0.28);
+}
+
+.hero-subtitle {
+    margin-top: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    letter-spacing: 0.18em;
+
+    text-shadow:
+        0 1px 8px
+        rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================
+   グループボタン
+========================= */
+
+.hero-group-buttons {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 8px;
+
+    margin-top: 26px;
+}
+
+.hero-group-button {
+    min-height: 38px;
+
+    padding:
+        8px
+        16px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.6);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.16);
+
+    color: #fff;
+
+    font: inherit;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    backdrop-filter:
+        blur(5px);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.hero-group-button:hover {
+    background:
+        rgba(255, 255, 255, 0.26);
+
+    transform:
+        translateY(-1px);
+}
+
+.hero-group-button.active {
+    background: #fff;
+
+    color: #222;
+
+    border-color: #fff;
+}
+
+
+/* =========================
+   操作エリア
+========================= */
+
+.gallery-controls {
+    max-width: 1180px;
+
+    margin:
+        0
+        auto;
+}
+
+
+/* =========================
    グループ選択
 ========================= */
 
@@ -543,6 +765,57 @@ body {
 
     .header h1 {
         font-size: 20px;
+    }
+
+
+    .hero {
+        min-height: 240px;
+
+        margin-bottom: 18px;
+    }
+
+    .hero-content {
+        padding:
+            30px
+            16px;
+    }
+
+    .hero-title {
+        font-size: 28px;
+    }
+
+    .hero-subtitle {
+        margin-top: 8px;
+
+        font-size: 11px;
+
+        letter-spacing: 0.14em;
+    }
+
+    .hero-group-buttons {
+        margin-top: 20px;
+
+        gap: 6px;
+    }
+
+    .hero-group-button {
+        min-height: 34px;
+
+        padding:
+            7px
+            12px;
+
+        font-size: 12px;
+    }
+
+    .hero-overlay {
+        background:
+            linear-gradient(
+                90deg,
+                rgba(0, 0, 0, 0.34) 0%,
+                rgba(0, 0, 0, 0.16) 65%,
+                rgba(0, 0, 0, 0.04) 100%
+            );
     }
 
 

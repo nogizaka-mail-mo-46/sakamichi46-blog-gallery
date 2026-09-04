@@ -123,6 +123,9 @@ let calendarMonth =
 let selectedDate =
     null;
 
+let galleryScrollPosition =
+    0;
+
 
 /*
  * ========================================
@@ -214,6 +217,7 @@ const blogImagesController =
             }
     });
 
+
 /*
  * ========================================
  * 表示中画像ID取得
@@ -285,12 +289,18 @@ const gallery =
                 memberKey
             }) => {
 
+                galleryScrollPosition =
+                    window.scrollY;
+
                 await blogDetailController.open({
                     articleId:
                         articleId,
 
                     memberKey:
-                        memberKey
+                        memberKey,
+
+                    group:
+                        groupSelect.value
                 });
             },
 
@@ -310,6 +320,9 @@ const gallery =
                 memberKey,
                 images
             }) => {
+
+                galleryScrollPosition =
+                    window.scrollY;
 
                 blogImagesController.open({
                     articleId:
@@ -453,6 +466,9 @@ groupSelect.addEventListener(
 
         calendarMonth =
             null;
+
+        galleryScrollPosition =
+            0;
 
         gallery.clear();
 
@@ -649,6 +665,9 @@ memberSelect.addEventListener(
         calendarMonth =
             null;
 
+        galleryScrollPosition =
+            0;
+
         gallery.clear();
 
         lightbox.setImages(
@@ -737,6 +756,12 @@ async function loadMemberPostDates(
 
         selectedDate =
             null;
+
+        /*
+         * ========================================
+         * 選択メンバーの最新投稿月
+         * ========================================
+         */
 
         setInitialCalendarMonth();
 
@@ -1034,7 +1059,7 @@ function getPostMonths() {
  * ========================================
  * カレンダー初期月
  *
- * 最新投稿月を表示
+ * 対象ブログの最新投稿日月を表示
  * ========================================
  */
 
@@ -1089,6 +1114,14 @@ function setInitialCalendarMonth() {
 async function selectCalendarDate(
     dateKey
 ) {
+
+    /*
+     * ========================================
+     * 同じ日を再クリック
+     *
+     * → 月表示へ戻る
+     * ========================================
+     */
 
     if (
         selectedDate ===
@@ -1177,6 +1210,14 @@ function updateBlogs() {
         sortOrder
     );
 
+
+    /*
+     * ========================================
+     * 通常ギャラリーでは
+     * 表示中全ブログの画像を対象にする
+     * ========================================
+     */
+
     const imageIds =
         getDisplayedImageIds();
 
@@ -1209,7 +1250,6 @@ blogImagesBackButton.addEventListener(
 );
 
 
-
 /*
  * ========================================
  * ギャラリー表示
@@ -1224,6 +1264,20 @@ function showGalleryView() {
 
     galleryView.hidden =
         false;
+
+    /*
+     * ========================================
+     * 元のスクロール位置へ戻す
+     * ========================================
+     */
+
+    window.scrollTo({
+        top:
+            galleryScrollPosition,
+
+        behavior:
+            "auto"
+    });
 }
 
 
@@ -1243,6 +1297,7 @@ function showBlogDetailView() {
     if (
         !shown
     ) {
+
         showGalleryView();
     }
 }
@@ -1264,6 +1319,7 @@ function showBlogImagesView() {
     if (
         !shown
     ) {
+
         showGalleryView();
     }
 }
@@ -1286,6 +1342,8 @@ window.addEventListener(
         /*
          * ========================================
          * ブログ画像一覧
+         *
+         * #blog-images-12345
          * ========================================
          */
 
@@ -1304,6 +1362,8 @@ window.addEventListener(
         /*
          * ========================================
          * ブログ詳細
+         *
+         * #blog-12345
          * ========================================
          */
 
@@ -1321,7 +1381,7 @@ window.addEventListener(
 
         /*
          * ========================================
-         * ギャラリー
+         * 通常ギャラリー
          * ========================================
          */
 

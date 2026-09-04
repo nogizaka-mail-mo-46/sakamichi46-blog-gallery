@@ -74,34 +74,32 @@ body {
     background-size: cover;
     background-repeat: no-repeat;
 
-    transform: scale(1.02);
+    opacity: 0;
+
+    transform:
+        scale(
+            1.02
+        );
 
     transition:
-        opacity 0.35s ease,
-        background-image 0.35s ease;
+        opacity 0.5s ease;
+
+    will-change:
+        opacity;
+}
+
+.hero-background.active {
+    opacity: 1;
 }
 
 
 /* =========================
-   グループ別背景
+   初期背景
 ========================= */
 
-.hero-nogizaka46
-.hero-background {
+.hero-background-a {
     background-image:
         url("/images/hero/nogizaka46.webp");
-}
-
-.hero-sakurazaka46
-.hero-background {
-    background-image:
-        url("/images/hero/sakurazaka46.webp");
-}
-
-.hero-hinatazaka46
-.hero-background {
-    background-image:
-        url("/images/hero/hinatazaka46.webp");
 }
 
 

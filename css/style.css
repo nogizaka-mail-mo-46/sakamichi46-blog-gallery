@@ -230,7 +230,7 @@ body {
 .hero-logout-button {
     position: absolute;
 
-    top: -26px;
+    top: 18px;
     right: 30px;
 
     display: inline-flex;
@@ -749,14 +749,14 @@ body {
     }
 
     .hero-logout-button {
-        top: -36px;
+        top: 12px;
         right: 12px;
 
         min-height: 32px;
 
         padding:
             6px
-            10px;
+            11px;
 
         font-size: 11px;
     }

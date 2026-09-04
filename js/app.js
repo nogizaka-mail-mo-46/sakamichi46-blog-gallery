@@ -10,6 +10,15 @@ import {
     createLightbox
 } from "./lightbox.js";
 
+import {
+    fetchMembers,
+    fetchBlogs
+} from "./api.js";
+
+import {
+    createBlogDetail
+} from "./blog-detail.js";
+
 
 /*
  * ========================================
@@ -74,23 +83,27 @@ const blogDetail =
  * ========================================
  */
 
-let images = [];
+let blogs =
+    [];
 
-let filteredImages = [];
+let filteredBlogs =
+    [];
 
-let allPostDates = [];
+let allPostDates =
+    [];
 
-let memberPostDates = [];
+let memberPostDates =
+    [];
 
-let calendarYear = null;
+let calendarYear =
+    null;
 
-let calendarMonth = null;
+let calendarMonth =
+    null;
 
-let selectedDate = null;
+let selectedDate =
+    null;
 
-let galleryScrollPosition = 0;
-
-let currentBlogDetail = null;
 
 /*
  * ========================================
@@ -104,6 +117,56 @@ const lightbox =
 
 /*
  * ========================================
+ * ブログ詳細
+ * ========================================
+ */
+
+const blogDetailController =
+    createBlogDetail({
+        galleryView:
+            galleryView,
+
+        blogDetailView:
+            blogDetailView,
+
+        blogDetail:
+            blogDetail,
+
+        blogDetailBackButton:
+            blogDetailBackButton,
+
+        getGroup:
+            () =>
+                groupSelect.value,
+
+        getSelectedMember:
+            () =>
+                memberSelect.value
+    });
+
+
+/*
+ * ========================================
+ * 表示中画像ID取得
+ * ========================================
+ */
+
+function getDisplayedImageIds() {
+
+    return gallery
+        .getDisplayedImages()
+        .map(
+            image =>
+                image.fileId
+        )
+        .filter(
+            Boolean
+        );
+}
+
+
+/*
+ * ========================================
  * ギャラリー
  * ========================================
  */
@@ -113,21 +176,97 @@ const gallery =
         element:
             galleryElement,
 
+
+        /*
+         * ========================================
+         * 画像クリック
+         *
+         * 表示中の全ブログをまたいで
+         * ライトボックス表示
+         * ========================================
+         */
+
         onImageClick:
-            (index) => {
+            (
+                index
+            ) => {
+
+                const imageIds =
+                    getDisplayedImageIds();
+
+                lightbox.setImages(
+                    imageIds
+                );
+
                 lightbox.open(
                     index
                 );
             },
+
+
+        /*
+         * ========================================
+         * ブログタイトルクリック
+         * ========================================
+         */
 
         onArticleClick:
             async ({
                 articleId,
                 memberKey
             }) => {
-                await loadBlogDetail(
-                    articleId,
-                    memberKey
+
+                await blogDetailController.open({
+                    articleId:
+                        articleId,
+
+                    memberKey:
+                        memberKey
+                });
+            },
+
+
+        /*
+         * ========================================
+         * 全○枚を見る
+         *
+         * 現段階では
+         * そのブログ内だけライトボックス表示
+         * ========================================
+         */
+
+        onArticleImagesClick:
+            ({
+                images
+            }) => {
+
+                const imageIds =
+                    Array.isArray(
+                        images
+                    )
+                        ? images
+                            .map(
+                                image =>
+                                    image.fileId
+                            )
+                            .filter(
+                                Boolean
+                            )
+                        : [];
+
+                if (
+                    imageIds.length ===
+                        0
+                ) {
+                    return;
+                }
+
+                lightbox.setImages(
+                    imageIds
+                );
+
+                lightbox.open(
+                    0
                 );
             }
     });
@@ -170,7 +309,10 @@ const calendar =
                 ),
 
         onDateSelect:
-            async (dateKey) => {
+            async (
+                dateKey
+            ) => {
+
                 await selectCalendarDate(
                     dateKey
                 );
@@ -181,6 +323,7 @@ const calendar =
                 year,
                 month
             ) => {
+
                 calendarYear =
                     year;
 
@@ -194,11 +337,12 @@ const calendar =
 
                 calendar.render();
 
-                await loadCurrentMonthImages();
+                await loadCurrentMonthBlogs();
             },
 
         onClearDate:
             async () => {
+
                 await clearSelectedDate();
             }
     });
@@ -211,6 +355,7 @@ const calendar =
  */
 
 async function initialize() {
+
     await loadMembers();
 
     await loadGroupPostDates();
@@ -228,16 +373,21 @@ initialize();
 groupSelect.addEventListener(
     "change",
     async () => {
+
         memberSelect.value =
             "";
 
-        images = [];
+        blogs =
+            [];
 
-        filteredImages = [];
+        filteredBlogs =
+            [];
 
-        allPostDates = [];
+        allPostDates =
+            [];
 
-        memberPostDates = [];
+        memberPostDates =
+            [];
 
         selectedDate =
             null;
@@ -270,6 +420,7 @@ groupSelect.addEventListener(
  */
 
 async function loadMembers() {
+
     const group =
         groupSelect.value;
 
@@ -292,21 +443,11 @@ async function loadMembers() {
     );
 
     try {
-        const response =
-            await fetch(
-                `/api/members?group=${encodeURIComponent(group)}`
-            );
-
-        if (
-            !response.ok
-        ) {
-            throw new Error(
-                "メンバー一覧の取得に失敗しました。"
-            );
-        }
 
         const data =
-            await response.json();
+            await fetchMembers(
+                group
+            );
 
         if (
             !Array.isArray(
@@ -317,7 +458,8 @@ async function loadMembers() {
         }
 
         data.members.forEach(
-            (member) => {
+            member => {
+
                 const option =
                     document.createElement(
                         "option"
@@ -338,6 +480,7 @@ async function loadMembers() {
     } catch (
         error
     ) {
+
         console.error(
             error
         );
@@ -347,11 +490,12 @@ async function loadMembers() {
 
 /*
  * ========================================
- * 選択グループの投稿日取得
+ * グループ投稿日取得
  * ========================================
  */
 
 async function loadGroupPostDates() {
+
     const group =
         groupSelect.value;
 
@@ -361,21 +505,12 @@ async function loadGroupPostDates() {
     gallery.clear();
 
     try {
-        const response =
-            await fetch(
-                `/api/images?group=${encodeURIComponent(group)}`
-            );
-
-        if (
-            !response.ok
-        ) {
-            throw new Error(
-                "投稿日取得に失敗しました。"
-            );
-        }
 
         const data =
-            await response.json();
+            await fetchBlogs({
+                group:
+                    group
+            });
 
         allPostDates =
             Array.isArray(
@@ -384,7 +519,8 @@ async function loadGroupPostDates() {
                 ? data.postDates
                 : [];
 
-        memberPostDates = [];
+        memberPostDates =
+            [];
 
         selectedDate =
             null;
@@ -395,20 +531,24 @@ async function loadGroupPostDates() {
 
         calendar.render();
 
-        await loadCurrentMonthImages();
+        await loadCurrentMonthBlogs();
 
     } catch (
         error
     ) {
+
         console.error(
             error
         );
 
-        allPostDates = [];
+        allPostDates =
+            [];
 
-        images = [];
+        blogs =
+            [];
 
-        filteredImages = [];
+        filteredBlogs =
+            [];
 
         lightbox.setImages(
             []
@@ -431,14 +571,18 @@ async function loadGroupPostDates() {
 memberSelect.addEventListener(
     "change",
     async () => {
+
         const member =
             memberSelect.value;
 
-        images = [];
+        blogs =
+            [];
 
-        filteredImages = [];
+        filteredBlogs =
+            [];
 
-        memberPostDates = [];
+        memberPostDates =
+            [];
 
         selectedDate =
             null;
@@ -459,26 +603,31 @@ memberSelect.addEventListener(
 
 
         /*
+         * ========================================
          * メンバー未選択
+         * ========================================
          */
 
         if (
             !member
         ) {
+
             setInitialCalendarMonth();
 
             calendar.updateSelectedDateTitle();
 
             calendar.render();
 
-            await loadCurrentMonthImages();
+            await loadCurrentMonthBlogs();
 
             return;
         }
 
 
         /*
+         * ========================================
          * メンバー選択あり
+         * ========================================
          */
 
         await loadMemberPostDates(
@@ -490,13 +639,14 @@ memberSelect.addEventListener(
 
 /*
  * ========================================
- * メンバーの投稿日取得
+ * メンバー投稿日取得
  * ========================================
  */
 
 async function loadMemberPostDates(
     memberKey
 ) {
+
     const group =
         groupSelect.value;
 
@@ -506,21 +656,15 @@ async function loadMemberPostDates(
     gallery.clear();
 
     try {
-        const response =
-            await fetch(
-                `/api/images?group=${encodeURIComponent(group)}&member=${encodeURIComponent(memberKey)}`
-            );
-
-        if (
-            !response.ok
-        ) {
-            throw new Error(
-                "メンバー投稿日一覧の取得に失敗しました。"
-            );
-        }
 
         const data =
-            await response.json();
+            await fetchBlogs({
+                group:
+                    group,
+
+                member:
+                    memberKey
+            });
 
         memberPostDates =
             Array.isArray(
@@ -529,9 +673,14 @@ async function loadMemberPostDates(
                 ? data.postDates
                 : [];
 
-        images = [];
-        filteredImages = [];
-        selectedDate = null;
+        blogs =
+            [];
+
+        filteredBlogs =
+            [];
+
+        selectedDate =
+            null;
 
         setInitialCalendarMonth();
 
@@ -539,18 +688,24 @@ async function loadMemberPostDates(
 
         calendar.render();
 
-        await loadCurrentMonthImages();
+        await loadCurrentMonthBlogs();
 
     } catch (
         error
     ) {
+
         console.error(
             error
         );
 
-        images = [];
-        filteredImages = [];
-        memberPostDates = [];
+        blogs =
+            [];
+
+        filteredBlogs =
+            [];
+
+        memberPostDates =
+            [];
 
         lightbox.setImages(
             []
@@ -560,7 +715,7 @@ async function loadMemberPostDates(
             "";
 
         galleryElement.textContent =
-            "画像の読み込みに失敗しました。";
+            "ブログの読み込みに失敗しました。";
     }
 }
 
@@ -572,12 +727,14 @@ async function loadMemberPostDates(
  */
 
 function getCurrentMonthKey() {
+
     if (
         calendarYear ===
             null ||
         calendarMonth ===
             null
     ) {
+
         return null;
     }
 
@@ -597,11 +754,12 @@ function getCurrentMonthKey() {
 
 /*
  * ========================================
- * 表示中の月の画像取得
+ * 表示中の月のブログ取得
  * ========================================
  */
 
-async function loadCurrentMonthImages() {
+async function loadCurrentMonthBlogs() {
+
     const group =
         groupSelect.value;
 
@@ -614,9 +772,12 @@ async function loadCurrentMonthImages() {
     if (
         !month
     ) {
-        images = [];
 
-        filteredImages = [];
+        blogs =
+            [];
+
+        filteredBlogs =
+            [];
 
         gallery.clear();
 
@@ -631,81 +792,66 @@ async function loadCurrentMonthImages() {
         "読み込み中...";
 
     try {
-        const params =
-            new URLSearchParams({
+
+        const data =
+            await fetchBlogs({
                 group:
                     group,
+
+                member:
+                    member ||
+                    null,
 
                 month:
                     month
             });
 
-        if (
-            member
-        ) {
-            params.set(
-                "member",
-                member
-            );
-        }
-
-        const response =
-            await fetch(
-                `/api/images?${params.toString()}`
-            );
-
-        if (
-            !response.ok
-        ) {
-            throw new Error(
-                "月別画像の取得に失敗しました。"
-            );
-        }
-
-        const data =
-            await response.json();
-
-        images =
+        blogs =
             Array.isArray(
-                data.images
+                data.blogs
             )
-                ? data.images
+                ? data.blogs
                 : [];
 
-        filteredImages = [];
+        filteredBlogs =
+            [];
 
-        updateImages();
+        updateBlogs();
 
     } catch (
         error
     ) {
+
         console.error(
             error
         );
 
-        images = [];
+        blogs =
+            [];
 
-        filteredImages = [];
+        filteredBlogs =
+            [];
 
         lightbox.setImages(
             []
         );
 
         galleryElement.textContent =
-            "画像の読み込みに失敗しました。";
+            "ブログの読み込みに失敗しました。";
     }
 }
 
 
 /*
  * ========================================
- * 指定日の画像取得
+ * 指定日のブログ取得
  * ========================================
  */
 
-async function loadImagesByDate(
+async function loadBlogsByDate(
     dateKey
 ) {
+
     const group =
         groupSelect.value;
 
@@ -716,68 +862,52 @@ async function loadImagesByDate(
         "読み込み中...";
 
     try {
-        const params =
-            new URLSearchParams({
+
+        const data =
+            await fetchBlogs({
                 group:
                     group,
+
+                member:
+                    member ||
+                    null,
 
                 date:
                     dateKey
             });
 
-        if (
-            member
-        ) {
-            params.set(
-                "member",
-                member
-            );
-        }
-
-        const response =
-            await fetch(
-                `/api/images?${params.toString()}`
-            );
-
-        if (
-            !response.ok
-        ) {
-            throw new Error(
-                "指定日の画像取得に失敗しました。"
-            );
-        }
-
-        const data =
-            await response.json();
-
-        images =
+        blogs =
             Array.isArray(
-                data.images
+                data.blogs
             )
-                ? data.images
+                ? data.blogs
                 : [];
 
-        filteredImages = [];
+        filteredBlogs =
+            [];
 
-        updateImages();
+        updateBlogs();
 
     } catch (
         error
     ) {
+
         console.error(
             error
         );
 
-        images = [];
+        blogs =
+            [];
 
-        filteredImages = [];
+        filteredBlogs =
+            [];
 
         lightbox.setImages(
             []
         );
 
         galleryElement.textContent =
-            "画像の読み込みに失敗しました。";
+            "ブログの読み込みに失敗しました。";
     }
 }
 
@@ -789,9 +919,11 @@ async function loadImagesByDate(
  */
 
 function getPostDates() {
+
     if (
         memberSelect.value
     ) {
+
         return new Set(
             memberPostDates
         );
@@ -810,6 +942,7 @@ function getPostDates() {
  */
 
 function getPostMonths() {
+
     const postMonths =
         new Set();
 
@@ -817,12 +950,14 @@ function getPostMonths() {
         getPostDates();
 
     postDates.forEach(
-        (dateKey) => {
+        dateKey => {
+
             if (
                 /^\d{8}$/.test(
                     dateKey
                 )
             ) {
+
                 postMonths.add(
                     dateKey.substring(
                         0,
@@ -842,17 +977,21 @@ function getPostMonths() {
 /*
  * ========================================
  * カレンダー初期月
+ *
+ * 最新投稿月を表示
  * ========================================
  */
 
 function setInitialCalendarMonth() {
+
     const postMonths =
         getPostMonths();
 
     if (
         postMonths.length ===
-        0
+            0
     ) {
+
         calendarYear =
             null;
 
@@ -894,15 +1033,12 @@ function setInitialCalendarMonth() {
 async function selectCalendarDate(
     dateKey
 ) {
-    /*
-     * 同じ日を再クリック
-     * → 月表示へ戻る
-     */
 
     if (
         selectedDate ===
-        dateKey
+            dateKey
     ) {
+
         await clearSelectedDate();
 
         return;
@@ -915,7 +1051,7 @@ async function selectCalendarDate(
 
     calendar.render();
 
-    await loadImagesByDate(
+    await loadBlogsByDate(
         dateKey
     );
 }
@@ -928,6 +1064,7 @@ async function selectCalendarDate(
  */
 
 async function clearSelectedDate() {
+
     selectedDate =
         null;
 
@@ -935,7 +1072,7 @@ async function clearSelectedDate() {
 
     calendar.render();
 
-    await loadCurrentMonthImages();
+    await loadCurrentMonthBlogs();
 }
 
 
@@ -948,387 +1085,46 @@ async function clearSelectedDate() {
 sortSelect.addEventListener(
     "change",
     () => {
+
         if (
-            images.length ===
-            0
+            blogs.length ===
+                0
         ) {
             return;
         }
 
-        updateImages();
+        updateBlogs();
     }
 );
 
 
 /*
  * ========================================
- * ブログ詳細から戻る
+ * ブログ並び替え・描画
  * ========================================
  */
 
-blogDetailBackButton.addEventListener(
-    "click",
-    () => {
-        history.back();
-    }
-);
+function updateBlogs() {
 
-
-/*
- * ========================================
- * ブラウザ履歴変更
- * ========================================
- */
-
-window.addEventListener(
-    "popstate",
-    () => {
-        if (
-            window.location.hash.startsWith(
-                "#blog-"
-            )
-        ) {
-            if (
-                currentBlogDetail
-            ) {
-                galleryView.hidden =
-                    true;
-
-                blogDetailView.hidden =
-                    false;
-
-                window.scrollTo({
-                    top:
-                        0,
-
-                    behavior:
-                        "auto"
-                });
-            }
-
-            return;
-        }
-
-        blogDetailView.hidden =
-            true;
-
-        galleryView.hidden =
-            false;
-
-        blogDetail.innerHTML =
-            "";
-
-        window.scrollTo({
-            top:
-                galleryScrollPosition,
-
-            behavior:
-                "auto"
-        });
-    }
-);
-
-
-/*
- * ========================================
- * 画像並び替え・描画
- * ========================================
- */
-
-function updateImages() {
-    filteredImages = [
-        ...images
+    filteredBlogs = [
+        ...blogs
     ];
 
     const sortOrder =
         sortSelect.value;
 
     gallery.render(
-        filteredImages,
+        filteredBlogs,
         Boolean(
             memberSelect.value
         ),
         sortOrder
     );
 
-    const displayedImages =
-        gallery.getDisplayedImages();
-
     const imageIds =
-        displayedImages.map(
-            (image) =>
-                image.id
-        );
+        getDisplayedImageIds();
 
     lightbox.setImages(
         imageIds
     );
-}
-
-
-/*
- * ========================================
- * ブログ詳細取得
- * ========================================
- */
-
-async function loadBlogDetail(
-    articleId,
-    memberKey
-) {
-    const group =
-        groupSelect.value;
-
-    const targetMemberKey =
-        memberKey ||
-        memberSelect.value;
-
-    if (
-        !targetMemberKey
-    ) {
-        console.error(
-            "ブログのメンバーを特定できません。"
-        );
-
-        return;
-    }
-
-    try {
-        const params =
-            new URLSearchParams({
-                group:
-                    group,
-
-                member:
-                    targetMemberKey,
-
-                articleId:
-                    articleId
-            });
-
-        const response =
-            await fetch(
-                `/api/blog?${params.toString()}`
-            );
-
-        if (
-            !response.ok
-        ) {
-            throw new Error(
-                "ブログ詳細の取得に失敗しました。"
-            );
-        }
-
-        const blogData =
-            await response.json();
-
-        renderBlogDetail(
-            blogData
-        );
-
-    } catch (
-        error
-    ) {
-        console.error(
-            error
-        );
-    }
-}
-
-
-/*
- * ========================================
- * ブログ詳細描画
- * ========================================
- */
-
-function renderBlogDetail(
-    blogData
-) {
-    blogDetail.innerHTML =
-        "";
-
-    const header =
-        document.createElement(
-            "header"
-        );
-
-    header.className =
-        "blog-detail-header";
-
-    const title =
-        document.createElement(
-            "h2"
-        );
-
-    title.className =
-        "blog-detail-title";
-
-    title.textContent =
-        blogData.title ||
-        "タイトルなし";
-
-    const meta =
-        document.createElement(
-            "div"
-        );
-
-    meta.className =
-        "blog-detail-meta";
-
-    const date =
-        blogData.date
-            ? blogData.date.replace(
-                /-/g,
-                "."
-            )
-            : "";
-
-    const memberName =
-        blogData.member?.name ||
-        "";
-
-    meta.textContent =
-        [
-            date,
-            memberName
-        ]
-            .filter(
-                Boolean
-            )
-            .join(
-                " / "
-            );
-
-    header.appendChild(
-        title
-    );
-
-    header.appendChild(
-        meta
-    );
-
-    blogDetail.appendChild(
-        header
-    );
-
-
-    /*
-     * ========================================
-     * 本文・画像
-     * ========================================
-     */
-
-    const blocks =
-        Array.isArray(
-            blogData.blocks
-        )
-            ? blogData.blocks
-            : [];
-
-    blocks.forEach(
-        block => {
-            if (
-                block.type ===
-                    "text"
-            ) {
-                const text =
-                    document.createElement(
-                        "div"
-                    );
-
-                text.className =
-                    "blog-detail-text";
-
-                text.textContent =
-                    block.text ||
-                    "";
-
-                blogDetail.appendChild(
-                    text
-                );
-
-                return;
-            }
-
-            if (
-                block.type ===
-                    "image" &&
-                block.fileId
-            ) {
-                const imageContainer =
-                    document.createElement(
-                        "div"
-                    );
-
-                imageContainer.className =
-                    "blog-detail-image";
-
-                const image =
-                    document.createElement(
-                        "img"
-                    );
-
-                image.src =
-                    `/image/${block.fileId}`;
-
-                image.alt =
-                    blogData.title ||
-                    "";
-
-                image.loading =
-                    "lazy";
-
-                image.decoding =
-                    "async";
-
-                imageContainer.appendChild(
-                    image
-                );
-
-                blogDetail.appendChild(
-                    imageContainer
-                );
-            }
-        }
-    );
-
-
-    /*
-     * ========================================
-     * 詳細画面へ切り替え
-     * ========================================
-     */
-
-    galleryScrollPosition =
-        window.scrollY;
-
-    currentBlogDetail =
-        blogData;
-
-    galleryView.hidden =
-        true;
-
-    blogDetailView.hidden =
-        false;
-
-    history.pushState(
-        {
-            view:
-                "blog-detail",
-
-            articleId:
-                blogData.articleId
-        },
-        "",
-        `#blog-${blogData.articleId}`
-    );
-
-    window.scrollTo({
-        top:
-            0,
-
-        behavior:
-            "auto"
-    });
 }

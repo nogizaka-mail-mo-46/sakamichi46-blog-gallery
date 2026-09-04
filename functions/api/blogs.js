@@ -182,107 +182,75 @@ function getTargetMembers(
 
 /*
  * ========================================
- * ブログJSONファイル一覧取得
+ * index.json検索
  * ========================================
  */
 
-async function getBlogJsonFiles(
+async function getBlogIndexFile(
     accessToken,
     folderId
 ) {
-    const files =
-        [];
+    const queryParts = [
+        `'${escapeDriveQueryValue(folderId)}' in parents`,
+        `name = 'index.json'`,
+        "trashed = false"
+    ];
 
-    let pageToken =
-        null;
+    const params =
+        new URLSearchParams({
+            q:
+                queryParts.join(
+                    " and "
+                ),
 
-    do {
-        const queryParts = [
-            `'${escapeDriveQueryValue(folderId)}' in parents`,
-            "trashed = false"
-        ];
+            pageSize:
+                "1",
 
-        const params =
-            new URLSearchParams({
-                q:
-                    queryParts.join(
-                        " and "
-                    ),
+            fields:
+                "files(id,name,modifiedTime)"
+        });
 
-                pageSize:
-                    "1000",
-
-                fields:
-                    "nextPageToken,files(id,name,mimeType,createdTime,modifiedTime)"
-            });
-
-        if (
-            pageToken
-        ) {
-            params.set(
-                "pageToken",
-                pageToken
-            );
-        }
-
-        const response =
-            await fetch(
-                `https://www.googleapis.com/drive/v3/files?${params.toString()}`,
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${accessToken}`
-                    }
+    const response =
+        await fetch(
+            `https://www.googleapis.com/drive/v3/files?${params.toString()}`,
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${accessToken}`
                 }
-            );
-
-        if (
-            !response.ok
-        ) {
-            const errorText =
-                await response.text();
-
-            console.error(
-                "Google Drive API error:",
-                errorText
-            );
-
-            throw new Error(
-                "ブログJSON一覧の取得に失敗しました。"
-            );
-        }
-
-        const data =
-            await response.json();
-
-        const jsonFiles =
-            Array.isArray(
-                data.files
-            )
-                ? data.files.filter(
-                    file =>
-                        file.name &&
-                        file.name
-                            .toLowerCase()
-                            .endsWith(
-                                ".json"
-                            )
-                )
-                : [];
-
-        files.push(
-            ...jsonFiles
+            }
         );
 
-        pageToken =
-            data.nextPageToken ||
-            null;
+    if (
+        !response.ok
+    ) {
+        const errorText =
+            await response.text();
 
-    } while (
-        pageToken
-    );
+        console.error(
+            "Google Drive API error:",
+            errorText
+        );
 
-    return files;
+        throw new Error(
+            "index.jsonの検索に失敗しました。"
+        );
+    }
+
+    const data =
+        await response.json();
+
+    if (
+        !Array.isArray(
+            data.files
+        ) ||
+        data.files.length ===
+            0
+    ) {
+        return null;
+    }
+
+    return data.files[0];
 }
 
 
@@ -320,71 +288,11 @@ async function getDriveFileText(
         );
 
         throw new Error(
-            "ブログJSONの取得に失敗しました。"
+            "index.jsonの取得に失敗しました。"
         );
     }
 
     return await response.text();
-}
-
-
-/*
- * ========================================
- * プレビューテキスト生成
- * ========================================
- */
-
-function createPreviewText(
-    blocks,
-    maxLength = 120
-) {
-    if (
-        !Array.isArray(
-            blocks
-        )
-    ) {
-        return "";
-    }
-
-    const firstTextBlock =
-        blocks.find(
-            block =>
-                block &&
-                block.type ===
-                    "text" &&
-                typeof block.text ===
-                    "string" &&
-                block.text.trim()
-        );
-
-    if (
-        !firstTextBlock
-    ) {
-        return "";
-    }
-
-    const normalized =
-        firstTextBlock.text
-            .replace(
-                /\s+/g,
-                " "
-            )
-            .trim();
-
-    if (
-        normalized.length <=
-            maxLength
-    ) {
-        return normalized;
-    }
-
-    return (
-        normalized.substring(
-            0,
-            maxLength
-        ) +
-        "…"
-    );
 }
 
 
@@ -424,20 +332,21 @@ function createDateKey(
 
 /*
  * ========================================
- * 一覧用ブログデータ生成
+ * index記事データ整形
  * ========================================
  */
 
 function createBlogSummary(
-    blogData,
+    blog,
     memberKey,
-    member
+    member,
+    indexData
 ) {
     const images =
         Array.isArray(
-            blogData.images
+            blog.images
         )
-            ? blogData.images
+            ? blog.images
                 .filter(
                     image =>
                         image &&
@@ -477,25 +386,25 @@ function createBlogSummary(
     return {
         articleId:
             String(
-                blogData.articleId ||
+                blog.articleId ||
                 ""
             ),
 
         title:
             String(
-                blogData.title ||
+                blog.title ||
                 ""
             ),
 
         timestamp:
             String(
-                blogData.timestamp ||
+                blog.timestamp ||
                 ""
             ),
 
         date:
             String(
-                blogData.date ||
+                blog.date ||
                 ""
             ),
 
@@ -504,26 +413,26 @@ function createBlogSummary(
                 memberKey,
 
             id:
-                blogData.member?.id
+                indexData.member?.id
                     ? String(
-                        blogData.member.id
+                        indexData.member.id
                     )
                     : "",
 
             name:
-                blogData.member?.name ||
+                indexData.member?.name ||
                 member.name ||
                 ""
         },
 
         group: {
             id:
-                blogData.group?.id ||
+                indexData.group?.id ||
                 member.group ||
                 "",
 
             name:
-                blogData.group?.name ||
+                indexData.group?.name ||
                 ""
         },
 
@@ -534,9 +443,10 @@ function createBlogSummary(
             images,
 
         previewText:
-            createPreviewText(
-                blogData.blocks
-            )
+            typeof blog.previewText ===
+                "string"
+                ? blog.previewText
+                : ""
     };
 }
 
@@ -544,6 +454,8 @@ function createBlogSummary(
 /*
  * ========================================
  * 1メンバー分のブログ一覧取得
+ *
+ * index.jsonだけを取得する
  * ========================================
  */
 
@@ -559,120 +471,113 @@ async function getMemberBlogs(
             `blogDataFolderId未設定: ${memberKey}`
         );
 
-        return {
-            blogs: [],
-
-            debug: {
-                memberKey:
-                    memberKey,
-
-                folderId:
-                    null,
-
-                fileCount:
-                    0,
-
-                fileNames:
-                    []
-            }
-        };
+        return [];
     }
 
-    const files =
-        await getBlogJsonFiles(
+
+    /*
+     * ========================================
+     * index.json検索
+     * ========================================
+     */
+
+    const indexFile =
+        await getBlogIndexFile(
             accessToken,
             member.blogDataFolderId
         );
 
-
-    /*
-     * ========================================
-     * 一時デバッグ情報
-     * ========================================
-     */
-
-    const debug = {
-        memberKey:
-            memberKey,
-
-        folderId:
-            member.blogDataFolderId,
-
-        fileCount:
-            files.length,
-
-        fileNames:
-            files
-                .map(
-                    file =>
-                        file.name
-                )
-                .sort()
-    };
-
-
-    /*
-     * ========================================
-     * ブログJSON読込
-     * ========================================
-     */
-
-    const results =
-        await processInBatches(
-            files,
-            10,
-            async file => {
-                try {
-                    const text =
-                        await getDriveFileText(
-                            accessToken,
-                            file.id
-                        );
-
-                    const blogData =
-                        JSON.parse(
-                            text
-                        );
-
-                    if (
-                        !blogData ||
-                        !blogData.articleId
-                    ) {
-                        console.warn(
-                            `articleIdなし: ${file.name}`
-                        );
-
-                        return null;
-                    }
-
-                    return createBlogSummary(
-                        blogData,
-                        memberKey,
-                        member
-                    );
-
-                } catch (
-                    error
-                ) {
-                    console.error(
-                        `ブログJSON読込失敗: ${file.name}`,
-                        error
-                    );
-
-                    return null;
-                }
-            }
+    if (
+        !indexFile
+    ) {
+        console.warn(
+            `index.jsonなし: ${memberKey}`
         );
 
-    return {
-        blogs:
-            results.filter(
-                Boolean
-            ),
+        return [];
+    }
 
-        debug:
-            debug
-    };
+
+    /*
+     * ========================================
+     * index.json取得
+     * ========================================
+     */
+
+    const text =
+        await getDriveFileText(
+            accessToken,
+            indexFile.id
+        );
+
+
+    /*
+     * ========================================
+     * JSON解析
+     * ========================================
+     */
+
+    let indexData;
+
+    try {
+        indexData =
+            JSON.parse(
+                text
+            );
+
+    } catch (
+        error
+    ) {
+        console.error(
+            `index.json解析失敗: ${memberKey}`,
+            error
+        );
+
+        return [];
+    }
+
+
+    /*
+     * ========================================
+     * blogs配列チェック
+     * ========================================
+     */
+
+    if (
+        !indexData ||
+        !Array.isArray(
+            indexData.blogs
+        )
+    ) {
+        console.warn(
+            `index.jsonのblogsが不正: ${memberKey}`
+        );
+
+        return [];
+    }
+
+
+    /*
+     * ========================================
+     * 一覧データ生成
+     * ========================================
+     */
+
+    return indexData.blogs
+        .filter(
+            blog =>
+                blog &&
+                blog.articleId
+        )
+        .map(
+            blog =>
+                createBlogSummary(
+                    blog,
+                    memberKey,
+                    member,
+                    indexData
+                )
+        );
 }
 
 
@@ -977,39 +882,32 @@ export async function onRequestGet(
                 env
             );
 
-const memberResults =
-    await processInBatches(
-        targetMembers,
-        5,
-        async ([
-            targetMemberKey,
-            member
-        ]) =>
-            await getMemberBlogs(
-                accessToken,
-                targetMemberKey,
-                member
-            )
-    );
+        const memberResults =
+            await processInBatches(
+                targetMembers,
+                5,
+                async ([
+                    targetMemberKey,
+                    member
+                ]) =>
+                    await getMemberBlogs(
+                        accessToken,
+                        targetMemberKey,
+                        member
+                    )
+            );
 
-const allBlogs =
-    memberResults.flatMap(
-        result =>
-            result.blogs
-    );
-
-const debug =
-    memberResults.map(
-        result =>
-            result.debug
-    );
+        const allBlogs =
+            memberResults.flat();
 
 
         /*
+         * ========================================
          * カレンダー用投稿日
          *
-         * date/monthで絞る前の
+         * date / monthで絞る前の
          * 対象メンバー全投稿日を返す
+         * ========================================
          */
 
         const postDates =
@@ -1019,7 +917,9 @@ const debug =
 
 
         /*
+         * ========================================
          * 日付・月絞り込み
+         * ========================================
          */
 
         const filteredBlogs =
@@ -1031,7 +931,9 @@ const debug =
 
 
         /*
+         * ========================================
          * 並び替え
+         * ========================================
          */
 
         const blogs =
@@ -1042,7 +944,9 @@ const debug =
 
 
         /*
+         * ========================================
          * レスポンス
+         * ========================================
          */
 
         return Response.json({
@@ -1068,10 +972,7 @@ const debug =
                 blogs.length,
 
             blogs:
-                blogs,
-
-debug:
-    debug
+                blogs
         });
 
     } catch (

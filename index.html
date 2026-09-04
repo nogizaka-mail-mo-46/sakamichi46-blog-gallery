@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0"
@@ -11,14 +12,17 @@
         rel="stylesheet"
         href="/css/style.css"
     >
+
     <link
         rel="stylesheet"
         href="/css/gallery.css"
     >
+
     <link
         rel="stylesheet"
         href="/css/blog-detail.css"
     >
+
     <link
         rel="stylesheet"
         href="/css/blog-images.css"
@@ -31,6 +35,7 @@
 
 <main>
 
+
     <!-- =========================
          ギャラリー画面
     ========================= -->
@@ -38,6 +43,7 @@
     <div
         id="galleryView"
     >
+
 
         <!-- =========================
              ヒーロー
@@ -57,18 +63,37 @@
                 id="heroBackgroundB"
                 class="hero-background hero-background-b"
             ></div>
-            
+
             <div
                 class="hero-overlay"
             ></div>
+
 
             <div
                 class="hero-content"
             >
 
+
+                <!-- =========================
+                     ログアウト
+                ========================= -->
+
+                <a
+                    href="/auth/logout"
+                    class="hero-logout-button"
+                >
+                    ログアウト
+                </a>
+
+
+                <!-- =========================
+                     タイトル
+                ========================= -->
+
                 <div
                     class="hero-title-area"
                 >
+
                     <h1
                         id="heroTitle"
                         class="hero-title"
@@ -82,6 +107,7 @@
                     >
                         NOGIZAKA46 BLOG GALLERY
                     </div>
+
                 </div>
 
 
@@ -136,46 +162,6 @@
         <div
             class="gallery-controls"
         >
-
-            <!-- =========================
-                 グループ・ログアウト
-            ========================= -->
-
-            <div
-                class="group-row"
-            >
-
-                <select
-                    id="groupSelect"
-                    aria-label="グループを選択"
-                >
-                    <option
-                        value="nogizaka46"
-                    >
-                        乃木坂46
-                    </option>
-
-                    <option
-                        value="sakurazaka46"
-                    >
-                        櫻坂46
-                    </option>
-
-                    <option
-                        value="hinatazaka46"
-                    >
-                        日向坂46
-                    </option>
-                </select>
-
-                <a
-                    href="/auth/logout"
-                    class="logout-button"
-                >
-                    ログアウト
-                </a>
-
-            </div>
 
 
             <!-- =========================

@@ -12,7 +12,7 @@ export const members = {
     /*
      * 乃木坂46（4期生）
      */
-    haruka_kaki: {
+    sakura_endo: {
         name: "遠藤 さくら",
         group: "nogizaka46",
         folderId: "1fwyyS_Imv-SRzGwvNmAp5n-dimg7tcwa",

@@ -17,7 +17,10 @@ function getThumbnailUrl(
  * ========================================
  */
 
-export function createLightbox() {
+export function createLightbox({
+    onOpen,
+    onClose
+} = {}) {
 
 
     /*
@@ -63,7 +66,8 @@ export function createLightbox() {
      * ========================================
      */
 
-    let imageIds = [];
+    let imageIds =
+        [];
 
     let currentIndex =
         0;
@@ -84,12 +88,32 @@ export function createLightbox() {
     function setImages(
         newImageIds
     ) {
-        imageIds = [
-            ...newImageIds
-        ];
+
+        imageIds =
+            Array.isArray(
+                newImageIds
+            )
+                ? [
+                    ...newImageIds
+                ]
+                : [];
 
         currentIndex =
             0;
+    }
+
+
+    /*
+     * ========================================
+     * ライトボックス表示中判定
+     * ========================================
+     */
+
+    function isOpen() {
+
+        return lightbox.classList.contains(
+            "active"
+        );
     }
 
 
@@ -102,6 +126,7 @@ export function createLightbox() {
     function open(
         index
     ) {
+
         if (
             imageIds.length ===
                 0
@@ -109,10 +134,34 @@ export function createLightbox() {
             return;
         }
 
-        currentIndex =
-            index;
+        const safeIndex =
+            Number(
+                index
+            );
+
+        if (
+            !Number.isInteger(
+                safeIndex
+            ) ||
+            safeIndex <
+                0 ||
+            safeIndex >=
+                imageIds.length
+        ) {
+
+            currentIndex =
+                0;
+
+        } else {
+
+            currentIndex =
+                safeIndex;
+        }
 
         update();
+
+        const wasOpen =
+            isOpen();
 
         lightbox.classList.add(
             "active"
@@ -120,22 +169,66 @@ export function createLightbox() {
 
         document.body.style.overflow =
             "hidden";
+
+        if (
+            !wasOpen &&
+            typeof onOpen ===
+                "function"
+        ) {
+
+            onOpen({
+                index:
+                    currentIndex,
+
+                imageIds: [
+                    ...imageIds
+                ]
+            });
+        }
     }
 
 
     /*
      * ========================================
      * ライトボックスを閉じる
+     *
+     * notify = true
+     * → × / 背景 / Escape など
+     *
+     * notify = false
+     * → popstate側から閉じる時
      * ========================================
      */
 
-    function close() {
+    function close(
+        notify =
+            true
+    ) {
+
+        if (
+            !isOpen()
+        ) {
+            return;
+        }
+
         lightbox.classList.remove(
             "active"
         );
 
         document.body.style.overflow =
             "";
+
+        lightboxImage.src =
+            "";
+
+        if (
+            notify &&
+            typeof onClose ===
+                "function"
+        ) {
+
+            onClose();
+        }
     }
 
 
@@ -146,6 +239,7 @@ export function createLightbox() {
      */
 
     function update() {
+
         if (
             imageIds.length ===
                 0
@@ -178,6 +272,7 @@ export function createLightbox() {
      */
 
     function showPrevious() {
+
         if (
             imageIds.length ===
                 0
@@ -191,8 +286,10 @@ export function createLightbox() {
             currentIndex <
                 0
         ) {
+
             currentIndex =
-                imageIds.length - 1;
+                imageIds.length -
+                1;
         }
 
         update();
@@ -206,6 +303,7 @@ export function createLightbox() {
      */
 
     function showNext() {
+
         if (
             imageIds.length ===
                 0
@@ -219,6 +317,7 @@ export function createLightbox() {
             currentIndex >=
                 imageIds.length
         ) {
+
             currentIndex =
                 0;
         }
@@ -234,6 +333,7 @@ export function createLightbox() {
      */
 
     function handleSwipe() {
+
         const difference =
             touchEndX -
             touchStartX;
@@ -242,13 +342,17 @@ export function createLightbox() {
             difference <
                 -50
         ) {
+
             showNext();
+
+            return;
         }
 
         if (
             difference >
                 50
         ) {
+
             showPrevious();
         }
     }
@@ -262,7 +366,12 @@ export function createLightbox() {
 
     closeButton.addEventListener(
         "click",
-        close
+        () => {
+
+            close(
+                true
+            );
+        }
     );
 
 
@@ -298,12 +407,16 @@ export function createLightbox() {
 
     lightbox.addEventListener(
         "click",
-        (event) => {
+        event => {
+
             if (
                 event.target ===
                     lightbox
             ) {
-                close();
+
+                close(
+                    true
+                );
             }
         }
     );
@@ -317,11 +430,10 @@ export function createLightbox() {
 
     document.addEventListener(
         "keydown",
-        (event) => {
+        event => {
+
             if (
-                !lightbox.classList.contains(
-                    "active"
-                )
+                !isOpen()
             ) {
                 return;
             }
@@ -330,20 +442,29 @@ export function createLightbox() {
                 event.key ===
                     "Escape"
             ) {
-                close();
+
+                close(
+                    true
+                );
+
+                return;
             }
 
             if (
                 event.key ===
                     "ArrowLeft"
             ) {
+
                 showPrevious();
+
+                return;
             }
 
             if (
                 event.key ===
                     "ArrowRight"
             ) {
+
                 showNext();
             }
         }
@@ -358,11 +479,18 @@ export function createLightbox() {
 
     lightbox.addEventListener(
         "touchstart",
-        (event) => {
+        event => {
+
             touchStartX =
                 event
-                    .changedTouches[0]
+                    .changedTouches[
+                        0
+                    ]
                     .screenX;
+        },
+        {
+            passive:
+                true
         }
     );
 
@@ -375,13 +503,20 @@ export function createLightbox() {
 
     lightbox.addEventListener(
         "touchend",
-        (event) => {
+        event => {
+
             touchEndX =
                 event
-                    .changedTouches[0]
+                    .changedTouches[
+                        0
+                    ]
                     .screenX;
 
             handleSwipe();
+        },
+        {
+            passive:
+                true
         }
     );
 
@@ -400,6 +535,9 @@ export function createLightbox() {
             close,
 
         setImages:
-            setImages
+            setImages,
+
+        isOpen:
+            isOpen
     };
 }

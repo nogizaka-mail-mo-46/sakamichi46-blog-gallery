@@ -16,7 +16,7 @@ body {
         "Noto Sans JP",
         sans-serif;
 
-    background: #f5f5f5;
+    background: #f4f4f4;
     color: #222;
 }
 
@@ -26,11 +26,17 @@ body {
 ========================= */
 
 .header {
-    padding: 24px 30px 0;
+    padding: 26px 30px 0;
 }
 
 .header h1 {
     margin: 0;
+
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.4;
+
+    letter-spacing: -0.01em;
 }
 
 
@@ -40,69 +46,170 @@ body {
 
 .group-row {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
+
     gap: 12px;
-    margin: 20px 30px 0;
-}
 
-#groupSelect {
-    width: 200px;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 16px;
-}
+    max-width: 1180px;
 
-.logout-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 110px;
-    min-height: 42px;
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    color: #222;
-    font-size: 16px;
-    text-decoration: none;
-    box-sizing: border-box;
-    flex-shrink: 0;
-    cursor: pointer;
-}
+    margin:
+        22px
+        auto
+        0;
 
-.logout-button:hover {
-    background: #f5f5f5;
+    padding:
+        0
+        30px;
 }
 
 
 /* =========================
-   メンバー・並び順選択
+   セレクト共通
+========================= */
+
+#groupSelect,
+#memberSelect,
+#sortSelect {
+    appearance: none;
+
+    min-height: 44px;
+
+    padding:
+        10px
+        40px
+        10px
+        14px;
+
+    border: 1px solid #dedede;
+    border-radius: 12px;
+
+    background:
+        #fff
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 5.25 7 8.75l3.5-3.5' fill='none' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
+        no-repeat
+        right 14px
+        center;
+
+    color: #222;
+
+    font-size: 15px;
+
+    outline: none;
+
+    cursor: pointer;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+#groupSelect:hover,
+#memberSelect:hover,
+#sortSelect:hover {
+    border-color: #c8c8c8;
+}
+
+#groupSelect:focus,
+#memberSelect:focus,
+#sortSelect:focus {
+    border-color: #aaa;
+
+    box-shadow:
+        0 0 0 3px
+        rgba(0, 0, 0, 0.05);
+}
+
+
+/* =========================
+   グループ
+========================= */
+
+#groupSelect {
+    width: 220px;
+}
+
+
+/* =========================
+   ログアウト
+========================= */
+
+.logout-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-width: 110px;
+    min-height: 44px;
+
+    padding:
+        10px
+        16px;
+
+    border: 1px solid #dedede;
+    border-radius: 12px;
+
+    background: #fff;
+
+    color: #333;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    flex-shrink: 0;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.logout-button:hover {
+    background: #f8f8f8;
+
+    border-color: #ccc;
+
+    transform:
+        translateY(
+            -1px
+        );
+}
+
+
+/* =========================
+   メンバー・並び順
 ========================= */
 
 .select-row {
     display: flex;
-    gap: 12px;
-    margin: 12px 30px 20px;
-}
 
-#memberSelect,
-#sortSelect {
-    padding: 10px 12px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background: #fff;
-    font-size: 16px;
+    gap: 12px;
+
+    max-width: 1180px;
+
+    margin:
+        12px
+        auto
+        22px;
+
+    padding:
+        0
+        30px;
 }
 
 #memberSelect {
-    width: 320px;
+    width: 340px;
 }
 
 #sortSelect {
-    width: 140px;
+    width: 150px;
 }
 
 
@@ -111,90 +218,199 @@ body {
 ========================= */
 
 .calendar {
-    margin: 0 30px 24px;
-    padding: 16px;
+    max-width: 1180px;
+
+    margin:
+        0
+        auto
+        24px;
+
+    padding: 20px;
+
     background: #fff;
-    border-radius: 10px;
+
+    border: 1px solid #e8e8e8;
+    border-radius: 18px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.04);
 }
+
+
+/* =========================
+   カレンダーヘッダー
+========================= */
 
 .calendar-header {
     display: flex;
+
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 12px;
+
+    gap: 12px;
+
+    margin-bottom: 14px;
 }
 
 .calendar-title {
     font-size: 18px;
-    font-weight: 600;
+    font-weight: 700;
+    line-height: 1.4;
 }
 
+
+/* =========================
+   カレンダーナビ
+========================= */
+
 .calendar-nav {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
     width: 40px;
     height: 40px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+
+    padding: 0;
+
+    border: 1px solid #dedede;
+    border-radius: 10px;
+
     background: #fff;
-    font-size: 24px;
+
+    color: #333;
+
+    font-size: 22px;
+    line-height: 1;
+
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .calendar-nav:hover {
-    background: #f5f5f5;
+    background: #f7f7f7;
+
+    border-color: #ccc;
 }
+
+.calendar-nav:disabled {
+    opacity: 0.3;
+
+    cursor: default;
+}
+
+.calendar-nav:disabled:hover {
+    background: #fff;
+
+    border-color: #dedede;
+}
+
+
+/* =========================
+   曜日・日付グリッド
+========================= */
 
 .calendar-weekdays,
 .calendar-days {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+
+    grid-template-columns:
+        repeat(
+            7,
+            1fr
+        );
 }
 
 .calendar-weekdays {
     margin-bottom: 6px;
-    color: #666;
-    font-size: 13px;
+
+    color: #999;
+
+    font-size: 12px;
+    font-weight: 600;
+
     text-align: center;
 }
 
 .calendar-weekdays div {
-    padding: 6px 0;
+    padding:
+        7px
+        0;
 }
+
+
+/* =========================
+   カレンダー日付
+========================= */
 
 .calendar-day {
     position: relative;
-    min-height: 48px;
+
+    min-height: 50px;
+
+    margin: 2px;
+
+    padding: 0;
+
     border: none;
+    border-radius: 10px;
+
     background: transparent;
-    font-size: 15px;
+
+    color: #444;
+
+    font-size: 14px;
+    font-weight: 500;
+
     cursor: default;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease;
 }
 
 .calendar-day.has-post {
+    color: #111;
+
+    font-weight: 700;
+
     cursor: pointer;
-    font-weight: 600;
 }
 
 .calendar-day.has-post::after {
     content: "";
+
     position: absolute;
+
     left: 50%;
-    bottom: 5px;
-    width: 6px;
-    height: 6px;
+    bottom: 6px;
+
+    width: 5px;
+    height: 5px;
+
     border-radius: 50%;
+
     background: #333;
-    transform: translateX(-50%);
+
+    transform:
+        translateX(
+            -50%
+        );
 }
 
 .calendar-day.has-post:hover {
-    background: #f0f0f0;
-    border-radius: 8px;
+    background: #f2f2f2;
 }
 
 .calendar-day.selected {
     background: #222;
+
     color: #fff;
-    border-radius: 8px;
 }
 
 .calendar-day.selected::after {
@@ -202,35 +418,51 @@ body {
 }
 
 .calendar-day:disabled {
-    color: #bbb;
+    color: #c9c9c9;
 }
 
 .calendar-day.empty {
-    min-height: 48px;
+    min-height: 50px;
 }
+
+
+/* =========================
+   日付選択解除
+========================= */
 
 .calendar-clear {
     display: block;
-    margin: 14px auto 0;
-    padding: 8px 16px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
+
+    margin:
+        16px
+        auto
+        0;
+
+    padding:
+        8px
+        14px;
+
+    border: 1px solid #dedede;
+    border-radius: 10px;
+
     background: #fff;
-    font-size: 14px;
+
+    color: #555;
+
+    font-size: 13px;
+    font-weight: 600;
+
     cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
 }
 
 .calendar-clear:hover {
-    background: #f5f5f5;
-}
+    background: #f7f7f7;
 
-.calendar-nav:disabled {
-    opacity: 0.3;
-    cursor: default;
-}
-
-.calendar-nav:disabled:hover {
-    background: #fff;
+    border-color: #ccc;
 }
 
 
@@ -240,9 +472,21 @@ body {
 
 .selected-date-title {
     display: none;
-    margin: 0 30px 4px;
-    font-size: 20px;
-    font-weight: 600;
+
+    max-width: 1180px;
+
+    margin:
+        0
+        auto
+        6px;
+
+    padding:
+        0
+        30px;
+
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
 }
 
 .selected-date-title.visible {
@@ -251,52 +495,171 @@ body {
 
 
 /* =========================
+   タブレット
+========================= */
+
+@media (
+    min-width: 768px
+) and (
+    max-width: 1199px
+) {
+
+    .header {
+        padding:
+            24px
+            20px
+            0;
+    }
+
+    .group-row,
+    .select-row,
+    .selected-date-title {
+        padding:
+            0
+            20px;
+    }
+
+    .calendar {
+        margin:
+            0
+            20px
+            24px;
+    }
+}
+
+
+/* =========================
    スマホ
 ========================= */
 
 @media (max-width: 767px) {
+
     .header {
-        padding: 18px 16px 0;
+        padding:
+            18px
+            12px
+            0;
     }
 
     .header h1 {
         font-size: 20px;
     }
 
+
+    /*
+     * =========================
+     * グループ行
+     * =========================
+     */
+
     .group-row {
         gap: 8px;
-        margin: 16px 8px 0;
+
+        margin-top: 16px;
+
+        padding:
+            0
+            8px;
     }
 
     #groupSelect {
         width: auto;
+
         flex: 1;
+
         min-width: 0;
     }
 
     .logout-button {
-        flex-shrink: 0;
+        min-width: 94px;
+
+        min-height: 42px;
+
+        padding:
+            9px
+            12px;
+
+        border-radius: 10px;
+
+        font-size: 13px;
     }
+
+
+    /*
+     * =========================
+     * メンバー・並び順
+     * =========================
+     */
 
     .select-row {
         gap: 8px;
-        margin: 8px 8px 16px;
+
+        margin:
+            8px
+            auto
+            16px;
+
+        padding:
+            0
+            8px;
     }
 
     #memberSelect {
         width: auto;
+
         flex: 1;
+
         min-width: 0;
     }
 
     #sortSelect {
-        width: 120px;
+        width: 118px;
+
         flex-shrink: 0;
     }
 
+    #groupSelect,
+    #memberSelect,
+    #sortSelect {
+        min-height: 42px;
+
+        padding:
+            9px
+            34px
+            9px
+            12px;
+
+        border-radius: 10px;
+
+        font-size: 14px;
+
+        background-position:
+            right 11px
+            center;
+    }
+
+
+    /*
+     * =========================
+     * カレンダー
+     * =========================
+     */
+
     .calendar {
-        margin: 0 8px 16px;
-        padding: 12px 8px;
+        margin:
+            0
+            8px
+            16px;
+
+        padding:
+            14px
+            8px;
+
+        border-radius: 14px;
+    }
+
+    .calendar-header {
+        margin-bottom: 10px;
     }
 
     .calendar-title {
@@ -304,13 +667,32 @@ body {
     }
 
     .calendar-nav {
-        width: 40px;
-        height: 40px;
+        width: 38px;
+        height: 38px;
+
+        border-radius: 9px;
+
+        font-size: 20px;
+    }
+
+    .calendar-weekdays {
+        font-size: 11px;
+    }
+
+    .calendar-weekdays div {
+        padding:
+            5px
+            0;
     }
 
     .calendar-day {
         min-height: 44px;
-        font-size: 14px;
+
+        margin: 1px;
+
+        border-radius: 9px;
+
+        font-size: 13px;
     }
 
     .calendar-day.empty {
@@ -318,13 +700,32 @@ body {
     }
 
     .calendar-day.has-post::after {
-        bottom: 4px;
-        width: 5px;
-        height: 5px;
+        bottom: 5px;
+
+        width: 4px;
+        height: 4px;
     }
 
+    .calendar-clear {
+        margin-top: 12px;
+
+        font-size: 12px;
+    }
+
+
+    /*
+     * =========================
+     * 選択中の日付
+     * =========================
+     */
+
     .selected-date-title {
-        margin: 0 8px 4px;
-        font-size: 18px;
+        margin-bottom: 4px;
+
+        padding:
+            0
+            8px;
+
+        font-size: 16px;
     }
 }

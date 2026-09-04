@@ -559,7 +559,23 @@ async function getMemberBlogs(
             `blogDataFolderId未設定: ${memberKey}`
         );
 
-        return [];
+        return {
+            blogs: [],
+
+            debug: {
+                memberKey:
+                    memberKey,
+
+                folderId:
+                    null,
+
+                fileCount:
+                    0,
+
+                fileNames:
+                    []
+            }
+        };
     }
 
     const files =
@@ -567,6 +583,39 @@ async function getMemberBlogs(
             accessToken,
             member.blogDataFolderId
         );
+
+
+    /*
+     * ========================================
+     * 一時デバッグ情報
+     * ========================================
+     */
+
+    const debug = {
+        memberKey:
+            memberKey,
+
+        folderId:
+            member.blogDataFolderId,
+
+        fileCount:
+            files.length,
+
+        fileNames:
+            files
+                .map(
+                    file =>
+                        file.name
+                )
+                .sort()
+    };
+
+
+    /*
+     * ========================================
+     * ブログJSON読込
+     * ========================================
+     */
 
     const results =
         await processInBatches(
@@ -615,9 +664,15 @@ async function getMemberBlogs(
             }
         );
 
-    return results.filter(
-        Boolean
-    );
+    return {
+        blogs:
+            results.filter(
+                Boolean
+            ),
+
+        debug:
+            debug
+    };
 }
 
 
@@ -922,23 +977,32 @@ export async function onRequestGet(
                 env
             );
 
-        const memberResults =
-            await processInBatches(
-                targetMembers,
-                5,
-                async ([
-                    targetMemberKey,
-                    member
-                ]) =>
-                    await getMemberBlogs(
-                        accessToken,
-                        targetMemberKey,
-                        member
-                    )
-            );
+const memberResults =
+    await processInBatches(
+        targetMembers,
+        5,
+        async ([
+            targetMemberKey,
+            member
+        ]) =>
+            await getMemberBlogs(
+                accessToken,
+                targetMemberKey,
+                member
+            )
+    );
 
-        const allBlogs =
-            memberResults.flat();
+const allBlogs =
+    memberResults.flatMap(
+        result =>
+            result.blogs
+    );
+
+const debug =
+    memberResults.map(
+        result =>
+            result.debug
+    );
 
 
         /*
@@ -1004,7 +1068,10 @@ export async function onRequestGet(
                 blogs.length,
 
             blogs:
-                blogs
+                blogs,
+
+debug:
+    debug
         });
 
     } catch (

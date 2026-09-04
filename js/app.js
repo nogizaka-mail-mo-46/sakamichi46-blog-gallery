@@ -35,6 +35,16 @@ const hero =
         "hero"
     );
 
+const heroBackgroundA =
+    document.getElementById(
+        "heroBackgroundA"
+    );
+
+const heroBackgroundB =
+    document.getElementById(
+        "heroBackgroundB"
+    );
+
 const heroTitle =
     document.getElementById(
         "heroTitle"
@@ -169,7 +179,10 @@ const heroGroupData = {
             "乃木坂46",
 
         subtitle:
-            "NOGIZAKA46 BLOG GALLERY"
+            "NOGIZAKA46 BLOG GALLERY",
+
+        background:
+            "/images/hero/nogizaka46.webp"
     },
 
     sakurazaka46: {
@@ -177,7 +190,10 @@ const heroGroupData = {
             "櫻坂46",
 
         subtitle:
-            "SAKURAZAKA46 BLOG GALLERY"
+            "SAKURAZAKA46 BLOG GALLERY",
+
+        background:
+            "/images/hero/sakurazaka46.webp"
     },
 
     hinatazaka46: {
@@ -185,9 +201,25 @@ const heroGroupData = {
             "日向坂46",
 
         subtitle:
-            "HINATAZAKA46 BLOG GALLERY"
+            "HINATAZAKA46 BLOG GALLERY",
+
+        background:
+            "/images/hero/hinatazaka46.webp"
     }
 };
+
+
+/*
+ * ========================================
+ * ヒーロー背景状態
+ * ========================================
+ */
+
+let activeHeroBackground =
+    "A";
+
+let currentHeroGroup =
+    null;
 
 
 /*
@@ -227,7 +259,7 @@ function updateHero(
 
     /*
      * ========================================
-     * 背景クラス
+     * グループクラス
      * ========================================
      */
 
@@ -268,6 +300,122 @@ function updateHero(
             );
         }
     );
+
+
+    /*
+     * ========================================
+     * 初回
+     * ========================================
+     */
+
+    if (
+        currentHeroGroup ===
+            null
+    ) {
+
+        heroBackgroundA.style.backgroundImage =
+            `url("${data.background}")`;
+
+        heroBackgroundA.classList.add(
+            "active"
+        );
+
+        heroBackgroundB.classList.remove(
+            "active"
+        );
+
+        activeHeroBackground =
+            "A";
+
+        currentHeroGroup =
+            group;
+
+        return;
+    }
+
+
+    /*
+     * ========================================
+     * 同じグループなら背景変更不要
+     * ========================================
+     */
+
+    if (
+        currentHeroGroup ===
+            group
+    ) {
+        return;
+    }
+
+
+    /*
+     * ========================================
+     * 次の背景を先読み
+     * ========================================
+     */
+
+    const preloadImage =
+        new Image();
+
+    preloadImage.src =
+        data.background;
+
+    preloadImage.onload =
+        () => {
+
+            const currentBackground =
+                activeHeroBackground ===
+                    "A"
+                    ? heroBackgroundA
+                    : heroBackgroundB;
+
+            const nextBackground =
+                activeHeroBackground ===
+                    "A"
+                    ? heroBackgroundB
+                    : heroBackgroundA;
+
+
+            /*
+             * ========================================
+             * 新背景セット
+             * ========================================
+             */
+
+            nextBackground.style.backgroundImage =
+                `url("${data.background}")`;
+
+
+            /*
+             * ========================================
+             * クロスフェード
+             * ========================================
+             */
+
+            nextBackground.classList.add(
+                "active"
+            );
+
+            currentBackground.classList.remove(
+                "active"
+            );
+
+
+            /*
+             * ========================================
+             * 使用レイヤー切り替え
+             * ========================================
+             */
+
+            activeHeroBackground =
+                activeHeroBackground ===
+                    "A"
+                    ? "B"
+                    : "A";
+
+            currentHeroGroup =
+                group;
+        };
 }
 
 

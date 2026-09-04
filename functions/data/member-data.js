@@ -12,6 +12,18 @@ export const members = {
     /*
      * 乃木坂46（4期生）
      */
+    haruka_kaki: {
+        name: "遠藤 さくら",
+        group: "nogizaka46",
+        folderId: "1fwyyS_Imv-SRzGwvNmAp5n-dimg7tcwa",
+        blogDataFolderId: "1SfbkGVB8HcX6mgd6EJ2LVzveOXbJFEWe"
+    },
+    haruka_kaki: {
+        name: "賀喜 遥香",
+        group: "nogizaka46",
+        folderId: "1wtxpFAV4J3JYgPnyqSsgMA5QGVp0ijWR",
+        blogDataFolderId: "1ssFbOUv3p2khtJL6-mZpWfLJgRXBKbJu"
+    },
     yuna_shibata: {
         name: "柴田 柚菜",
         group: "nogizaka46",

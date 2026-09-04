@@ -12,7 +12,7 @@ export const members = {
     /*
      * 乃木坂46（4期生）
      */
-    runa_hayashi: {
+    yuna_shibata: {
         name: "柴田 柚菜",
         group: "nogizaka46",
         folderId: "1RqpG_hlRNsx1D95JBYY50rG4uxeRBeg-",

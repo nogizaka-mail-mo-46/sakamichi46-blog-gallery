@@ -27,19 +27,31 @@ export const members = {
 
     /*
      * 乃木坂46（5期生）
-     */   
-    miku_ichinose: {
-        name: "一ノ瀬 美空",
+     */
+    mao_ioki: {
+        name: "五百城 茉央",
         group: "nogizaka46",
-        folderId: "1SUV4ZNy1pzekUtujYepL9-h5IM4rHLWk",
-        blogDataFolderId: "1h6pWs87CEkaUmh5vbdr7XjgZQNBeJwwU"
-    }, 
+        folderId: "1QVxb8SAna9epDrfcQ5mGftWedg20O0co",
+        blogDataFolderId: "1gHmsk1juS-TiK3ZMxO2BI4NpnexA5UVK"
+    },
     teresa_ikeda: {
         name: "池田 瑛紗",
         group: "nogizaka46",
         folderId: "1KAvDzdoaR8_vWChmsBiv_HY3ZfckiYEt",
         blogDataFolderId: "1yE-qJGnw5gp6rWSVmXOpDMzwW96tmzu8"
     },
+    miku_ichinose: {
+        name: "一ノ瀬 美空",
+        group: "nogizaka46",
+        folderId: "1SUV4ZNy1pzekUtujYepL9-h5IM4rHLWk",
+        blogDataFolderId: "1h6pWs87CEkaUmh5vbdr7XjgZQNBeJwwU"
+    }, 
+    aruno_nakanishi: {
+        name: "中西 アルノ",
+        group: "nogizaka46",
+        folderId: "1p3yHJ7QzJOjTQz_M7BgERU1adFKx91zk",
+        blogDataFolderId: "1JBC-BgdU_qsYdm29m7Uixc88PXVHzruZ"
+    }, 
 
     /*
      * 乃木坂46（6期生）

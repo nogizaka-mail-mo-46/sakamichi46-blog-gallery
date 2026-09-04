@@ -134,7 +134,32 @@ let galleryScrollPosition =
  */
 
 const lightbox =
-    createLightbox();
+    createLightbox({
+        onOpen:
+            () => {
+
+                history.pushState(
+                    {
+                        view:
+                            "lightbox"
+                    },
+                    "",
+                    `${window.location.pathname}${window.location.search}${window.location.hash}`
+                );
+            },
+
+        onClose:
+            () => {
+
+                if (
+                    history.state?.view ===
+                        "lightbox"
+                ) {
+
+                    history.back();
+                }
+            }
+    });
 
 
 /*
@@ -1334,6 +1359,28 @@ function showBlogImagesView() {
 window.addEventListener(
     "popstate",
     () => {
+
+
+        /*
+         * ========================================
+         * ライトボックス
+         *
+         * 戻る操作では
+         * まずライトボックスだけ閉じる
+         * ========================================
+         */
+
+        if (
+            lightbox.isOpen()
+        ) {
+
+            lightbox.close(
+                false
+            );
+
+            return;
+        }
+
 
         const hash =
             window.location.hash;

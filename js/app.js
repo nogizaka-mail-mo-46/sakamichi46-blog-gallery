@@ -19,6 +19,10 @@ import {
     createBlogDetail
 } from "./blog-detail.js";
 
+import {
+    createBlogImages
+} from "./blog-images.js";
+
 
 /*
  * ========================================
@@ -74,6 +78,21 @@ const blogDetailBackButton =
 const blogDetail =
     document.getElementById(
         "blogDetail"
+    );
+
+const blogImagesView =
+    document.getElementById(
+        "blogImagesView"
+    );
+
+const blogImagesBackButton =
+    document.getElementById(
+        "blogImagesBackButton"
+    );
+
+const blogImages =
+    document.getElementById(
+        "blogImages"
     );
 
 
@@ -142,6 +161,31 @@ const blogDetailController =
         getSelectedMember:
             () =>
                 memberSelect.value
+    });
+
+
+/*
+ * ========================================
+ * ブログ画像一覧
+ * ========================================
+ */
+
+const blogImagesController =
+    createBlogImages({
+        galleryView:
+            galleryView,
+
+        blogImagesView:
+            blogImagesView,
+
+        blogImages:
+            blogImages,
+
+        blogImagesBackButton:
+            blogImagesBackButton,
+
+        lightbox:
+            lightbox
     });
 
 
@@ -230,44 +274,31 @@ const gallery =
          * ========================================
          * 全○枚を見る
          *
-         * 現段階では
-         * そのブログ内だけライトボックス表示
+         * ブログ画像一覧画面へ遷移
          * ========================================
          */
 
         onArticleImagesClick:
             ({
+                articleId,
+                title,
+                memberKey,
                 images
             }) => {
 
-                const imageIds =
-                    Array.isArray(
+                blogImagesController.open({
+                    articleId:
+                        articleId,
+
+                    title:
+                        title,
+
+                    memberKey:
+                        memberKey,
+
+                    images:
                         images
-                    )
-                        ? images
-                            .map(
-                                image =>
-                                    image.fileId
-                            )
-                            .filter(
-                                Boolean
-                            )
-                        : [];
-
-                if (
-                    imageIds.length ===
-                        0
-                ) {
-                    return;
-                }
-
-                lightbox.setImages(
-                    imageIds
-                );
-
-                lightbox.open(
-                    0
-                );
+                });
             }
     });
 

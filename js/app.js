@@ -26,53 +26,9 @@ import {
 
 /*
  * ========================================
- * ヒーロー DOM
- * ========================================
- */
-
-const hero =
-    document.getElementById(
-        "hero"
-    );
-
-const heroBackgroundA =
-    document.getElementById(
-        "heroBackgroundA"
-    );
-
-const heroBackgroundB =
-    document.getElementById(
-        "heroBackgroundB"
-    );
-
-const heroTitle =
-    document.getElementById(
-        "heroTitle"
-    );
-
-const heroSubtitle =
-    document.getElementById(
-        "heroSubtitle"
-    );
-
-const heroGroupButtons =
-    Array.from(
-        document.querySelectorAll(
-            ".hero-group-button"
-        )
-    );
-
-
-/*
- * ========================================
  * DOM
  * ========================================
  */
-
-const groupSelect =
-    document.getElementById(
-        "groupSelect"
-    );
 
 const memberSelect =
     document.getElementById(
@@ -137,9 +93,51 @@ const blogImages =
 
 /*
  * ========================================
+ * ヒーロー DOM
+ * ========================================
+ */
+
+const hero =
+    document.getElementById(
+        "hero"
+    );
+
+const heroBackgroundA =
+    document.getElementById(
+        "heroBackgroundA"
+    );
+
+const heroBackgroundB =
+    document.getElementById(
+        "heroBackgroundB"
+    );
+
+const heroTitle =
+    document.getElementById(
+        "heroTitle"
+    );
+
+const heroSubtitle =
+    document.getElementById(
+        "heroSubtitle"
+    );
+
+const heroGroupButtons =
+    Array.from(
+        document.querySelectorAll(
+            ".hero-group-button"
+        )
+    );
+
+
+/*
+ * ========================================
  * 状態
  * ========================================
  */
+
+let currentGroup =
+    "nogizaka46";
 
 let blogs =
     [];
@@ -221,10 +219,13 @@ let activeHeroBackground =
 let currentHeroGroup =
     null;
 
+let requestedHeroGroup =
+    null;
+
 
 /*
  * ========================================
- * ヒーロー表示更新
+ * ヒーロー更新
  * ========================================
  */
 
@@ -276,7 +277,7 @@ function updateHero(
 
     /*
      * ========================================
-     * ボタン選択状態
+     * タブ選択状態
      * ========================================
      */
 
@@ -330,13 +331,16 @@ function updateHero(
         currentHeroGroup =
             group;
 
+        requestedHeroGroup =
+            group;
+
         return;
     }
 
 
     /*
      * ========================================
-     * 同じグループなら背景変更不要
+     * 同じグループ
      * ========================================
      */
 
@@ -344,15 +348,22 @@ function updateHero(
         currentHeroGroup ===
             group
     ) {
+
+        requestedHeroGroup =
+            group;
+
         return;
     }
 
 
     /*
      * ========================================
-     * 次の背景を先読み
+     * 次背景先読み
      * ========================================
      */
+
+    requestedHeroGroup =
+        group;
 
     const preloadImage =
         new Image();
@@ -362,6 +373,13 @@ function updateHero(
 
     preloadImage.onload =
         () => {
+
+            if (
+                requestedHeroGroup !==
+                    group
+            ) {
+                return;
+            }
 
             const currentBackground =
                 activeHeroBackground ===
@@ -375,22 +393,8 @@ function updateHero(
                     ? heroBackgroundB
                     : heroBackgroundA;
 
-
-            /*
-             * ========================================
-             * 新背景セット
-             * ========================================
-             */
-
             nextBackground.style.backgroundImage =
                 `url("${data.background}")`;
-
-
-            /*
-             * ========================================
-             * クロスフェード
-             * ========================================
-             */
 
             nextBackground.classList.add(
                 "active"
@@ -399,13 +403,6 @@ function updateHero(
             currentBackground.classList.remove(
                 "active"
             );
-
-
-            /*
-             * ========================================
-             * 使用レイヤー切り替え
-             * ========================================
-             */
 
             activeHeroBackground =
                 activeHeroBackground ===
@@ -417,51 +414,6 @@ function updateHero(
                 group;
         };
 }
-
-
-/*
- * ========================================
- * ヒーロー グループボタン
- * ========================================
- */
-
-heroGroupButtons.forEach(
-    button => {
-
-        button.addEventListener(
-            "click",
-            () => {
-
-                const group =
-                    button.dataset.group;
-
-                if (
-                    !group ||
-                    groupSelect.value ===
-                        group
-                ) {
-                    return;
-                }
-
-                /*
-                 * selectを変更
-                 */
-                groupSelect.value =
-                    group;
-
-                /*
-                 * 既存のgroupSelect change処理を
-                 * そのまま実行
-                 */
-                groupSelect.dispatchEvent(
-                    new Event(
-                        "change"
-                    )
-                );
-            }
-        );
-    }
-);
 
 
 /*
@@ -611,16 +563,6 @@ const gallery =
         element:
             galleryElement,
 
-
-        /*
-         * ========================================
-         * 画像クリック
-         *
-         * 表示中の全ブログをまたいで
-         * ライトボックス表示
-         * ========================================
-         */
-
         onImageClick:
             (
                 index
@@ -637,13 +579,6 @@ const gallery =
                     index
                 );
             },
-
-
-        /*
-         * ========================================
-         * ブログタイトルクリック
-         * ========================================
-         */
 
         onArticleClick:
             async ({
@@ -662,18 +597,9 @@ const gallery =
                         memberKey,
 
                     group:
-                        groupSelect.value
+                        currentGroup
                 });
             },
-
-
-        /*
-         * ========================================
-         * 全○枚を見る
-         *
-         * ブログ画像一覧画面へ遷移
-         * ========================================
-         */
 
         onArticleImagesClick:
             ({
@@ -788,7 +714,7 @@ const calendar =
 async function initialize() {
 
     updateHero(
-        groupSelect.value
+        currentGroup
     );
 
     await loadMembers();
@@ -801,58 +727,111 @@ initialize();
 
 /*
  * ========================================
+ * グループタブ
+ * ========================================
+ */
+
+heroGroupButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            async () => {
+
+                const group =
+                    button.dataset.group;
+
+                if (
+                    !group
+                ) {
+                    return;
+                }
+
+                await changeGroup(
+                    group
+                );
+            }
+        );
+    }
+);
+
+
+/*
+ * ========================================
  * グループ変更
  * ========================================
  */
 
-groupSelect.addEventListener(
-    "change",
-    async () => {
+async function changeGroup(
+    group
+) {
+
+    if (
+        !heroGroupData[
+            group
+        ]
+    ) {
+        return;
+    }
+
+    if (
+        currentGroup ===
+            group
+    ) {
 
         updateHero(
-            groupSelect.value
+            group
         );
 
-        memberSelect.value =
-            "";
-
-        blogs =
-            [];
-
-        filteredBlogs =
-            [];
-
-        allPostDates =
-            [];
-
-        memberPostDates =
-            [];
-
-        selectedDate =
-            null;
-
-        calendarYear =
-            null;
-
-        calendarMonth =
-            null;
-
-        galleryScrollPosition =
-            0;
-
-        gallery.clear();
-
-        lightbox.setImages(
-            []
-        );
-
-        calendar.updateSelectedDateTitle();
-
-        await loadMembers();
-
-        await loadGroupPostDates();
+        return;
     }
-);
+
+    currentGroup =
+        group;
+
+    updateHero(
+        currentGroup
+    );
+
+    memberSelect.value =
+        "";
+
+    blogs =
+        [];
+
+    filteredBlogs =
+        [];
+
+    allPostDates =
+        [];
+
+    memberPostDates =
+        [];
+
+    selectedDate =
+        null;
+
+    calendarYear =
+        null;
+
+    calendarMonth =
+        null;
+
+    galleryScrollPosition =
+        0;
+
+    gallery.clear();
+
+    lightbox.setImages(
+        []
+    );
+
+    calendar.updateSelectedDateTitle();
+
+    await loadMembers();
+
+    await loadGroupPostDates();
+}
 
 
 /*
@@ -862,9 +841,6 @@ groupSelect.addEventListener(
  */
 
 async function loadMembers() {
-
-    const group =
-        groupSelect.value;
 
     memberSelect.innerHTML =
         "";
@@ -888,7 +864,7 @@ async function loadMembers() {
 
         const data =
             await fetchMembers(
-                group
+                currentGroup
             );
 
         if (
@@ -938,9 +914,6 @@ async function loadMembers() {
 
 async function loadGroupPostDates() {
 
-    const group =
-        groupSelect.value;
-
     calendarElement.innerHTML =
         "読み込み中...";
 
@@ -951,7 +924,7 @@ async function loadGroupPostDates() {
         const data =
             await fetchBlogs({
                 group:
-                    group
+                    currentGroup
             });
 
         allPostDates =
@@ -1046,13 +1019,6 @@ memberSelect.addEventListener(
 
         calendar.updateSelectedDateTitle();
 
-
-        /*
-         * ========================================
-         * メンバー未選択
-         * ========================================
-         */
-
         if (
             !member
         ) {
@@ -1067,13 +1033,6 @@ memberSelect.addEventListener(
 
             return;
         }
-
-
-        /*
-         * ========================================
-         * メンバー選択あり
-         * ========================================
-         */
 
         await loadMemberPostDates(
             member
@@ -1092,9 +1051,6 @@ async function loadMemberPostDates(
     memberKey
 ) {
 
-    const group =
-        groupSelect.value;
-
     calendarElement.innerHTML =
         "読み込み中...";
 
@@ -1105,7 +1061,7 @@ async function loadMemberPostDates(
         const data =
             await fetchBlogs({
                 group:
-                    group,
+                    currentGroup,
 
                 member:
                     memberKey
@@ -1126,12 +1082,6 @@ async function loadMemberPostDates(
 
         selectedDate =
             null;
-
-        /*
-         * ========================================
-         * 選択メンバーの最新投稿月
-         * ========================================
-         */
 
         setInitialCalendarMonth();
 
@@ -1205,17 +1155,11 @@ function getCurrentMonthKey() {
 
 /*
  * ========================================
- * 表示中の月のブログ取得
+ * 表示中の月ブログ取得
  * ========================================
  */
 
 async function loadCurrentMonthBlogs() {
-
-    const group =
-        groupSelect.value;
-
-    const member =
-        memberSelect.value;
 
     const month =
         getCurrentMonthKey();
@@ -1247,10 +1191,10 @@ async function loadCurrentMonthBlogs() {
         const data =
             await fetchBlogs({
                 group:
-                    group,
+                    currentGroup,
 
                 member:
-                    member ||
+                    memberSelect.value ||
                     null,
 
                 month:
@@ -1303,12 +1247,6 @@ async function loadBlogsByDate(
     dateKey
 ) {
 
-    const group =
-        groupSelect.value;
-
-    const member =
-        memberSelect.value;
-
     galleryElement.textContent =
         "読み込み中...";
 
@@ -1317,10 +1255,10 @@ async function loadBlogsByDate(
         const data =
             await fetchBlogs({
                 group:
-                    group,
+                    currentGroup,
 
                 member:
-                    member ||
+                    memberSelect.value ||
                     null,
 
                 date:
@@ -1365,7 +1303,7 @@ async function loadBlogsByDate(
 
 /*
  * ========================================
- * 現在対象の投稿日取得
+ * 現在対象の投稿日
  * ========================================
  */
 
@@ -1388,7 +1326,7 @@ function getPostDates() {
 
 /*
  * ========================================
- * 投稿日が存在する月
+ * 投稿日月
  * ========================================
  */
 
@@ -1428,8 +1366,6 @@ function getPostMonths() {
 /*
  * ========================================
  * カレンダー初期月
- *
- * 対象ブログの最新投稿日月を表示
  * ========================================
  */
 
@@ -1454,7 +1390,8 @@ function setInitialCalendarMonth() {
 
     const latestMonth =
         postMonths[
-            postMonths.length - 1
+            postMonths.length -
+            1
         ];
 
     calendarYear =
@@ -1484,14 +1421,6 @@ function setInitialCalendarMonth() {
 async function selectCalendarDate(
     dateKey
 ) {
-
-    /*
-     * ========================================
-     * 同じ日を再クリック
-     *
-     * → 月表示へ戻る
-     * ========================================
-     */
 
     if (
         selectedDate ===
@@ -1559,7 +1488,7 @@ sortSelect.addEventListener(
 
 /*
  * ========================================
- * ブログ並び替え・描画
+ * ブログ描画
  * ========================================
  */
 
@@ -1569,30 +1498,16 @@ function updateBlogs() {
         ...blogs
     ];
 
-    const sortOrder =
-        sortSelect.value;
-
     gallery.render(
         filteredBlogs,
         Boolean(
             memberSelect.value
         ),
-        sortOrder
+        sortSelect.value
     );
 
-
-    /*
-     * ========================================
-     * 通常ギャラリーでは
-     * 表示中全ブログの画像を対象にする
-     * ========================================
-     */
-
-    const imageIds =
-        getDisplayedImageIds();
-
     lightbox.setImages(
-        imageIds
+        getDisplayedImageIds()
     );
 }
 
@@ -1634,12 +1549,6 @@ function showGalleryView() {
 
     galleryView.hidden =
         false;
-
-    /*
-     * ========================================
-     * 元のスクロール位置へ戻す
-     * ========================================
-     */
 
     window.scrollTo({
         top:
@@ -1705,16 +1614,6 @@ window.addEventListener(
     "popstate",
     () => {
 
-
-        /*
-         * ========================================
-         * ライトボックス
-         *
-         * 戻る操作では
-         * まずライトボックスだけ閉じる
-         * ========================================
-         */
-
         if (
             lightbox.isOpen()
         ) {
@@ -1726,18 +1625,8 @@ window.addEventListener(
             return;
         }
 
-
         const hash =
             window.location.hash;
-
-
-        /*
-         * ========================================
-         * ブログ画像一覧
-         *
-         * #blog-images-12345
-         * ========================================
-         */
 
         if (
             hash.startsWith(
@@ -1750,15 +1639,6 @@ window.addEventListener(
             return;
         }
 
-
-        /*
-         * ========================================
-         * ブログ詳細
-         *
-         * #blog-12345
-         * ========================================
-         */
-
         if (
             hash.startsWith(
                 "#blog-"
@@ -1769,13 +1649,6 @@ window.addEventListener(
 
             return;
         }
-
-
-        /*
-         * ========================================
-         * 通常ギャラリー
-         * ========================================
-         */
 
         showGalleryView();
     }

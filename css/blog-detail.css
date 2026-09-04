@@ -3,9 +3,16 @@
 ========================= */
 
 .blog-detail-view {
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 24px 30px 60px;
+    max-width: 1180px;
+
+    margin:
+        0
+        auto;
+
+    padding:
+        28px
+        30px
+        64px;
 }
 
 
@@ -14,18 +21,61 @@
 ========================= */
 
 .blog-detail-back-button {
-    margin: 0 0 32px;
-    padding: 10px 16px;
-    border: 1px solid #d0d0d0;
-    border-radius: 8px;
-    background: #fff;
-    color: #333;
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    margin:
+        0
+        0
+        28px;
+
+    padding:
+        10px
+        14px;
+
+    border:
+        1px solid
+        #dedede;
+
+    border-radius:
+        12px;
+
+    background:
+        #fff;
+
+    color:
+        #333;
+
     font: inherit;
-    cursor: pointer;
+
+    font-size:
+        14px;
+
+    font-weight:
+        600;
+
+    cursor:
+        pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
 }
 
 .blog-detail-back-button:hover {
-    background: #f5f5f5;
+    background:
+        #f7f7f7;
+
+    border-color:
+        #ccc;
+
+    transform:
+        translateY(
+            -1px
+        );
 }
 
 
@@ -34,8 +84,36 @@
 ========================= */
 
 .blog-detail {
-    max-width: 720px;
-    margin: 0 auto;
+    max-width:
+        760px;
+
+    margin:
+        0
+        auto;
+
+    padding:
+        28px
+        30px
+        40px;
+
+    background:
+        #fff;
+
+    border:
+        1px solid
+        #e8e8e8;
+
+    border-radius:
+        18px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(
+            0,
+            0,
+            0,
+            0.045
+        );
 }
 
 
@@ -44,20 +122,51 @@
 ========================= */
 
 .blog-detail-header {
-    margin-bottom: 40px;
+    margin-bottom:
+        36px;
+
+    padding-bottom:
+        24px;
+
+    border-bottom:
+        1px solid
+        #eeeeee;
 }
 
 .blog-detail-title {
-    margin: 0 0 12px;
-    font-size: 26px;
-    font-weight: 600;
-    line-height: 1.5;
+    margin:
+        0
+        0
+        10px;
+
+    color:
+        #222;
+
+    font-size:
+        28px;
+
+    font-weight:
+        700;
+
+    line-height:
+        1.55;
+
+    letter-spacing:
+        -0.01em;
 }
 
 .blog-detail-meta {
-    color: #777;
-    font-size: 14px;
-    line-height: 1.5;
+    color:
+        #888;
+
+    font-size:
+        13px;
+
+    font-weight:
+        500;
+
+    line-height:
+        1.6;
 }
 
 
@@ -66,11 +175,25 @@
 ========================= */
 
 .blog-detail-text {
-    margin: 0 0 32px;
-    font-size: 16px;
-    line-height: 2;
-    white-space: pre-wrap;
-    overflow-wrap: anywhere;
+    margin:
+        0
+        0
+        30px;
+
+    color:
+        #333;
+
+    font-size:
+        16px;
+
+    line-height:
+        2;
+
+    white-space:
+        pre-wrap;
+
+    overflow-wrap:
+        anywhere;
 }
 
 
@@ -79,16 +202,82 @@
 ========================= */
 
 .blog-detail-image {
-    margin: 0 0 32px;
-    text-align: center;
+    margin:
+        0
+        0
+        30px;
+
+    text-align:
+        center;
 }
 
 .blog-detail-image img {
-    display: block;
-    width: auto;
-    max-width: 100%;
-    height: auto;
-    margin: 0 auto;
+    display:
+        block;
+
+    width:
+        auto;
+
+    max-width:
+        100%;
+
+    height:
+        auto;
+
+    margin:
+        0
+        auto;
+
+    border-radius:
+        12px;
+
+    background:
+        #f3f3f3;
+
+    box-shadow:
+        0 3px 14px
+        rgba(
+            0,
+            0,
+            0,
+            0.07
+        );
+}
+
+
+/* =========================
+   最後の要素
+========================= */
+
+.blog-detail > :last-child {
+    margin-bottom:
+        0;
+}
+
+
+/* =========================
+   タブレット
+========================= */
+
+@media (
+    min-width: 768px
+) and (
+    max-width: 1199px
+) {
+
+    .blog-detail-view {
+        padding:
+            24px
+            20px
+            56px;
+    }
+
+    .blog-detail {
+        padding:
+            26px
+            26px
+            36px;
+    }
 }
 
 
@@ -97,36 +286,99 @@
 ========================= */
 
 @media (max-width: 767px) {
+
     .blog-detail-view {
-        padding: 16px 12px 40px;
+        padding:
+            14px
+            8px
+            36px;
     }
 
     .blog-detail-back-button {
-        margin-bottom: 24px;
-        padding: 9px 12px;
-        font-size: 14px;
+        margin-bottom:
+            14px;
+
+        padding:
+            9px
+            12px;
+
+        border-radius:
+            10px;
+
+        font-size:
+            13px;
+    }
+
+    .blog-detail {
+        padding:
+            20px
+            14px
+            28px;
+
+        border-radius:
+            14px;
+
+        box-shadow:
+            0 2px 10px
+            rgba(
+                0,
+                0,
+                0,
+                0.04
+            );
     }
 
     .blog-detail-header {
-        margin-bottom: 28px;
+        margin-bottom:
+            26px;
+
+        padding-bottom:
+            18px;
     }
 
     .blog-detail-title {
-        margin-bottom: 8px;
-        font-size: 21px;
+        margin-bottom:
+            8px;
+
+        font-size:
+            21px;
+
+        line-height:
+            1.5;
     }
 
     .blog-detail-meta {
-        font-size: 13px;
+        font-size:
+            12px;
     }
 
     .blog-detail-text {
-        margin-bottom: 24px;
-        font-size: 15px;
-        line-height: 1.9;
+        margin-bottom:
+            24px;
+
+        font-size:
+            15px;
+
+        line-height:
+            1.9;
     }
 
     .blog-detail-image {
-        margin-bottom: 24px;
+        margin-bottom:
+            22px;
+    }
+
+    .blog-detail-image img {
+        border-radius:
+            9px;
+
+        box-shadow:
+            0 2px 10px
+            rgba(
+                0,
+                0,
+                0,
+                0.055
+            );
     }
 }

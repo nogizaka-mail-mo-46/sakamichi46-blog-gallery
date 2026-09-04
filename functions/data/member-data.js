@@ -27,7 +27,13 @@ export const members = {
 
     /*
      * 乃木坂46（5期生）
-     */    
+     */   
+    miku_ichinose: {
+        name: "一ノ瀬 美空",
+        group: "nogizaka46",
+        folderId: "1SUV4ZNy1pzekUtujYepL9-h5IM4rHLWk",
+        blogDataFolderId: "1h6pWs87CEkaUmh5vbdr7XjgZQNBeJwwU"
+    }, 
     teresa_ikeda: {
         name: "池田 瑛紗",
         group: "nogizaka46",

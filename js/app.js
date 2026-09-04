@@ -26,6 +26,35 @@ import {
 
 /*
  * ========================================
+ * ヒーロー DOM
+ * ========================================
+ */
+
+const hero =
+    document.getElementById(
+        "hero"
+    );
+
+const heroTitle =
+    document.getElementById(
+        "heroTitle"
+    );
+
+const heroSubtitle =
+    document.getElementById(
+        "heroSubtitle"
+    );
+
+const heroGroupButtons =
+    Array.from(
+        document.querySelectorAll(
+            ".hero-group-button"
+        )
+    );
+
+
+/*
+ * ========================================
  * DOM
  * ========================================
  */
@@ -125,6 +154,166 @@ let selectedDate =
 
 let galleryScrollPosition =
     0;
+
+
+/*
+ * ========================================
+ * ヒーロー設定
+ * ========================================
+ */
+
+const heroGroupData = {
+
+    nogizaka46: {
+        title:
+            "乃木坂46",
+
+        subtitle:
+            "NOGIZAKA46 BLOG GALLERY"
+    },
+
+    sakurazaka46: {
+        title:
+            "櫻坂46",
+
+        subtitle:
+            "SAKURAZAKA46 BLOG GALLERY"
+    },
+
+    hinatazaka46: {
+        title:
+            "日向坂46",
+
+        subtitle:
+            "HINATAZAKA46 BLOG GALLERY"
+    }
+};
+
+
+/*
+ * ========================================
+ * ヒーロー表示更新
+ * ========================================
+ */
+
+function updateHero(
+    group
+) {
+
+    const data =
+        heroGroupData[
+            group
+        ];
+
+    if (
+        !data
+    ) {
+        return;
+    }
+
+
+    /*
+     * ========================================
+     * タイトル
+     * ========================================
+     */
+
+    heroTitle.textContent =
+        data.title;
+
+    heroSubtitle.textContent =
+        data.subtitle;
+
+
+    /*
+     * ========================================
+     * 背景クラス
+     * ========================================
+     */
+
+    hero.classList.remove(
+        "hero-nogizaka46",
+        "hero-sakurazaka46",
+        "hero-hinatazaka46"
+    );
+
+    hero.classList.add(
+        `hero-${group}`
+    );
+
+
+    /*
+     * ========================================
+     * ボタン選択状態
+     * ========================================
+     */
+
+    heroGroupButtons.forEach(
+        button => {
+
+            const selected =
+                button.dataset.group ===
+                group;
+
+            button.classList.toggle(
+                "active",
+                selected
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                selected
+                    ? "true"
+                    : "false"
+            );
+        }
+    );
+}
+
+
+/*
+ * ========================================
+ * ヒーロー グループボタン
+ * ========================================
+ */
+
+heroGroupButtons.forEach(
+    button => {
+
+        button.addEventListener(
+            "click",
+            () => {
+
+                const group =
+                    button.dataset.group;
+
+                if (
+                    !group ||
+                    groupSelect.value ===
+                        group
+                ) {
+                    return;
+                }
+
+                /*
+                 * selectを変更
+                 */
+                groupSelect.value =
+                    group;
+
+                /*
+                 * 既存のgroupSelect change処理を
+                 * そのまま実行
+                 */
+                groupSelect.dispatchEvent(
+                    new Event(
+                        "change"
+                    )
+                );
+            }
+        );
+    }
+);
 
 
 /*
@@ -450,6 +639,10 @@ const calendar =
 
 async function initialize() {
 
+    updateHero(
+        groupSelect.value
+    );
+
     await loadMembers();
 
     await loadGroupPostDates();
@@ -467,6 +660,10 @@ initialize();
 groupSelect.addEventListener(
     "change",
     async () => {
+
+        updateHero(
+            groupSelect.value
+        );
 
         memberSelect.value =
             "";

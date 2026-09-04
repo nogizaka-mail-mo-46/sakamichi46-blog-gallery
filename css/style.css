@@ -22,25 +22,6 @@ body {
 
 
 /* =========================
-   ヘッダー
-========================= */
-
-.header {
-    padding: 26px 30px 0;
-}
-
-.header h1 {
-    margin: 0;
-
-    font-size: 28px;
-    font-weight: 700;
-    line-height: 1.4;
-
-    letter-spacing: -0.01em;
-}
-
-
-/* =========================
    ヒーロー
 ========================= */
 
@@ -52,10 +33,9 @@ body {
     overflow: hidden;
 
     display: flex;
-
     align-items: center;
 
-    margin-bottom: 28px;
+    margin-bottom: 20px;
 
     background: #ddd;
 }
@@ -76,26 +56,17 @@ body {
 
     opacity: 0;
 
-    transform:
-        scale(
-            1.02
-        );
+    transform: scale(1.02);
 
     transition:
-        opacity 0.7s ease;
+        opacity 0.65s ease;
 
-    will-change:
-        opacity;
+    will-change: opacity;
 }
 
 .hero-background.active {
     opacity: 1;
 }
-
-
-/* =========================
-   初期背景
-========================= */
 
 .hero-background-a {
     background-image:
@@ -104,7 +75,7 @@ body {
 
 
 /* =========================
-   オーバーレイ
+   ヒーローオーバーレイ
 ========================= */
 
 .hero-overlay {
@@ -112,13 +83,17 @@ body {
 
     inset: 0;
 
+    z-index: 1;
+
     background:
         linear-gradient(
             90deg,
-            rgba(0, 0, 0, 0.28) 0%,
-            rgba(0, 0, 0, 0.12) 42%,
-            rgba(0, 0, 0, 0.02) 100%
+            rgba(0, 0, 0, 0.30) 0%,
+            rgba(0, 0, 0, 0.13) 44%,
+            rgba(0, 0, 0, 0.03) 100%
         );
+
+    pointer-events: none;
 }
 
 
@@ -132,13 +107,12 @@ body {
     z-index: 2;
 
     width: 100%;
-
     max-width: 1180px;
 
     margin: 0 auto;
 
     padding:
-        44px
+        50px
         30px;
 
     color: #fff;
@@ -146,11 +120,11 @@ body {
 
 
 /* =========================
-   タイトル
+   ヒーロータイトル
 ========================= */
 
 .hero-title-area {
-    max-width: 520px;
+    max-width: 560px;
 }
 
 .hero-title {
@@ -158,14 +132,13 @@ body {
 
     font-size: 42px;
     font-weight: 700;
-
     line-height: 1.2;
 
     letter-spacing: 0.02em;
 
     text-shadow:
-        0 2px 12px
-        rgba(0, 0, 0, 0.28);
+        0 2px 14px
+        rgba(0, 0, 0, 0.3);
 }
 
 .hero-subtitle {
@@ -178,12 +151,12 @@ body {
 
     text-shadow:
         0 1px 8px
-        rgba(0, 0, 0, 0.25);
+        rgba(0, 0, 0, 0.3);
 }
 
 
 /* =========================
-   グループボタン
+   グループ切り替え
 ========================= */
 
 .hero-group-buttons {
@@ -193,7 +166,7 @@ body {
 
     gap: 8px;
 
-    margin-top: 26px;
+    margin-top: 28px;
 }
 
 .hero-group-button {
@@ -201,16 +174,16 @@ body {
 
     padding:
         8px
-        16px;
+        17px;
 
     border:
         1px solid
-        rgba(255, 255, 255, 0.6);
+        rgba(255, 255, 255, 0.65);
 
     border-radius: 999px;
 
     background:
-        rgba(255, 255, 255, 0.16);
+        rgba(255, 255, 255, 0.17);
 
     color: #fff;
 
@@ -221,18 +194,21 @@ body {
 
     cursor: pointer;
 
-    backdrop-filter:
-        blur(5px);
+    backdrop-filter: blur(6px);
+
+    -webkit-backdrop-filter:
+        blur(6px);
 
     transition:
         background 0.2s ease,
         border-color 0.2s ease,
+        color 0.2s ease,
         transform 0.2s ease;
 }
 
 .hero-group-button:hover {
     background:
-        rgba(255, 255, 255, 0.26);
+        rgba(255, 255, 255, 0.28);
 
     transform:
         translateY(-1px);
@@ -248,36 +224,90 @@ body {
 
 
 /* =========================
+   ヒーローログアウト
+========================= */
+
+.hero-logout-button {
+    position: absolute;
+
+    top: -26px;
+    right: 30px;
+
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 38px;
+
+    padding:
+        8px
+        15px;
+
+    border:
+        1px solid
+        rgba(255, 255, 255, 0.65);
+
+    border-radius: 999px;
+
+    background:
+        rgba(255, 255, 255, 0.17);
+
+    color: #fff;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    backdrop-filter:
+        blur(6px);
+
+    -webkit-backdrop-filter:
+        blur(6px);
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.hero-logout-button:hover {
+    background:
+        rgba(255, 255, 255, 0.30);
+
+    border-color:
+        rgba(255, 255, 255, 0.95);
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================
    操作エリア
 ========================= */
 
 .gallery-controls {
     max-width: 1180px;
 
-    margin:
-        0
-        auto;
+    margin: 0 auto;
 }
 
 
 /* =========================
-   グループ選択
+   セレクト行
 ========================= */
 
-.group-row {
+.select-row {
     display: flex;
-
-    align-items: center;
-    justify-content: space-between;
 
     gap: 12px;
 
-    max-width: 1180px;
-
     margin:
-        22px
+        0
         auto
-        0;
+        22px;
 
     padding:
         0
@@ -289,7 +319,6 @@ body {
    セレクト共通
 ========================= */
 
-#groupSelect,
 #memberSelect,
 #sortSelect {
     appearance: none;
@@ -302,7 +331,10 @@ body {
         10px
         14px;
 
-    border: 1px solid #dedede;
+    border:
+        1px solid
+        #dedede;
+
     border-radius: 12px;
 
     background:
@@ -326,13 +358,11 @@ body {
         background-color 0.2s ease;
 }
 
-#groupSelect:hover,
 #memberSelect:hover,
 #sortSelect:hover {
     border-color: #c8c8c8;
 }
 
-#groupSelect:focus,
 #memberSelect:focus,
 #sortSelect:focus {
     border-color: #aaa;
@@ -340,88 +370,6 @@ body {
     box-shadow:
         0 0 0 3px
         rgba(0, 0, 0, 0.05);
-}
-
-
-/* =========================
-   グループ
-========================= */
-
-#groupSelect {
-    width: 220px;
-}
-
-
-/* =========================
-   ログアウト
-========================= */
-
-.logout-button {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    min-width: 110px;
-    min-height: 44px;
-
-    padding:
-        10px
-        16px;
-
-    border: 1px solid #dedede;
-    border-radius: 12px;
-
-    background: #fff;
-
-    color: #333;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    text-decoration: none;
-
-    flex-shrink: 0;
-
-    cursor: pointer;
-
-    transition:
-        background 0.2s ease,
-        border-color 0.2s ease,
-        transform 0.2s ease;
-}
-
-.logout-button:hover {
-    background: #f8f8f8;
-
-    border-color: #ccc;
-
-    transform:
-        translateY(
-            -1px
-        );
-}
-
-
-/* =========================
-   メンバー・並び順
-========================= */
-
-.select-row {
-    display: flex;
-
-    gap: 12px;
-
-    max-width: 1180px;
-
-    margin:
-        12px
-        auto
-        22px;
-
-    padding:
-        0
-        30px;
 }
 
 #memberSelect {
@@ -438,18 +386,19 @@ body {
 ========================= */
 
 .calendar {
-    max-width: 1180px;
-
     margin:
         0
-        auto
+        30px
         24px;
 
     padding: 20px;
 
     background: #fff;
 
-    border: 1px solid #e8e8e8;
+    border:
+        1px solid
+        #e8e8e8;
+
     border-radius: 18px;
 
     box-shadow:
@@ -495,7 +444,10 @@ body {
 
     padding: 0;
 
-    border: 1px solid #dedede;
+    border:
+        1px solid
+        #dedede;
+
     border-radius: 10px;
 
     background: #fff;
@@ -618,9 +570,7 @@ body {
     background: #333;
 
     transform:
-        translateX(
-            -50%
-        );
+        translateX(-50%);
 }
 
 .calendar-day.has-post:hover {
@@ -662,7 +612,10 @@ body {
         8px
         14px;
 
-    border: 1px solid #dedede;
+    border:
+        1px solid
+        #dedede;
+
     border-radius: 10px;
 
     background: #fff;
@@ -693,16 +646,10 @@ body {
 .selected-date-title {
     display: none;
 
-    max-width: 1180px;
-
     margin:
         0
-        auto
+        30px
         6px;
-
-    padding:
-        0
-        30px;
 
     font-size: 18px;
     font-weight: 700;
@@ -724,16 +671,17 @@ body {
     max-width: 1199px
 ) {
 
-    .header {
+    .hero-content {
         padding:
-            24px
-            20px
-            0;
+            44px
+            20px;
     }
 
-    .group-row,
-    .select-row,
-    .selected-date-title {
+    .hero-logout-button {
+        right: 20px;
+    }
+
+    .select-row {
         padding:
             0
             20px;
@@ -745,6 +693,11 @@ body {
             20px
             24px;
     }
+
+    .selected-date-title {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
 }
 
 
@@ -754,28 +707,17 @@ body {
 
 @media (max-width: 767px) {
 
-    .header {
-        padding:
-            18px
-            12px
-            0;
-    }
-
-    .header h1 {
-        font-size: 20px;
-    }
-
-
     .hero {
         min-height: 240px;
 
-        margin-bottom: 18px;
+        margin-bottom: 14px;
     }
 
     .hero-content {
         padding:
-            30px
-            16px;
+            48px
+            16px
+            28px;
     }
 
     .hero-title {
@@ -791,9 +733,9 @@ body {
     }
 
     .hero-group-buttons {
-        margin-top: 20px;
-
         gap: 6px;
+
+        margin-top: 20px;
     }
 
     .hero-group-button {
@@ -806,12 +748,25 @@ body {
         font-size: 12px;
     }
 
+    .hero-logout-button {
+        top: -36px;
+        right: 12px;
+
+        min-height: 32px;
+
+        padding:
+            6px
+            10px;
+
+        font-size: 11px;
+    }
+
     .hero-overlay {
         background:
             linear-gradient(
                 90deg,
                 rgba(0, 0, 0, 0.34) 0%,
-                rgba(0, 0, 0, 0.16) 65%,
+                rgba(0, 0, 0, 0.17) 65%,
                 rgba(0, 0, 0, 0.04) 100%
             );
     }
@@ -819,46 +774,7 @@ body {
 
     /*
      * =========================
-     * グループ行
-     * =========================
-     */
-
-    .group-row {
-        gap: 8px;
-
-        margin-top: 16px;
-
-        padding:
-            0
-            8px;
-    }
-
-    #groupSelect {
-        width: auto;
-
-        flex: 1;
-
-        min-width: 0;
-    }
-
-    .logout-button {
-        min-width: 94px;
-
-        min-height: 42px;
-
-        padding:
-            9px
-            12px;
-
-        border-radius: 10px;
-
-        font-size: 13px;
-    }
-
-
-    /*
-     * =========================
-     * メンバー・並び順
+     * セレクト
      * =========================
      */
 
@@ -866,7 +782,7 @@ body {
         gap: 8px;
 
         margin:
-            8px
+            0
             auto
             16px;
 
@@ -889,7 +805,6 @@ body {
         flex-shrink: 0;
     }
 
-    #groupSelect,
     #memberSelect,
     #sortSelect {
         min-height: 42px;
@@ -991,11 +906,10 @@ body {
      */
 
     .selected-date-title {
-        margin-bottom: 4px;
-
-        padding:
+        margin:
             0
-            8px;
+            8px
+            4px;
 
         font-size: 16px;
     }

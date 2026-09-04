@@ -21,8 +21,8 @@ export function createBlogImages({
     galleryView,
     blogImagesView,
     blogImages,
-    blogImagesBackButton,
-    lightbox
+    lightbox,
+    onOpen
 }) {
 
 
@@ -31,9 +31,6 @@ export function createBlogImages({
      * 状態
      * ========================================
      */
-
-    let galleryScrollPosition =
-        0;
 
     let currentBlog =
         null;
@@ -70,16 +67,6 @@ export function createBlogImages({
             return;
         }
 
-
-        /*
-         * ========================================
-         * 現在状態保存
-         * ========================================
-         */
-
-        galleryScrollPosition =
-            window.scrollY;
-
         currentBlog = {
             articleId:
                 articleId,
@@ -94,56 +81,20 @@ export function createBlogImages({
                 blogImageList
         };
 
-
-        /*
-         * ========================================
-         * 描画
-         * ========================================
-         */
-
         render(
             currentBlog
         );
 
+        show();
 
-        /*
-         * ========================================
-         * 画面切り替え
-         * ========================================
-         */
-
-        galleryView.hidden =
-            true;
-
-        blogImagesView.hidden =
-            false;
-
-
-        /*
-         * ========================================
-         * 履歴追加
-         * ========================================
-         */
-
-        history.pushState(
-            {
-                view:
-                    "blog-images",
-
-                articleId:
-                    articleId
-            },
-            "",
-            `#blog-images-${articleId}`
-        );
-
-        window.scrollTo({
-            top:
-                0,
-
-            behavior:
-                "auto"
-        });
+        if (
+            typeof onOpen ===
+                "function"
+        ) {
+            onOpen(
+                currentBlog
+            );
+        }
     }
 
 
@@ -176,12 +127,6 @@ export function createBlogImages({
             "blog-images-header";
 
 
-        /*
-         * ========================================
-         * タイトル
-         * ========================================
-         */
-
         const title =
             document.createElement(
                 "h2"
@@ -194,16 +139,6 @@ export function createBlogImages({
             blog.title ||
             "（無題）";
 
-        header.appendChild(
-            title
-        );
-
-
-        /*
-         * ========================================
-         * 枚数
-         * ========================================
-         */
 
         const count =
             document.createElement(
@@ -215,6 +150,10 @@ export function createBlogImages({
 
         count.textContent =
             `${blog.images.length}枚`;
+
+        header.appendChild(
+            title
+        );
 
         header.appendChild(
             count
@@ -239,20 +178,12 @@ export function createBlogImages({
         grid.className =
             "blog-images-grid";
 
-
-        /*
-         * ========================================
-         * ライトボックス対象
-         *
-         * このブログ内だけ
-         * ========================================
-         */
-
         const imageIds =
             blog.images.map(
                 image =>
                     image.fileId
             );
+
 
         blog.images.forEach(
             (
@@ -341,8 +272,7 @@ export function createBlogImages({
                  * ========================================
                  * 画像クリック
                  *
-                 * このブログ内だけで
-                 * ライトボックス移動
+                 * このブログ内だけで移動
                  * ========================================
                  */
 
@@ -382,54 +312,17 @@ export function createBlogImages({
 
     /*
      * ========================================
-     * ギャラリー表示
+     * 画像一覧表示
      * ========================================
      */
 
-    function showGallery() {
-
-        blogImagesView.hidden =
-            true;
-
-        galleryView.hidden =
-            false;
-
-        blogImages.innerHTML =
-            "";
-
-        window.scrollTo({
-            top:
-                galleryScrollPosition,
-
-            behavior:
-                "auto"
-        });
-    }
-
-
-    /*
-     * ========================================
-     * 現在の画像一覧再表示
-     * ========================================
-     */
-
-    function showCurrent() {
-
-        if (
-            !currentBlog
-        ) {
-            return;
-        }
+    function show() {
 
         galleryView.hidden =
             true;
 
         blogImagesView.hidden =
             false;
-
-        render(
-            currentBlog
-        );
 
         window.scrollTo({
             top:
@@ -443,17 +336,51 @@ export function createBlogImages({
 
     /*
      * ========================================
-     * 戻るボタン
+     * 画像一覧非表示
      * ========================================
      */
 
-    blogImagesBackButton.addEventListener(
-        "click",
-        () => {
+    function hide() {
 
-            history.back();
+        blogImagesView.hidden =
+            true;
+    }
+
+
+    /*
+     * ========================================
+     * 現在の画像一覧を再表示
+     * ========================================
+     */
+
+    function showCurrent() {
+
+        if (
+            !currentBlog
+        ) {
+            return false;
         }
-    );
+
+        render(
+            currentBlog
+        );
+
+        show();
+
+        return true;
+    }
+
+
+    /*
+     * ========================================
+     * 現在のブログ取得
+     * ========================================
+     */
+
+    function getCurrent() {
+
+        return currentBlog;
+    }
 
 
     /*
@@ -466,10 +393,16 @@ export function createBlogImages({
         open:
             open,
 
-        showGallery:
-            showGallery,
+        show:
+            show,
+
+        hide:
+            hide,
 
         showCurrent:
-            showCurrent
+            showCurrent,
+
+        getCurrent:
+            getCurrent
     };
 }

@@ -369,18 +369,6 @@ export function createBlogDetail({
 
     /*
      * ========================================
-     * 現在のブログ取得
-     * ========================================
-     */
-
-    function getCurrent() {
-
-        return currentBlogDetail;
-    }
-
-
-    /*
-     * ========================================
      * 公開メソッド
      * ========================================
      */
@@ -396,9 +384,6 @@ export function createBlogDetail({
             hide,
 
         showCurrent:
-            showCurrent,
-
-        getCurrent:
-            getCurrent
+            showCurrent
     };
 }

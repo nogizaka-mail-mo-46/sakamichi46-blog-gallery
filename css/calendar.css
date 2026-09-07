@@ -624,6 +624,27 @@
 
 /*
  * ========================================
+ * ブログ一覧ヘッダー
+ * ========================================
+ */
+
+.blog-list-header {
+    display: flex;
+
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 16px;
+
+    margin:
+        0
+        30px
+        8px;
+}
+
+
+/*
+ * ========================================
  * 選択中の日付
  * ========================================
  */
@@ -631,10 +652,9 @@
 .selected-date-title {
     display: none;
 
-    margin:
-        0
-        30px
-        6px;
+    min-width: 0;
+
+    margin: 0;
 
     font-size: 18px;
     font-weight: 700;
@@ -667,7 +687,7 @@
     }
 
 
-    .selected-date-title {
+    .blog-list-header {
         margin-left: 20px;
         margin-right: 20px;
     }
@@ -867,16 +887,31 @@
 
     /*
      * ====================================
+     * ブログ一覧ヘッダー
+     * ====================================
+     */
+
+    .blog-list-header {
+        gap: 8px;
+
+        margin:
+            0
+            8px
+            6px;
+    }
+
+
+    /*
+     * ====================================
      * 選択中の日付
      * ====================================
      */
 
     .selected-date-title {
-        margin:
-            0
-            8px
-            4px;
+        margin: 0;
 
         font-size: 16px;
+
+        white-space: nowrap;
     }
 }

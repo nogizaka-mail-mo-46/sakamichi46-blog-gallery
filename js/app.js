@@ -152,8 +152,12 @@ let currentGroup =
 let members =
     [];
 
-let nogizakaMemberIconMap =
-    null;
+/*
+ * グループ別
+ * メンバーアイコンMapキャッシュ
+ */
+const memberIconMaps =
+    new Map();
 
 let blogs =
     [];
@@ -185,6 +189,19 @@ let galleryScrollPosition =
 
 const MEMBER_ICONS_API_URL =
     "/api/member-icons";
+
+
+/*
+ * ========================================
+ * アイコン表示対応グループ
+ * ========================================
+ */
+
+const MEMBER_ICON_GROUPS =
+    new Set([
+        "nogizaka46",
+        "hinatazaka46"
+    ]);
 
 
 /*
@@ -464,26 +481,48 @@ function normalizeMemberName(
 
 /*
  * ========================================
- * 乃木坂46 メンバーアイコン取得
+ * メンバーアイコン取得
  * ========================================
  */
 
-async function loadNogizakaMemberIconMap() {
+async function loadMemberIconMap(
+    group
+) {
+
+    /*
+     * ========================================
+     * キャッシュ済み
+     * ========================================
+     */
 
     if (
-        nogizakaMemberIconMap
+        memberIconMaps.has(
+            group
+        )
     ) {
-        return nogizakaMemberIconMap;
+
+        return memberIconMaps.get(
+            group
+        );
     }
+
 
     const iconMap =
         new Map();
 
+
     try {
+
+        /*
+         * ========================================
+         * グループ別JSON取得
+         * ========================================
+         */
 
         const response =
             await fetch(
-                MEMBER_ICONS_API_URL,
+                `${MEMBER_ICONS_API_URL}` +
+                `?group=${encodeURIComponent(group)}`,
                 {
                     method:
                         "GET",
@@ -493,17 +532,21 @@ async function loadNogizakaMemberIconMap() {
                 }
             );
 
+
         if (
             !response.ok
         ) {
 
             throw new Error(
-                `メンバーアイコン一覧の取得に失敗しました: ${response.status}`
+                `メンバーアイコン一覧の取得に失敗しました: ` +
+                `${response.status}`
             );
         }
 
+
         const data =
             await response.json();
+
 
         if (
             !Array.isArray(
@@ -516,6 +559,13 @@ async function loadNogizakaMemberIconMap() {
             );
         }
 
+
+        /*
+         * ========================================
+         * メンバー名 → アイコン情報
+         * ========================================
+         */
+
         data.members.forEach(
             member => {
 
@@ -525,6 +575,7 @@ async function loadNogizakaMemberIconMap() {
                 ) {
                     return;
                 }
+
 
                 iconMap.set(
                     normalizeMemberName(
@@ -545,8 +596,18 @@ async function loadNogizakaMemberIconMap() {
             }
         );
 
-        nogizakaMemberIconMap =
-            iconMap;
+
+        /*
+         * ========================================
+         * グループ別キャッシュ
+         * ========================================
+         */
+
+        memberIconMaps.set(
+            group,
+            iconMap
+        );
+
 
     } catch (
         error
@@ -556,11 +617,18 @@ async function loadNogizakaMemberIconMap() {
             error
         );
 
-        nogizakaMemberIconMap =
-            iconMap;
+
+        /*
+         * 失敗時も空Mapをキャッシュ
+         */
+        memberIconMaps.set(
+            group,
+            iconMap
+        );
     }
 
-    return nogizakaMemberIconMap;
+
+    return iconMap;
 }
 
 
@@ -696,7 +764,7 @@ function createMemberIconButton({
 
         image.src =
             `/image/${encodeURIComponent(fileId)}`;
-        
+
         image.alt =
             "";
 
@@ -806,7 +874,7 @@ function createMemberIconButton({
 
             if (
                 memberSelect.value ===
-                memberKey
+                    memberKey
             ) {
 
                 updateMemberIconSelection();
@@ -854,13 +922,17 @@ async function renderMemberIconSelector() {
 
     /*
      * ========================================
-     * 乃木坂46以外
+     * アイコン未対応グループ
+     *
+     * 現在:
+     * - 櫻坂46
      * ========================================
      */
 
     if (
-        currentGroup !==
-        "nogizaka46"
+        !MEMBER_ICON_GROUPS.has(
+            currentGroup
+        )
     ) {
 
         memberIconSelector.hidden =
@@ -871,6 +943,16 @@ async function renderMemberIconSelector() {
 
         return;
     }
+
+
+    /*
+     * ========================================
+     * アイコン対応グループ
+     *
+     * - 乃木坂46
+     * - 日向坂46
+     * ========================================
+     */
 
     memberIconSelector.hidden =
         false;
@@ -906,7 +988,9 @@ async function renderMemberIconSelector() {
      */
 
     const iconMap =
-        await loadNogizakaMemberIconMap();
+        await loadMemberIconMap(
+            currentGroup
+        );
 
 
     /*

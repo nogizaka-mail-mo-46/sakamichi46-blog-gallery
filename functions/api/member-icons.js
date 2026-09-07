@@ -5,23 +5,57 @@ import {
 
 /*
  * ========================================
- * ★ 設定
+ * ★ グループ別設定
  * ========================================
  */
 
-/*
- * Google Drive
- * currentフォルダ
- */
-const MEMBER_ICONS_FOLDER_ID =
-    "1XOt-8OYSUGF3cVG-QdiXl6BXiqM4-GLD";
+const MEMBER_ICONS_CONFIG = {
+
+    /*
+     * ========================================
+     * 乃木坂46
+     * ========================================
+     */
+
+    nogizaka46: {
+
+        /*
+         * Google Drive
+         * currentフォルダ
+         */
+        folderId:
+            "1XOt-8OYSUGF3cVG-QdiXl6BXiqM4-GLD",
+
+        /*
+         * JSONファイル名
+         */
+        fileName:
+            "nogizaka46-member-icons.json"
+    },
 
 
-/*
- * JSONファイル名
- */
-const MEMBER_ICONS_FILE_NAME =
-    "member-icons.json";
+    /*
+     * ========================================
+     * 日向坂46
+     * ========================================
+     */
+
+    hinatazaka46: {
+
+        /*
+         * Google Drive
+         * currentフォルダ
+         */
+        folderId:
+            "1BqeDZsOkuNLgN9CfYGhgS_BclNus6jrP",
+
+        /*
+         * JSONファイル名
+         */
+        fileName:
+            "hinatazaka46-member-icons.json"
+    }
+};
 
 
 /*
@@ -50,35 +84,37 @@ function escapeDriveQueryValue(
 
 /*
  * ========================================
- * ★ member-icons.json のFile ID取得
+ * ★ member-icons JSON のFile ID取得
  * ========================================
  */
 
 async function getMemberIconsFileId(
-    accessToken
+    accessToken,
+    folderId,
+    fileName
 ) {
 
-    const folderId =
+    const escapedFolderId =
         escapeDriveQueryValue(
-            MEMBER_ICONS_FOLDER_ID
+            folderId
         );
 
-    const fileName =
+    const escapedFileName =
         escapeDriveQueryValue(
-            MEMBER_ICONS_FILE_NAME
+            fileName
         );
 
 
     /*
      * ========================================
      * currentフォルダ内から
-     * member-icons.json を検索
+     * 対象JSONを検索
      * ========================================
      */
 
     const query =
-        `'${folderId}' in parents` +
-        ` and name = '${fileName}'` +
+        `'${escapedFolderId}' in parents` +
+        ` and name = '${escapedFileName}'` +
         ` and trashed = false`;
 
 
@@ -125,7 +161,7 @@ async function getMemberIconsFileId(
 
 
         throw new Error(
-            `member-icons.json検索失敗: ` +
+            `${fileName}検索失敗: ` +
             `${response.status} ${errorText}`
         );
     }
@@ -149,7 +185,7 @@ async function getMemberIconsFileId(
     ) {
 
         throw new Error(
-            "member-icons.jsonが見つかりません。"
+            `${fileName}が見つかりません。`
         );
     }
 
@@ -192,13 +228,14 @@ async function getMemberIconsFileId(
 
 /*
  * ========================================
- * ★ member-icons.json 本体取得
+ * ★ member-icons JSON 本体取得
  * ========================================
  */
 
 async function getMemberIconsJson(
     accessToken,
-    fileId
+    fileId,
+    fileName
 ) {
 
     const url =
@@ -228,7 +265,7 @@ async function getMemberIconsJson(
 
 
         throw new Error(
-            `member-icons.json取得失敗: ` +
+            `${fileName}取得失敗: ` +
             `${response.status} ${errorText}`
         );
     }
@@ -253,7 +290,7 @@ async function getMemberIconsJson(
     ) {
 
         throw new Error(
-            "member-icons.jsonのJSON解析に失敗しました。"
+            `${fileName}のJSON解析に失敗しました。`
         );
     }
 
@@ -272,7 +309,7 @@ async function getMemberIconsJson(
     ) {
 
         throw new Error(
-            "member-icons.jsonの形式が不正です。"
+            `${fileName}の形式が不正です。`
         );
     }
 
@@ -285,7 +322,9 @@ async function getMemberIconsJson(
  * ========================================
  * ★ メンバーアイコン一覧API
  *
- * GET /api/member-icons
+ * GET /api/member-icons?group=nogizaka46
+ *
+ * GET /api/member-icons?group=hinatazaka46
  * ========================================
  */
 
@@ -294,11 +333,98 @@ export async function onRequestGet(
 ) {
 
     const {
+        request,
         env
     } = context;
 
 
     try {
+
+        /*
+         * ========================================
+         * group取得
+         * ========================================
+         */
+
+        const url =
+            new URL(
+                request.url
+            );
+
+
+        const group =
+            url.searchParams.get(
+                "group"
+            );
+
+
+        /*
+         * ========================================
+         * group未指定
+         * ========================================
+         */
+
+        if (
+            !group
+        ) {
+
+            return Response.json(
+                {
+                    error:
+                        "groupが指定されていません。"
+                },
+                {
+                    status:
+                        400,
+
+                    headers: {
+                        "Cache-Control":
+                            "no-store"
+                    }
+                }
+            );
+        }
+
+
+        /*
+         * ========================================
+         * グループ設定取得
+         * ========================================
+         */
+
+        const config =
+            MEMBER_ICONS_CONFIG[
+                group
+            ];
+
+
+        /*
+         * ========================================
+         * 未対応グループ
+         * ========================================
+         */
+
+        if (
+            !config
+        ) {
+
+            return Response.json(
+                {
+                    error:
+                        `未対応のgroupです: ${group}`
+                },
+                {
+                    status:
+                        400,
+
+                    headers: {
+                        "Cache-Control":
+                            "no-store"
+                    }
+                }
+            );
+        }
+
 
         /*
          * ========================================
@@ -314,13 +440,15 @@ export async function onRequestGet(
 
         /*
          * ========================================
-         * member-icons.json のFile ID
+         * member-icons JSON のFile ID
          * ========================================
          */
 
         const fileId =
             await getMemberIconsFileId(
-                accessToken
+                accessToken,
+                config.folderId,
+                config.fileName
             );
 
 
@@ -333,7 +461,8 @@ export async function onRequestGet(
         const data =
             await getMemberIconsJson(
                 accessToken,
-                fileId
+                fileId,
+                config.fileName
             );
 
 
@@ -347,10 +476,12 @@ export async function onRequestGet(
             data,
             {
                 headers: {
+
                     /*
                      * GASでJSONを更新したあとも
                      * 比較的早く反映されるようにする
                      */
+
                     "Cache-Control":
                         "private, max-age=60"
                 }

@@ -1,0 +1,831 @@
+/*
+ * ========================================
+ * カレンダー
+ * ========================================
+ */
+
+.calendar {
+    margin:
+        0
+        30px
+        24px;
+
+    padding: 20px;
+
+    background: #fff;
+
+    border:
+        1px solid
+        #e8e8e8;
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.04);
+}
+
+
+/*
+ * ========================================
+ * カレンダーヘッダー
+ * ========================================
+ */
+
+.calendar-header {
+    display: grid;
+
+    grid-template-columns:
+        40px
+        40px
+        minmax(140px, 1fr)
+        40px
+        40px;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+}
+
+
+/*
+ * ========================================
+ * 年月タイトル
+ * ========================================
+ */
+
+.calendar-title {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+
+.calendar-title-button {
+    appearance: none;
+
+    justify-self: center;
+
+    border: none;
+
+    background: transparent;
+
+    color: inherit;
+
+    font: inherit;
+
+    cursor: pointer;
+
+    padding:
+        6px
+        12px;
+
+    border-radius: 10px;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+
+.calendar-title-button:hover {
+    background:
+        rgba(0, 0, 0, 0.05);
+}
+
+
+.calendar-title-button:active {
+    transform:
+        scale(0.97);
+}
+
+
+/*
+ * ========================================
+ * カレンダーナビ
+ * ========================================
+ */
+
+.calendar-nav {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    padding: 0;
+
+    border:
+        1px solid
+        #dedede;
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color: #333;
+
+    font-size: 22px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease,
+        opacity 0.2s ease,
+        transform 0.15s ease;
+}
+
+
+.calendar-nav:hover:not(:disabled) {
+    background: #f7f7f7;
+
+    border-color: #ccc;
+}
+
+
+.calendar-nav:active:not(:disabled) {
+    transform:
+        scale(0.94);
+}
+
+
+.calendar-nav:disabled {
+    opacity: 0.3;
+
+    cursor: default;
+}
+
+
+.calendar-nav:disabled:hover {
+    background: #fff;
+
+    border-color: #dedede;
+}
+
+
+/*
+ * ========================================
+ * 最古 / 最新ジャンプ
+ * ========================================
+ */
+
+.calendar-nav-edge {
+    font-size: 18px;
+}
+
+
+/*
+ * ========================================
+ * 年月選択パネル
+ * ========================================
+ */
+
+.calendar-month-picker {
+    width: 100%;
+    max-width: 360px;
+
+    margin:
+        4px
+        auto
+        18px;
+
+    padding: 18px;
+
+    background: #fff;
+
+    border:
+        1px solid
+        rgba(0, 0, 0, 0.06);
+
+    border-radius: 18px;
+
+    box-shadow:
+        0 12px 32px
+        rgba(0, 0, 0, 0.10);
+}
+
+
+/*
+ * ========================================
+ * 年月選択パネル
+ * 年ヘッダー
+ * ========================================
+ */
+
+.calendar-month-picker-header {
+    display: grid;
+
+    grid-template-columns:
+        44px
+        1fr
+        44px;
+
+    align-items: center;
+
+    gap: 8px;
+
+    margin-bottom: 14px;
+}
+
+
+.calendar-month-picker-year {
+    text-align: center;
+
+    font-size: 17px;
+    font-weight: 700;
+    line-height: 1.4;
+}
+
+
+/*
+ * ========================================
+ * 年月選択パネル
+ * 年移動
+ * ========================================
+ */
+
+.calendar-month-picker-nav {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    width: 40px;
+    height: 40px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: transparent;
+
+    color: #333;
+
+    font-size: 25px;
+    line-height: 1;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        opacity 0.2s ease,
+        transform 0.15s ease;
+}
+
+
+.calendar-month-picker-nav:hover:not(:disabled) {
+    background:
+        rgba(0, 0, 0, 0.05);
+}
+
+
+.calendar-month-picker-nav:active:not(:disabled) {
+    transform:
+        scale(0.92);
+}
+
+
+.calendar-month-picker-nav:disabled {
+    opacity: 0.2;
+
+    cursor: default;
+}
+
+
+/*
+ * ========================================
+ * 年月選択パネル
+ * 月グリッド
+ * ========================================
+ */
+
+.calendar-month-picker-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            1fr
+        );
+
+    gap: 9px;
+}
+
+
+/*
+ * ========================================
+ * 年月選択パネル
+ * 月
+ * ========================================
+ */
+
+.calendar-month-picker-month {
+    min-height: 46px;
+
+    padding: 8px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background: transparent;
+
+    color: #333;
+
+    font: inherit;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease,
+        opacity 0.2s ease,
+        transform 0.15s ease;
+}
+
+
+.calendar-month-picker-month:hover:not(:disabled) {
+    background:
+        rgba(0, 0, 0, 0.05);
+}
+
+
+.calendar-month-picker-month:active:not(:disabled) {
+    transform:
+        scale(0.96);
+}
+
+
+/*
+ * ========================================
+ * 現在表示中の月
+ * ========================================
+ */
+
+.calendar-month-picker-month.current {
+    background:
+        rgba(91, 68, 166, 0.13);
+
+    color: #4f3b91;
+
+    font-weight: 700;
+}
+
+
+/*
+ * ========================================
+ * 投稿が存在しない月
+ * ========================================
+ */
+
+.calendar-month-picker-month.unavailable {
+    opacity: 0.22;
+
+    cursor: default;
+}
+
+
+/*
+ * ========================================
+ * 曜日・日付グリッド
+ * ========================================
+ */
+
+.calendar-weekdays,
+.calendar-days {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            7,
+            1fr
+        );
+}
+
+
+.calendar-weekdays {
+    margin-bottom: 6px;
+
+    color: #999;
+
+    font-size: 12px;
+    font-weight: 600;
+
+    text-align: center;
+}
+
+
+.calendar-weekdays div {
+    padding:
+        7px
+        0;
+}
+
+
+/*
+ * ========================================
+ * カレンダー日付
+ * ========================================
+ */
+
+.calendar-day {
+    position: relative;
+
+    min-height: 50px;
+
+    margin: 2px;
+
+    padding: 0;
+
+    border: none;
+
+    border-radius: 10px;
+
+    background: transparent;
+
+    color: #444;
+
+    font-size: 14px;
+    font-weight: 500;
+
+    cursor: default;
+
+    transition:
+        background 0.18s ease,
+        color 0.18s ease;
+}
+
+
+.calendar-day.has-post {
+    color: #111;
+
+    font-weight: 700;
+
+    cursor: pointer;
+}
+
+
+.calendar-day.has-post::after {
+    content: "";
+
+    position: absolute;
+
+    left: 50%;
+    bottom: 6px;
+
+    width: 5px;
+    height: 5px;
+
+    border-radius: 50%;
+
+    background: #333;
+
+    transform:
+        translateX(-50%);
+}
+
+
+.calendar-day.has-post:hover {
+    background: #f2f2f2;
+}
+
+
+.calendar-day.selected {
+    background: #222;
+
+    color: #fff;
+}
+
+
+.calendar-day.selected::after {
+    background: #fff;
+}
+
+
+.calendar-day:disabled {
+    color: #c9c9c9;
+}
+
+
+.calendar-day.empty {
+    min-height: 50px;
+}
+
+
+/*
+ * ========================================
+ * 日付選択解除
+ * ========================================
+ */
+
+.calendar-clear {
+    display: block;
+
+    margin:
+        16px
+        auto
+        0;
+
+    padding:
+        8px
+        14px;
+
+    border:
+        1px solid
+        #dedede;
+
+    border-radius: 10px;
+
+    background: #fff;
+
+    color: #555;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.calendar-clear:hover {
+    background: #f7f7f7;
+
+    border-color: #ccc;
+}
+
+
+/*
+ * ========================================
+ * 選択中の日付
+ * ========================================
+ */
+
+.selected-date-title {
+    display: none;
+
+    margin:
+        0
+        30px
+        6px;
+
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+
+.selected-date-title.visible {
+    display: block;
+}
+
+
+/*
+ * ========================================
+ * タブレット
+ * ========================================
+ */
+
+@media (
+    min-width: 768px
+) and (
+    max-width: 1199px
+) {
+
+    .calendar {
+        margin:
+            0
+            20px
+            24px;
+    }
+
+
+    .selected-date-title {
+        margin-left: 20px;
+        margin-right: 20px;
+    }
+}
+
+
+/*
+ * ========================================
+ * スマホ
+ * ========================================
+ */
+
+@media (
+    max-width: 767px
+) {
+
+    .calendar {
+        margin:
+            0
+            8px
+            16px;
+
+        padding:
+            14px
+            8px;
+
+        border-radius: 14px;
+    }
+
+
+    /*
+     * ====================================
+     * ヘッダー
+     * ====================================
+     */
+
+    .calendar-header {
+        grid-template-columns:
+            36px
+            36px
+            minmax(0, 1fr)
+            36px
+            36px;
+
+        gap: 4px;
+
+        margin-bottom: 10px;
+    }
+
+
+    .calendar-title {
+        font-size: 16px;
+    }
+
+
+    .calendar-title-button {
+        padding:
+            6px
+            5px;
+
+        white-space: nowrap;
+    }
+
+
+    .calendar-nav {
+        width: 36px;
+        height: 36px;
+
+        border-radius: 9px;
+
+        font-size: 20px;
+    }
+
+
+    .calendar-nav-edge {
+        font-size: 16px;
+    }
+
+
+    /*
+     * ====================================
+     * 年月選択パネル
+     * ====================================
+     */
+
+    .calendar-month-picker {
+        max-width: none;
+
+        margin:
+            4px
+            0
+            14px;
+
+        padding: 14px;
+
+        border-radius: 16px;
+    }
+
+
+    .calendar-month-picker-header {
+        grid-template-columns:
+            40px
+            1fr
+            40px;
+
+        margin-bottom: 10px;
+    }
+
+
+    .calendar-month-picker-year {
+        font-size: 16px;
+    }
+
+
+    .calendar-month-picker-nav {
+        width: 38px;
+        height: 38px;
+
+        font-size: 23px;
+    }
+
+
+    .calendar-month-picker-grid {
+        gap: 6px;
+    }
+
+
+    .calendar-month-picker-month {
+        min-height: 42px;
+
+        padding: 6px;
+
+        border-radius: 10px;
+
+        font-size: 13px;
+    }
+
+
+    /*
+     * ====================================
+     * 曜日
+     * ====================================
+     */
+
+    .calendar-weekdays {
+        font-size: 11px;
+    }
+
+
+    .calendar-weekdays div {
+        padding:
+            5px
+            0;
+    }
+
+
+    /*
+     * ====================================
+     * 日付
+     * ====================================
+     */
+
+    .calendar-day {
+        min-height: 44px;
+
+        margin: 1px;
+
+        border-radius: 9px;
+
+        font-size: 13px;
+    }
+
+
+    .calendar-day.empty {
+        min-height: 44px;
+    }
+
+
+    .calendar-day.has-post::after {
+        bottom: 5px;
+
+        width: 4px;
+        height: 4px;
+    }
+
+
+    /*
+     * ====================================
+     * 絞り込み解除
+     * ====================================
+     */
+
+    .calendar-clear {
+        margin-top: 12px;
+
+        font-size: 12px;
+    }
+
+
+    /*
+     * ====================================
+     * 選択中の日付
+     * ====================================
+     */
+
+    .selected-date-title {
+        margin:
+            0
+            8px
+            4px;
+
+        font-size: 16px;
+    }
+}

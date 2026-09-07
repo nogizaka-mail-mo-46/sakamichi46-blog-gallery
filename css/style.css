@@ -298,26 +298,6 @@ body {
 
 
 /* =========================
-   セレクト行
-========================= */
-
-.select-row {
-    display: flex;
-
-    gap: 12px;
-
-    margin:
-        0
-        auto
-        22px;
-
-    padding:
-        0
-        30px;
-}
-
-
-/* =========================
    セレクト共通
 ========================= */
 
@@ -378,8 +358,31 @@ body {
     width: 340px;
 }
 
+
+/* =========================
+   ブログ並び順
+========================= */
+
 #sortSelect {
-    width: 150px;
+    width: 120px;
+
+    min-height: 38px;
+
+    padding:
+        7px
+        34px
+        7px
+        12px;
+
+    border-radius: 9px;
+
+    background-position:
+        right 10px
+        center;
+
+    color: #555;
+
+    font-size: 13px;
 }
 
 
@@ -401,12 +404,6 @@ body {
 
     .hero-logout-button {
         right: 20px;
-    }
-
-    .select-row {
-        padding:
-            0
-            20px;
     }
 }
 
@@ -484,39 +481,15 @@ body {
 
     /*
      * =========================
-     * セレクト
+     * メンバー内部選択
      * =========================
      */
-
-    .select-row {
-        gap: 8px;
-
-        margin:
-            0
-            auto
-            16px;
-
-        padding:
-            0
-            8px;
-    }
 
     #memberSelect {
         width: auto;
 
-        flex: 1;
-
         min-width: 0;
-    }
 
-    #sortSelect {
-        width: 118px;
-
-        flex-shrink: 0;
-    }
-
-    #memberSelect,
-    #sortSelect {
         min-height: 42px;
 
         padding:
@@ -532,5 +505,34 @@ body {
         background-position:
             right 11px
             center;
+    }
+
+
+    /*
+     * =========================
+     * ブログ並び順
+     * =========================
+     */
+
+    #sortSelect {
+        width: 104px;
+
+        flex-shrink: 0;
+
+        min-height: 36px;
+
+        padding:
+            6px
+            30px
+            6px
+            10px;
+
+        border-radius: 8px;
+
+        background-position:
+            right 9px
+            center;
+
+        font-size: 12px;
     }
 }

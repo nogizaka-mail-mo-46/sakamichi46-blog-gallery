@@ -916,3 +916,46 @@ body {
         font-size: 16px;
     }
 }
+
+
+/*
+ * ========================================
+ * カレンダー
+ * 最古 / 最新ジャンプ
+ * ========================================
+ */
+
+.calendar-nav-edge {
+    font-size: 18px;
+}
+
+
+/*
+ * ========================================
+ * 年月選択ボタン
+ * ========================================
+ */
+
+.calendar-title-button {
+    appearance: none;
+    border: none;
+    background: transparent;
+    font: inherit;
+    color: inherit;
+    cursor: pointer;
+    padding: 6px 10px;
+    border-radius: 10px;
+    transition:
+        background-color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.calendar-title-button:hover {
+    background:
+        rgba(0, 0, 0, 0.05);
+}
+
+.calendar-title-button:active {
+    transform:
+        scale(0.97);
+}

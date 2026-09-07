@@ -99,16 +99,16 @@ export const members = {
     /*
      * 櫻坂46（2期生）
      */
+    marino_kousaka: {
+        name: "幸阪 茉里乃",
+        group: "sakurazaka46",
+        blogDataFolderId: "1KuADtqTDIbC7KyhxPtnmAevxJP-10ba4"
+    },
     kira_masumoto: {
         name: "増本 綺良",
         group: "sakurazaka46",
         blogDataFolderId: "1-QUAtAm7AuYxnSkGlrod-v8o6mD7MEY3"
     },
-    // marino_kousaka: {
-    //     name: "幸阪 茉里乃",
-    //     group: "sakurazaka46",
-    //     blogDataFolderId: "1Z8ZosN4iFnL3rbGR7X_x9NYbvPDIaCJi"
-    // },
 
     
     /*

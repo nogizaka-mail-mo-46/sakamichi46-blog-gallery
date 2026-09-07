@@ -2,12 +2,19 @@ export const members = {
     /*
      * 乃木坂46（3期生）
      */
+    enka_iwamoto: {
+        name: "岩本 蓮加",
+        group: "nogizaka46",
+        folderId: "1vsQiO721wQSZ3yFVmPWM0BVe9tr2vWih",
+        blogDataFolderId: "1Rey7q9GtvvW9y0P99zj3TjlzGnW9YN9_"
+    },
     ayanochristie_yoshida: {
         name: "吉田 綾乃クリスティー",
         group: "nogizaka46",
         folderId: "1rIwQd6qnWUDFZRvHX6wmzobVk_sqsB3q",
         blogDataFolderId: "1-67kUkIaF4mZjKOJW1mC0sQEH_zbfiCD"
     },
+
 
     /*
      * 乃木坂46（4期生）
@@ -29,6 +36,12 @@ export const members = {
         group: "nogizaka46",
         folderId: "1RqpG_hlRNsx1D95JBYY50rG4uxeRBeg-",
         blogDataFolderId: "1O_ZilVPAae4gtl2jMvUhG0AlAPLzDBIS"
+    },
+    mayu_tamura: {
+        name: "田村 真佑",
+        group: "nogizaka46",
+        folderId: "1trCmL3XRjO5FyrkyUumMRJQIlkHOKDyD",
+        blogDataFolderId: "1h1dWtt64ynk6dhxhHTB5sNKu1cO5MJHS"
     },
     runa_hayashi: {
         name: "林 瑠奈",

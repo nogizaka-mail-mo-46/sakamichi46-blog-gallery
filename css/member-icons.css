@@ -1,5 +1,66 @@
 /*
  * ========================================
+ * グループ別カラー
+ * ========================================
+ */
+
+/*
+ * デフォルト
+ * 乃木坂46
+ */
+:root {
+    --member-icon-color: #812990;
+    --member-icon-shadow: rgba(129, 41, 144, 0.25);
+    --member-icon-focus: rgba(129, 41, 144, 0.3);
+
+    --member-icon-all-start: #f7eef9;
+    --member-icon-all-end: #ead7ee;
+
+    --member-icon-scroll-thumb: #c9a8cf;
+    --member-icon-scroll-track: #f1edf2;
+}
+
+
+/*
+ * ========================================
+ * 乃木坂46
+ * ========================================
+ */
+
+body.group-nogizaka46 {
+    --member-icon-color: #812990;
+    --member-icon-shadow: rgba(129, 41, 144, 0.25);
+    --member-icon-focus: rgba(129, 41, 144, 0.3);
+
+    --member-icon-all-start: #f7eef9;
+    --member-icon-all-end: #ead7ee;
+
+    --member-icon-scroll-thumb: #c9a8cf;
+    --member-icon-scroll-track: #f1edf2;
+}
+
+
+/*
+ * ========================================
+ * 日向坂46
+ * ========================================
+ */
+
+body.group-hinatazaka46 {
+    --member-icon-color: #7cc7e8;
+    --member-icon-shadow: rgba(124, 199, 232, 0.28);
+    --member-icon-focus: rgba(124, 199, 232, 0.35);
+
+    --member-icon-all-start: #f2fbff;
+    --member-icon-all-end: #dceff8;
+
+    --member-icon-scroll-thumb: #a8d9ee;
+    --member-icon-scroll-track: #edf8fc;
+}
+
+
+/*
+ * ========================================
  * メンバーアイコン選択
  * ========================================
  */
@@ -37,7 +98,10 @@
      * Firefox
      */
     scrollbar-width: thin;
-    scrollbar-color: #c9a8cf #f1edf2;
+
+    scrollbar-color:
+        var(--member-icon-scroll-thumb)
+        var(--member-icon-scroll-track);
 }
 
 
@@ -53,17 +117,22 @@
 }
 
 .member-icon-track::-webkit-scrollbar-track {
-    background: #f1edf2;
+    background:
+        var(--member-icon-scroll-track);
+
     border-radius: 999px;
 }
 
 .member-icon-track::-webkit-scrollbar-thumb {
-    background: #c9a8cf;
+    background:
+        var(--member-icon-scroll-thumb);
+
     border-radius: 999px;
 }
 
 .member-icon-track::-webkit-scrollbar-thumb:hover {
-    background: #812990;
+    background:
+        var(--member-icon-color);
 }
 
 
@@ -255,31 +324,35 @@
 
 .member-icon-button.active
 .member-icon-image-wrap {
-    border-color: #812990;
+    border-color:
+        var(--member-icon-color);
 
     box-shadow:
         0 3px 12px
-        rgba(129, 41, 144, 0.25);
+        var(--member-icon-shadow);
 
-    transform: translateY(-2px);
+    transform:
+        translateY(-2px);
 }
 
 .member-icon-button.active
 .member-icon-name {
-    color: #812990;
+    color:
+        var(--member-icon-color);
 
     font-weight: 700;
 }
 
 .member-icon-button.active
 .member-icon-all-symbol {
-    color: #812990;
+    color:
+        var(--member-icon-color);
 
     background:
         linear-gradient(
             135deg,
-            #f7eef9,
-            #ead7ee
+            var(--member-icon-all-start),
+            var(--member-icon-all-end)
         );
 }
 
@@ -294,7 +367,8 @@
 
     .member-icon-button:hover
     .member-icon-image-wrap {
-        transform: translateY(-2px);
+        transform:
+            translateY(-2px);
 
         box-shadow:
             0 3px 10px
@@ -303,7 +377,8 @@
 
     .member-icon-button:hover
     .member-icon-name {
-        color: #812990;
+        color:
+            var(--member-icon-color);
     }
 }
 
@@ -316,8 +391,9 @@
 
 .member-icon-button:focus-visible
 .member-icon-image-wrap {
-    outline: 3px solid
-        rgba(129, 41, 144, 0.3);
+    outline:
+        3px solid
+        var(--member-icon-focus);
 
     outline-offset: 3px;
 }

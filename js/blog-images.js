@@ -369,19 +369,7 @@ export function createBlogImages({
 
         return true;
     }
-
-
-    /*
-     * ========================================
-     * 現在のブログ取得
-     * ========================================
-     */
-
-    function getCurrent() {
-
-        return currentBlog;
-    }
-
+    
 
     /*
      * ========================================
@@ -400,9 +388,6 @@ export function createBlogImages({
             hide,
 
         showCurrent:
-            showCurrent,
-
-        getCurrent:
-            getCurrent
+            showCurrent
     };
 }

@@ -170,23 +170,49 @@
 
 
             <!-- =========================
-                 メンバー・並び順
+                 メンバー選択
             ========================= -->
 
             <div
-                class="select-row"
+                id="memberIconSelector"
+                class="member-icon-selector"
             >
 
-                <select
-                    id="memberSelect"
+                <div
+                    id="memberIconTrack"
+                    class="member-icon-track"
                     aria-label="メンバーを選択"
                 >
-                    <option
-                        value=""
-                    >
-                        メンバーを選択
-                    </option>
-                </select>
+                </div>
+
+            </div>
+
+
+            <!-- =========================
+                 メンバー内部選択
+                 JSの状態管理用
+            ========================= -->
+
+            <select
+                id="memberSelect"
+                aria-label="メンバーを選択"
+                hidden
+            >
+                <option
+                    value=""
+                >
+                    メンバーを選択
+                </option>
+            </select>
+
+
+            <!-- =========================
+                 並び順
+            ========================= -->
+
+            <div
+                class="sort-row"
+            >
 
                 <select
                     id="sortSelect"

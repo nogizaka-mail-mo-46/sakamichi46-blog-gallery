@@ -20,6 +20,19 @@ export function createCalendar({
 
     /*
      * ========================================
+     * 年月選択パネル状態
+     * ========================================
+     */
+
+    let monthPickerYear =
+        null;
+
+    let isMonthPickerOpen =
+        false;
+
+
+    /*
+     * ========================================
      * 選択日タイトル
      * ========================================
      */
@@ -145,6 +158,70 @@ export function createCalendar({
 
     /*
      * ========================================
+     * 投稿日が存在する年
+     * ========================================
+     */
+
+    function getPostYears() {
+        const postMonths =
+            getPostMonths();
+
+        const years =
+            [
+                ...new Set(
+                    postMonths.map(
+                        (monthKey) =>
+                            Number(
+                                monthKey.substring(
+                                    0,
+                                    4
+                                )
+                            )
+                    )
+                )
+            ];
+
+        years.sort(
+            (
+                a,
+                b
+            ) =>
+                a - b
+        );
+
+        return years;
+    }
+
+
+    /*
+     * ========================================
+     * 指定年月に投稿が存在するか
+     * ========================================
+     */
+
+    function hasPostsInMonth(
+        year,
+        month
+    ) {
+        const monthKey =
+            String(
+                year
+            ) +
+            String(
+                month
+            ).padStart(
+                2,
+                "0"
+            );
+
+        return getPostMonths().includes(
+            monthKey
+        );
+    }
+
+
+    /*
+     * ========================================
      * 日付キー生成
      * ========================================
      */
@@ -221,7 +298,8 @@ export function createCalendar({
             offset;
 
         if (
-            nextIndex < 0 ||
+            nextIndex <
+                0 ||
             nextIndex >=
                 postMonths.length
         ) {
@@ -248,6 +326,9 @@ export function createCalendar({
                     6
                 )
             );
+
+        isMonthPickerOpen =
+            false;
 
         onMonthChange(
             nextYear,
@@ -315,9 +396,117 @@ export function createCalendar({
                 )
             );
 
+        isMonthPickerOpen =
+            false;
+
         onMonthChange(
             targetYear,
             targetMonthNumber
+        );
+    }
+
+
+    /*
+     * ========================================
+     * 年月選択パネルを開閉
+     * ========================================
+     */
+
+    function toggleMonthPicker() {
+        isMonthPickerOpen =
+            !isMonthPickerOpen;
+
+        if (
+            isMonthPickerOpen
+        ) {
+            monthPickerYear =
+                getCalendarYear();
+        }
+
+        render();
+    }
+
+
+    /*
+     * ========================================
+     * 年月選択パネルの年を移動
+     *
+     * 投稿が存在する年だけを移動
+     * ========================================
+     */
+
+    function changeMonthPickerYear(
+        direction
+    ) {
+        const years =
+            getPostYears();
+
+        if (
+            years.length ===
+                0
+        ) {
+            return;
+        }
+
+        const currentIndex =
+            years.indexOf(
+                monthPickerYear
+            );
+
+        if (
+            currentIndex ===
+                -1
+        ) {
+            return;
+        }
+
+        const nextIndex =
+            currentIndex +
+            direction;
+
+        if (
+            nextIndex <
+                0 ||
+            nextIndex >=
+                years.length
+        ) {
+            return;
+        }
+
+        monthPickerYear =
+            years[
+                nextIndex
+            ];
+
+        render();
+    }
+
+
+    /*
+     * ========================================
+     * 年月選択パネルから月を選択
+     * ========================================
+     */
+
+    function selectMonthFromPicker(
+        year,
+        month
+    ) {
+        if (
+            !hasPostsInMonth(
+                year,
+                month
+            )
+        ) {
+            return;
+        }
+
+        isMonthPickerOpen =
+            false;
+
+        onMonthChange(
+            year,
+            month
         );
     }
 
@@ -373,7 +562,7 @@ export function createCalendar({
             );
 
 
-           /*
+        /*
          * ========================================
          * ヘッダー
          * ========================================
@@ -483,9 +672,6 @@ export function createCalendar({
         /*
          * ========================================
          * 年月タイトル
-         *
-         * 次の段階でクリックすると
-         * 年月選択パネルを開く
          * ========================================
          */
 
@@ -501,11 +687,29 @@ export function createCalendar({
             "calendar-title calendar-title-button";
 
         title.textContent =
-            `${calendarYear}年${calendarMonth}月⌄`;
+            `${calendarYear}年${calendarMonth}月${
+                isMonthPickerOpen
+                    ? "⌃"
+                    : "⌄"
+            }`;
 
         title.setAttribute(
             "aria-label",
             `${calendarYear}年${calendarMonth}月。年月を選択`
+        );
+
+        title.setAttribute(
+            "aria-expanded",
+            isMonthPickerOpen
+                ? "true"
+                : "false"
+        );
+
+        title.addEventListener(
+            "click",
+            () => {
+                toggleMonthPicker();
+            }
         );
 
 
@@ -634,6 +838,285 @@ export function createCalendar({
         element.appendChild(
             header
         );
+
+
+        /*
+         * ========================================
+         * 年月選択パネル
+         * ========================================
+         */
+
+        if (
+            isMonthPickerOpen
+        ) {
+            const picker =
+                document.createElement(
+                    "div"
+                );
+
+            picker.className =
+                "calendar-month-picker";
+
+
+            /*
+             * ====================================
+             * 年ヘッダー
+             * ====================================
+             */
+
+            const pickerHeader =
+                document.createElement(
+                    "div"
+                );
+
+            pickerHeader.className =
+                "calendar-month-picker-header";
+
+
+            /*
+             * ====================================
+             * 前の年
+             * ====================================
+             */
+
+            const pickerPrevYear =
+                document.createElement(
+                    "button"
+                );
+
+            pickerPrevYear.type =
+                "button";
+
+            pickerPrevYear.className =
+                "calendar-month-picker-nav";
+
+            pickerPrevYear.textContent =
+                "‹";
+
+            pickerPrevYear.setAttribute(
+                "aria-label",
+                "前の投稿が存在する年へ"
+            );
+
+
+            /*
+             * ====================================
+             * 年タイトル
+             * ====================================
+             */
+
+            const pickerYearTitle =
+                document.createElement(
+                    "div"
+                );
+
+            pickerYearTitle.className =
+                "calendar-month-picker-year";
+
+            pickerYearTitle.textContent =
+                `${monthPickerYear}年`;
+
+
+            /*
+             * ====================================
+             * 次の年
+             * ====================================
+             */
+
+            const pickerNextYear =
+                document.createElement(
+                    "button"
+                );
+
+            pickerNextYear.type =
+                "button";
+
+            pickerNextYear.className =
+                "calendar-month-picker-nav";
+
+            pickerNextYear.textContent =
+                "›";
+
+            pickerNextYear.setAttribute(
+                "aria-label",
+                "次の投稿が存在する年へ"
+            );
+
+
+            /*
+             * ====================================
+             * 年移動可否
+             * ====================================
+             */
+
+            const postYears =
+                getPostYears();
+
+            const pickerYearIndex =
+                postYears.indexOf(
+                    monthPickerYear
+                );
+
+            if (
+                pickerYearIndex <=
+                    0
+            ) {
+                pickerPrevYear.disabled =
+                    true;
+            }
+
+            if (
+                pickerYearIndex ===
+                    -1 ||
+                pickerYearIndex >=
+                    postYears.length - 1
+            ) {
+                pickerNextYear.disabled =
+                    true;
+            }
+
+            pickerPrevYear.addEventListener(
+                "click",
+                () => {
+                    changeMonthPickerYear(
+                        -1
+                    );
+                }
+            );
+
+            pickerNextYear.addEventListener(
+                "click",
+                () => {
+                    changeMonthPickerYear(
+                        1
+                    );
+                }
+            );
+
+            pickerHeader.appendChild(
+                pickerPrevYear
+            );
+
+            pickerHeader.appendChild(
+                pickerYearTitle
+            );
+
+            pickerHeader.appendChild(
+                pickerNextYear
+            );
+
+            picker.appendChild(
+                pickerHeader
+            );
+
+
+            /*
+             * ====================================
+             * 12か月
+             * ====================================
+             */
+
+            const monthGrid =
+                document.createElement(
+                    "div"
+                );
+
+            monthGrid.className =
+                "calendar-month-picker-grid";
+
+            for (
+                let month =
+                    1;
+                month <=
+                    12;
+                month++
+            ) {
+                const monthButton =
+                    document.createElement(
+                        "button"
+                    );
+
+                monthButton.type =
+                    "button";
+
+                monthButton.className =
+                    "calendar-month-picker-month";
+
+                monthButton.textContent =
+                    `${month}月`;
+
+
+                /*
+                 * =================================
+                 * 投稿有無
+                 * =================================
+                 */
+
+                const available =
+                    hasPostsInMonth(
+                        monthPickerYear,
+                        month
+                    );
+
+                if (
+                    !available
+                ) {
+                    monthButton.disabled =
+                        true;
+
+                    monthButton.classList.add(
+                        "unavailable"
+                    );
+                }
+
+
+                /*
+                 * =================================
+                 * 現在表示中の月
+                 * =================================
+                 */
+
+                if (
+                    monthPickerYear ===
+                        calendarYear &&
+                    month ===
+                        calendarMonth
+                ) {
+                    monthButton.classList.add(
+                        "current"
+                    );
+                }
+
+
+                /*
+                 * =================================
+                 * 月選択
+                 * =================================
+                 */
+
+                monthButton.addEventListener(
+                    "click",
+                    () => {
+                        selectMonthFromPicker(
+                            monthPickerYear,
+                            month
+                        );
+                    }
+                );
+
+                monthGrid.appendChild(
+                    monthButton
+                );
+            }
+
+            picker.appendChild(
+                monthGrid
+            );
+
+            element.appendChild(
+                picker
+            );
+        }
 
 
         /*

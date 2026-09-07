@@ -96,9 +96,14 @@ export const members = {
     },
 
 
-    // /*
-    //  * 櫻坂46（2期生）
-    //  */
+    /*
+     * 櫻坂46（2期生）
+     */
+    kira_masumoto: {
+        name: "増本 綺良",
+        group: "sakurazaka46",
+        blogDataFolderId: "1-QUAtAm7AuYxnSkGlrod-v8o6mD7MEY3"
+    },
     // marino_kousaka: {
     //     name: "幸阪 茉里乃",
     //     group: "sakurazaka46",

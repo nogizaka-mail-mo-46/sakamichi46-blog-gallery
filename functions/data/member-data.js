@@ -116,14 +116,14 @@ export const members = {
     },
 
 
-    // /*
-    //  * 日向坂46（4期生）
-    //  */
-    // yoko_shogenji: {
-    //     name: "正源司 陽子",
-    //     group: "hinatazaka46",
-    //     folderId: "1mt7PO-xBZyh4-yE8aMl9KGAdpkH7S5ck"
-    // },
+    /*
+     * 日向坂46（4期生）
+     */
+    yoko_shogenji: {
+        name: "正源司 陽子",
+        group: "hinatazaka46",
+        folderId: "13DqduBrK69Lcs-WJuRT8coIKwdOStlAq"
+    },
 
 
     // /*

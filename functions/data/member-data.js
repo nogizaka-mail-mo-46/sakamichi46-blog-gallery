@@ -64,7 +64,7 @@ export const members = {
         folderId: "1C7jj9cOL3jNkTYEfX4F54Q1gsT7NGcl4",
         blogDataFolderId: "17hra8rHJVBUNf0yW08mqHqRZVi-t80t-"
     },
-    aya-ogawa: {
+    aya_ogawa: {
         name: "小川 彩",
         group: "nogizaka46",
         folderId: "1RyZknJLwRNWCEbpjvpMjDooNjwj7NLtR",

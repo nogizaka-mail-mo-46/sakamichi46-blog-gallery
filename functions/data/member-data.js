@@ -13,7 +13,6 @@ export const members = {
         blogDataFolderId: "1-67kUkIaF4mZjKOJW1mC0sQEH_zbfiCD"
     },
 
-
     /*
      * 乃木坂46（4期生）
      */
@@ -42,7 +41,6 @@ export const members = {
         group: "nogizaka46",
         blogDataFolderId: "1kIfZL0snHrbbuwnu8JyVNhmtIrBmuTdY"
     },
-
 
     /*
      * 乃木坂46（5期生）
@@ -78,7 +76,6 @@ export const members = {
         blogDataFolderId: "1JBC-BgdU_qsYdm29m7Uixc88PXVHzruZ"
     },
 
-
     /*
      * 乃木坂46（6期生）
      */
@@ -107,6 +104,16 @@ export const members = {
     //     group: "sakurazaka46",
     //     folderId: "1Z8ZosN4iFnL3rbGR7X_x9NYbvPDIaCJi"
     // },
+
+    
+    /*
+     * 日向坂46（3期生）
+     */
+    haruyo_yamaguchi: {
+        name: "山口 陽世",
+        group: "hinatazaka46",
+        blogDataFolderId: "1V2CUrwLFNzMicAsh87WUimkVWQoB2gmN"
+    },
 
 
     // /*

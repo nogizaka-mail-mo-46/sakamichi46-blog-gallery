@@ -258,6 +258,72 @@ export function createCalendar({
 
     /*
      * ========================================
+     * 最古 / 最新の投稿月へ移動
+     * ========================================
+     */
+
+    function jumpToEdgeMonth(
+        position
+    ) {
+        const postMonths =
+            getPostMonths();
+
+        if (
+            postMonths.length ===
+                0
+        ) {
+            return;
+        }
+
+        let targetMonth;
+
+        if (
+            position ===
+                "first"
+        ) {
+            targetMonth =
+                postMonths[
+                    0
+                ];
+
+        } else if (
+            position ===
+                "last"
+        ) {
+            targetMonth =
+                postMonths[
+                    postMonths.length - 1
+                ];
+
+        } else {
+            return;
+        }
+
+        const targetYear =
+            Number(
+                targetMonth.substring(
+                    0,
+                    4
+                )
+            );
+
+        const targetMonthNumber =
+            Number(
+                targetMonth.substring(
+                    4,
+                    6
+                )
+            );
+
+        onMonthChange(
+            targetYear,
+            targetMonthNumber
+        );
+    }
+
+
+    /*
+     * ========================================
      * カレンダー描画
      * ========================================
      */
@@ -307,7 +373,7 @@ export function createCalendar({
             );
 
 
-        /*
+           /*
          * ========================================
          * ヘッダー
          * ========================================
@@ -323,7 +389,55 @@ export function createCalendar({
 
 
         /*
+         * ========================================
+         * 一番古い投稿月へ
+         * ========================================
+         */
+
+        const firstButton =
+            document.createElement(
+                "button"
+            );
+
+        firstButton.type =
+            "button";
+
+        firstButton.className =
+            "calendar-nav calendar-nav-edge";
+
+        firstButton.textContent =
+            "≪";
+
+        firstButton.setAttribute(
+            "aria-label",
+            "一番古い投稿月へ"
+        );
+
+        firstButton.title =
+            "一番古い投稿月へ";
+
+        firstButton.addEventListener(
+            "click",
+            () => {
+                jumpToEdgeMonth(
+                    "first"
+                );
+            }
+        );
+
+        if (
+            currentMonthIndex <=
+                0
+        ) {
+            firstButton.disabled =
+                true;
+        }
+
+
+        /*
+         * ========================================
          * 前の投稿月
+         * ========================================
          */
 
         const prevButton =
@@ -339,6 +453,14 @@ export function createCalendar({
 
         prevButton.textContent =
             "‹";
+
+        prevButton.setAttribute(
+            "aria-label",
+            "前の投稿月へ"
+        );
+
+        prevButton.title =
+            "前の投稿月へ";
 
         prevButton.addEventListener(
             "click",
@@ -359,23 +481,38 @@ export function createCalendar({
 
 
         /*
+         * ========================================
          * 年月タイトル
+         *
+         * 次の段階でクリックすると
+         * 年月選択パネルを開く
+         * ========================================
          */
 
         const title =
             document.createElement(
-                "div"
+                "button"
             );
 
+        title.type =
+            "button";
+
         title.className =
-            "calendar-title";
+            "calendar-title calendar-title-button";
 
         title.textContent =
-            `${calendarYear}年${calendarMonth}月`;
+            `${calendarYear}年${calendarMonth}月⌄`;
+
+        title.setAttribute(
+            "aria-label",
+            `${calendarYear}年${calendarMonth}月。年月を選択`
+        );
 
 
         /*
+         * ========================================
          * 次の投稿月
+         * ========================================
          */
 
         const nextButton =
@@ -391,6 +528,14 @@ export function createCalendar({
 
         nextButton.textContent =
             "›";
+
+        nextButton.setAttribute(
+            "aria-label",
+            "次の投稿月へ"
+        );
+
+        nextButton.title =
+            "次の投稿月へ";
 
         nextButton.addEventListener(
             "click",
@@ -412,6 +557,64 @@ export function createCalendar({
         }
 
 
+        /*
+         * ========================================
+         * 一番新しい投稿月へ
+         * ========================================
+         */
+
+        const lastButton =
+            document.createElement(
+                "button"
+            );
+
+        lastButton.type =
+            "button";
+
+        lastButton.className =
+            "calendar-nav calendar-nav-edge";
+
+        lastButton.textContent =
+            "≫";
+
+        lastButton.setAttribute(
+            "aria-label",
+            "一番新しい投稿月へ"
+        );
+
+        lastButton.title =
+            "一番新しい投稿月へ";
+
+        lastButton.addEventListener(
+            "click",
+            () => {
+                jumpToEdgeMonth(
+                    "last"
+                );
+            }
+        );
+
+        if (
+            currentMonthIndex ===
+                -1 ||
+            currentMonthIndex >=
+                postMonths.length - 1
+        ) {
+            lastButton.disabled =
+                true;
+        }
+
+
+        /*
+         * ========================================
+         * ヘッダーへ追加
+         * ========================================
+         */
+
+        header.appendChild(
+            firstButton
+        );
+
         header.appendChild(
             prevButton
         );
@@ -422,6 +625,10 @@ export function createCalendar({
 
         header.appendChild(
             nextButton
+        );
+
+        header.appendChild(
+            lastButton
         );
 
         element.appendChild(

@@ -1,85 +1,133 @@
-const COOKIE_NAME = "sakamichi_pages_session";
+import {
+    SESSION_COOKIE_NAME,
+    createSession
+} from "../lib/session.js";
 
-async function createSession(email, secret) {
-    const data = `${email}:${secret}`;
 
-    const hash = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(data)
-    );
+export async function onRequestGet(
+    context
+) {
+    const {
+        request,
+        env
+    } = context;
 
-    return Array.from(new Uint8Array(hash))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-}
+    const url =
+        new URL(
+            request.url
+        );
 
-export async function onRequestGet(context) {
-    const { request, env } = context;
-    const url = new URL(request.url);
+    const code =
+        url.searchParams.get(
+            "code"
+        );
 
-    const code = url.searchParams.get("code");
-
-    if (!code) {
+    if (
+        !code
+    ) {
         return new Response(
             "Authorization code not found",
-            { status: 400 }
+            {
+                status:
+                    400
+            }
         );
     }
 
-    // Googleの認証コードをアクセストークンに交換
-    const tokenResponse = await fetch(
-        "https://oauth2.googleapis.com/token",
-        {
-            method: "POST",
-            headers: {
-                "Content-Type":
-                    "application/x-www-form-urlencoded",
-            },
-            body: new URLSearchParams({
-                code,
-                client_id: env.GOOGLE_CLIENT_ID,
-                client_secret:
-                    env.GOOGLE_CLIENT_SECRET,
-                redirect_uri:
-                    env.GOOGLE_PAGES_REDIRECT_URI,
-                grant_type:
-                    "authorization_code",
-            }),
-        }
-    );
 
-    if (!tokenResponse.ok) {
+    /*
+     * ========================================
+     * Googleの認証コードを
+     * アクセストークンに交換
+     * ========================================
+     */
+
+    const tokenResponse =
+        await fetch(
+            "https://oauth2.googleapis.com/token",
+            {
+                method:
+                    "POST",
+
+                headers: {
+                    "Content-Type":
+                        "application/x-www-form-urlencoded"
+                },
+
+                body:
+                    new URLSearchParams({
+                        code,
+
+                        client_id:
+                            env.GOOGLE_CLIENT_ID,
+
+                        client_secret:
+                            env.GOOGLE_CLIENT_SECRET,
+
+                        redirect_uri:
+                            env.GOOGLE_PAGES_REDIRECT_URI,
+
+                        grant_type:
+                            "authorization_code"
+                    })
+            }
+        );
+
+    if (
+        !tokenResponse.ok
+    ) {
         return new Response(
             "Google token exchange failed",
-            { status: 400 }
+            {
+                status:
+                    400
+            }
         );
     }
 
     const tokenData =
         await tokenResponse.json();
 
-    // ログインしたGoogleアカウントを取得
-    const userResponse = await fetch(
-        "https://www.googleapis.com/oauth2/v2/userinfo",
-        {
-            headers: {
-                Authorization:
-                    `Bearer ${tokenData.access_token}`,
-            },
-        }
-    );
 
-    if (!userResponse.ok) {
+    /*
+     * ========================================
+     * ログインしたGoogleアカウント取得
+     * ========================================
+     */
+
+    const userResponse =
+        await fetch(
+            "https://www.googleapis.com/oauth2/v2/userinfo",
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${tokenData.access_token}`
+                }
+            }
+        );
+
+    if (
+        !userResponse.ok
+    ) {
         return new Response(
             "Failed to get Google account",
-            { status: 400 }
+            {
+                status:
+                    400
+            }
         );
     }
 
     const user =
         await userResponse.json();
 
-    // 許可したGoogleアカウント以外は拒否
+
+    /*
+     * ========================================
+     * 許可したGoogleアカウント以外は拒否
+     * ========================================
+     */
+
     if (
         user.email !==
         env.GOOGLE_ALLOWED_EMAIL
@@ -87,29 +135,50 @@ export async function onRequestGet(context) {
         return new Response(
             "このGoogleアカウントにはアクセス権がありません。",
             {
-                status: 403,
+                status:
+                    403,
+
                 headers: {
                     "Content-Type":
-                        "text/plain; charset=UTF-8",
-                },
+                        "text/plain; charset=UTF-8"
+                }
             }
         );
     }
 
-    // Pages用ログインセッションを作成
+
+    /*
+     * ========================================
+     * Pages用ログインセッション作成
+     * ========================================
+     */
+
     const session =
         await createSession(
             user.email,
             env.SESSION_SECRET
         );
 
-    // Cookieを設定してギャラリーへ戻す
-    return new Response(null, {
-        status: 302,
-        headers: {
-            Location: "/",
-            "Set-Cookie":
-                `${COOKIE_NAME}=${session}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`,
-        },
-    });
+
+    /*
+     * ========================================
+     * Cookie設定 → ギャラリーへ戻す
+     * ========================================
+     */
+
+    return new Response(
+        null,
+        {
+            status:
+                302,
+
+            headers: {
+                Location:
+                    "/",
+
+                "Set-Cookie":
+                    `${SESSION_COOKIE_NAME}=${session}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`
+            }
+        }
+    );
 }

@@ -317,6 +317,23 @@ function updateHero(
 
     /*
      * ========================================
+     * ページ全体のグループクラス
+     * ========================================
+     */
+    
+    document.body.classList.remove(
+        "group-nogizaka46",
+        "group-sakurazaka46",
+        "group-hinatazaka46"
+    );
+    
+    document.body.classList.add(
+        `group-${group}`
+    );
+
+
+    /*
+     * ========================================
      * タブ選択状態
      * ========================================
      */

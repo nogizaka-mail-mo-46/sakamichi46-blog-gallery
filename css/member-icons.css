@@ -152,7 +152,7 @@
      * 顔がアイコン上部で切れすぎないよう
      * 少し上側を表示
      */
-    object-position: center 32%;
+    object-position: center 25%;
 
     border-radius: 50%;
 }

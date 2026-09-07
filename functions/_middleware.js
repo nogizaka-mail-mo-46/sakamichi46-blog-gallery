@@ -1,51 +1,101 @@
-const COOKIE_NAME = "sakamichi_pages_session";
+import {
+    SESSION_COOKIE_NAME,
+    createSession
+} from "./lib/session.js";
 
-async function createSession(email, secret) {
-    const data = `${email}:${secret}`;
 
-    const hash = await crypto.subtle.digest(
-        "SHA-256",
-        new TextEncoder().encode(data)
-    );
+export async function onRequest(
+    context
+) {
+    const {
+        request,
+        env
+    } = context;
 
-    return Array.from(new Uint8Array(hash))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("");
-}
+    const url =
+        new URL(
+            request.url
+        );
 
-export async function onRequest(context) {
-    const { request, env } = context;
-    const url = new URL(request.url);
 
-    // Googleログイン関連のURLはそのまま通す
-    if (url.pathname.startsWith("/auth/")) {
+    /*
+     * ========================================
+     * Googleログイン関連はそのまま通す
+     * ========================================
+     */
+
+    if (
+        url.pathname.startsWith(
+            "/auth/"
+        )
+    ) {
         return context.next();
     }
 
-    const cookieHeader = request.headers.get("Cookie") || "";
 
-    const match = cookieHeader.match(
-        new RegExp(`${COOKIE_NAME}=([^;]+)`)
-    );
+    /*
+     * ========================================
+     * Cookie取得
+     * ========================================
+     */
 
-    if (!match) {
+    const cookieHeader =
+        request.headers.get(
+            "Cookie"
+        ) || "";
+
+    const match =
+        cookieHeader.match(
+            new RegExp(
+                `${SESSION_COOKIE_NAME}=([^;]+)`
+            )
+        );
+
+
+    /*
+     * ========================================
+     * Cookieがない場合
+     * ========================================
+     */
+
+    if (
+        !match
+    ) {
         return Response.redirect(
             `${url.origin}/auth/login`,
             302
         );
     }
 
-    const expectedSession = await createSession(
-        env.GOOGLE_ALLOWED_EMAIL,
-        env.SESSION_SECRET
-    );
 
-    if (match[1] !== expectedSession) {
+    /*
+     * ========================================
+     * 正しいセッションか確認
+     * ========================================
+     */
+
+    const expectedSession =
+        await createSession(
+            env.GOOGLE_ALLOWED_EMAIL,
+            env.SESSION_SECRET
+        );
+
+    if (
+        match[1] !==
+        expectedSession
+    ) {
         return Response.redirect(
             `${url.origin}/auth/login`,
             302
         );
     }
+
+
+    /*
+     * ========================================
+     * 認証成功
+     * ========================================
+     */
 
     return context.next();
 }

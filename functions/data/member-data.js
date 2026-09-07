@@ -57,13 +57,25 @@ export const members = {
         group: "nogizaka46",
         folderId: "1SUV4ZNy1pzekUtujYepL9-h5IM4rHLWk",
         blogDataFolderId: "1h6pWs87CEkaUmh5vbdr7XjgZQNBeJwwU"
-    }, 
+    },
+    nagi_inoue: {
+        name: "井上 和",
+        group: "nogizaka46",
+        folderId: "1C7jj9cOL3jNkTYEfX4F54Q1gsT7NGcl4",
+        blogDataFolderId: "17hra8rHJVBUNf0yW08mqHqRZVi-t80t-"
+    },
+    aya-ogawa: {
+        name: "小川 彩",
+        group: "nogizaka46",
+        folderId: "1RyZknJLwRNWCEbpjvpMjDooNjwj7NLtR",
+        blogDataFolderId: "1DlXh9ev8CMUp4ctm8lURbPZ8NdkH-Hsu"
+    },
     aruno_nakanishi: {
         name: "中西 アルノ",
         group: "nogizaka46",
         folderId: "1p3yHJ7QzJOjTQz_M7BgERU1adFKx91zk",
         blogDataFolderId: "1JBC-BgdU_qsYdm29m7Uixc88PXVHzruZ"
-    }, 
+    },
 
     /*
      * 乃木坂46（6期生）

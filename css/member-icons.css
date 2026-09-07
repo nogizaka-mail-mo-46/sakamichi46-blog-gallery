@@ -33,11 +33,37 @@
 
     -webkit-overflow-scrolling: touch;
 
-    scrollbar-width: none;
+    /*
+     * Firefox
+     */
+    scrollbar-width: thin;
+    scrollbar-color: #c9a8cf #f1edf2;
 }
 
+
+/*
+ * ========================================
+ * 横スクロールバー
+ * Chrome / Edge / Safari
+ * ========================================
+ */
+
 .member-icon-track::-webkit-scrollbar {
-    display: none;
+    height: 6px;
+}
+
+.member-icon-track::-webkit-scrollbar-track {
+    background: #f1edf2;
+    border-radius: 999px;
+}
+
+.member-icon-track::-webkit-scrollbar-thumb {
+    background: #c9a8cf;
+    border-radius: 999px;
+}
+
+.member-icon-track::-webkit-scrollbar-thumb:hover {
+    background: #812990;
 }
 
 
@@ -122,9 +148,11 @@
 
     object-fit: cover;
 
-    object-position:
-        center
-        25%;
+    /*
+     * 顔がアイコン上部で切れすぎないよう
+     * 少し上側を表示
+     */
+    object-position: center 32%;
 
     border-radius: 50%;
 }
@@ -316,6 +344,16 @@
             6px
             2px
             10px;
+
+        /*
+         * スマホはスワイプ操作ができるため
+         * スクロールバーを非表示
+         */
+        scrollbar-width: none;
+    }
+
+    .member-icon-track::-webkit-scrollbar {
+        display: none;
     }
 
     .member-icon-button {

@@ -54,6 +54,29 @@ const MEMBER_ICONS_CONFIG = {
          */
         fileName:
             "hinatazaka46-member-icons.json"
+    },
+
+
+    /*
+     * ========================================
+     * 櫻坂46
+     * ========================================
+     */
+
+    sakurazaka46: {
+
+        /*
+         * Google Drive
+         * currentフォルダ
+         */
+        folderId:
+            "1bMcvVIkhYQiQU_y1Vn5705EOa75g8Slf",
+
+        /*
+         * JSONファイル名
+         */
+        fileName:
+            "sakurazaka46-member-icons.json"
     }
 };
 
@@ -325,6 +348,8 @@ async function getMemberIconsJson(
  * GET /api/member-icons?group=nogizaka46
  *
  * GET /api/member-icons?group=hinatazaka46
+ *
+ * GET /api/member-icons?group=sakurazaka46
  * ========================================
  */
 

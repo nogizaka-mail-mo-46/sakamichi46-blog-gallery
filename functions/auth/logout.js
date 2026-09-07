@@ -1,14 +1,29 @@
-const COOKIE_NAME = "sakamichi_pages_session";
+import {
+    SESSION_COOKIE_NAME
+} from "../lib/session.js";
 
-export async function onRequestGet(context) {
-    const url = new URL(context.request.url);
 
-    return new Response(null, {
-        status: 302,
-        headers: {
-            Location: "/auth/login",
-            "Set-Cookie":
-                `${COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`,
-        },
-    });
+/*
+ * ========================================
+ * ログアウト
+ * ========================================
+ */
+
+export async function onRequestGet() {
+
+    return new Response(
+        null,
+        {
+            status:
+                302,
+
+            headers: {
+                Location:
+                    "/auth/login",
+
+                "Set-Cookie":
+                    `${SESSION_COOKIE_NAME}=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+            }
+        }
+    );
 }

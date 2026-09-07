@@ -2,6 +2,11 @@ import {
     getGoogleAccessToken
 } from "../lib/google.js";
 
+import {
+    SESSION_COOKIE_NAME,
+    createSession
+} from "../lib/session.js";
+
 
 /*
  * ========================================
@@ -32,7 +37,9 @@ export async function onRequestGet(
 
     const match =
         cookieHeader.match(
-            /sakamichi_pages_session=([^;]+)/
+            new RegExp(
+                `${SESSION_COOKIE_NAME}=([^;]+)`
+            )
         );
 
     if (
@@ -59,37 +66,11 @@ export async function onRequestGet(
      * ========================================
      */
 
-    const data =
-        `${env.GOOGLE_ALLOWED_EMAIL}:${env.SESSION_SECRET}`;
-
-    const hash =
-        await crypto.subtle.digest(
-            "SHA-256",
-            new TextEncoder().encode(
-                data
-            )
-        );
-
     const expectedSession =
-        Array.from(
-            new Uint8Array(
-                hash
-            )
-        )
-            .map(
-                (b) =>
-                    b
-                        .toString(
-                            16
-                        )
-                        .padStart(
-                            2,
-                            "0"
-                        )
-            )
-            .join(
-                ""
-            );
+        await createSession(
+            env.GOOGLE_ALLOWED_EMAIL,
+            env.SESSION_SECRET
+        );
 
     if (
         match[1] !==

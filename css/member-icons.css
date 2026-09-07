@@ -1,0 +1,333 @@
+/*
+ * ========================================
+ * メンバーアイコン選択
+ * ========================================
+ */
+
+.member-icon-selector {
+    width: 100%;
+    margin: 0 auto 20px;
+    overflow: hidden;
+}
+
+
+/*
+ * ========================================
+ * 横スクロール
+ * ========================================
+ */
+
+.member-icon-track {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+    padding: 8px 4px 12px;
+
+    scroll-behavior: smooth;
+    scroll-snap-type: x proximity;
+
+    -webkit-overflow-scrolling: touch;
+
+    scrollbar-width: none;
+}
+
+.member-icon-track::-webkit-scrollbar {
+    display: none;
+}
+
+
+/*
+ * ========================================
+ * メンバーボタン
+ * ========================================
+ */
+
+.member-icon-button {
+    flex: 0 0 auto;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    width: 72px;
+
+    margin: 0;
+    padding: 0;
+
+    border: 0;
+    outline: 0;
+
+    background: transparent;
+
+    color: #333;
+
+    font-family: inherit;
+
+    cursor: pointer;
+
+    scroll-snap-align: start;
+
+    -webkit-tap-highlight-color: transparent;
+}
+
+
+/*
+ * ========================================
+ * アー写外枠
+ * ========================================
+ */
+
+.member-icon-image-wrap {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 64px;
+    height: 64px;
+
+    overflow: hidden;
+
+    border: 3px solid transparent;
+    border-radius: 50%;
+
+    background: #f2f2f2;
+
+    box-sizing: border-box;
+
+    transition:
+        border-color 0.2s ease,
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+/*
+ * ========================================
+ * アー写
+ * ========================================
+ */
+
+.member-icon-image {
+    display: block;
+
+    width: 100%;
+    height: 100%;
+
+    object-fit: cover;
+    object-position: center;
+
+    border-radius: 50%;
+}
+
+
+/*
+ * ========================================
+ * 画像取得失敗時
+ * ========================================
+ */
+
+.member-icon-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    font-size: 22px;
+    font-weight: 700;
+
+    color: #777;
+
+    background: #eeeeee;
+}
+
+
+/*
+ * ========================================
+ * 「全員」アイコン
+ * ========================================
+ */
+
+.member-icon-all-symbol {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+
+    color: #777;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f8f8f8,
+            #e9e9e9
+        );
+}
+
+
+/*
+ * ========================================
+ * 名前
+ * ========================================
+ */
+
+.member-icon-name {
+    display: block;
+
+    width: 100%;
+
+    margin-top: 7px;
+
+    overflow: hidden;
+
+    color: #555;
+
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.35;
+
+    text-align: center;
+
+    white-space: nowrap;
+    text-overflow: ellipsis;
+
+    transition:
+        color 0.2s ease,
+        font-weight 0.2s ease;
+}
+
+
+/*
+ * ========================================
+ * 選択中
+ * ========================================
+ */
+
+.member-icon-button.active
+.member-icon-image-wrap {
+    border-color: #812990;
+
+    box-shadow:
+        0 3px 12px
+        rgba(129, 41, 144, 0.25);
+
+    transform: translateY(-2px);
+}
+
+.member-icon-button.active
+.member-icon-name {
+    color: #812990;
+
+    font-weight: 700;
+}
+
+.member-icon-button.active
+.member-icon-all-symbol {
+    color: #812990;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f7eef9,
+            #ead7ee
+        );
+}
+
+
+/*
+ * ========================================
+ * PC hover
+ * ========================================
+ */
+
+@media (hover: hover) {
+
+    .member-icon-button:hover
+    .member-icon-image-wrap {
+        transform: translateY(-2px);
+
+        box-shadow:
+            0 3px 10px
+            rgba(0, 0, 0, 0.12);
+    }
+
+    .member-icon-button:hover
+    .member-icon-name {
+        color: #812990;
+    }
+}
+
+
+/*
+ * ========================================
+ * キーボード操作
+ * ========================================
+ */
+
+.member-icon-button:focus-visible
+.member-icon-image-wrap {
+    outline: 3px solid
+        rgba(129, 41, 144, 0.3);
+
+    outline-offset: 3px;
+}
+
+
+/*
+ * ========================================
+ * スマートフォン
+ * ========================================
+ */
+
+@media (
+    max-width: 600px
+) {
+
+    .member-icon-selector {
+        margin-bottom: 16px;
+    }
+
+    .member-icon-track {
+        gap: 10px;
+
+        padding:
+            6px
+            2px
+            10px;
+    }
+
+    .member-icon-button {
+        width: 62px;
+    }
+
+    .member-icon-image-wrap {
+        width: 56px;
+        height: 56px;
+
+        border-width: 2px;
+    }
+
+    .member-icon-name {
+        margin-top: 6px;
+
+        font-size: 11px;
+    }
+
+    .member-icon-all-symbol {
+        font-size: 11px;
+    }
+}

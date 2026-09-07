@@ -687,11 +687,7 @@ export function createCalendar({
             "calendar-title calendar-title-button";
 
         title.textContent =
-            `${calendarYear}年${calendarMonth}月${
-                isMonthPickerOpen
-                    ? "⌃"
-                    : "⌄"
-            }`;
+            `${calendarYear}年${calendarMonth}月`;
 
         title.setAttribute(
             "aria-label",

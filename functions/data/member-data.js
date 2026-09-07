@@ -67,12 +67,24 @@ export const members = {
 
     /*
      * 乃木坂46（6期生）
-     */    
+     */
     hinano_okoshi: {
         name: "大越 ひなの",
         group: "nogizaka46",
         folderId: "1_tuGgMBmqmTn_Pct185xaYIekQ_GjHTy",
         blogDataFolderId: "1xkIkRM0S7ESCkPee52LHUGxZgm2KZzIv"
+    },
+    mitsuki_setoguchi: {
+        name: "瀬戸口 心月",
+        group: "nogizaka46",
+        folderId: "1g0-hcpcsdGjOak6r7sY1h0QR-ns6IkrN",
+        blogDataFolderId: "1fPmVJoLVY64Sd2kFUlXtJMmrl9nRWv7k"
+    },
+    urumi_morihira: {
+        name: "森平 麗心",
+        group: "nogizaka46",
+        folderId: "1ufMjk0xij9cgdZ6TseL41p35FxjC5sP_",
+        blogDataFolderId: "1MS__Hl-Mnlbn9yqQD1v8rJQ-jvK7K4Wn"
     },
         
     // /*

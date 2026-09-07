@@ -179,7 +179,7 @@ export function createGallery({
 
                 /*
                  * ========================================
-                 * ブログ日付
+                 * ブログ日付・メンバー名
                  * ========================================
                  */
 
@@ -191,10 +191,19 @@ export function createGallery({
                 dateElement.className =
                     "gallery-article-date";
 
-                dateElement.textContent =
+                const dateText =
                     createDateText(
                         blog.date
                     );
+
+                const memberName =
+                    blog.member?.name ||
+                    "";
+
+                dateElement.textContent =
+                    memberName
+                        ? `${dateText} / ${memberName}`
+                        : dateText;
 
                 articleElement.appendChild(
                     dateElement

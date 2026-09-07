@@ -42,6 +42,25 @@ body.group-nogizaka46 {
 
 /*
  * ========================================
+ * 櫻坂46
+ * ========================================
+ */
+
+body.group-sakurazaka46 {
+    --member-icon-color: #e88ca5;
+    --member-icon-shadow: rgba(232, 140, 165, 0.28);
+    --member-icon-focus: rgba(232, 140, 165, 0.35);
+
+    --member-icon-all-start: #fff5f8;
+    --member-icon-all-end: #f9dfe7;
+
+    --member-icon-scroll-thumb: #efb7c6;
+    --member-icon-scroll-track: #fdf1f4;
+}
+
+
+/*
+ * ========================================
  * 日向坂46
  * ========================================
  */

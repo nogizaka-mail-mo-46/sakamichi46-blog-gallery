@@ -30,6 +30,16 @@ import {
  * ========================================
  */
 
+const memberIconSelector =
+    document.getElementById(
+        "memberIconSelector"
+    );
+
+const memberIconTrack =
+    document.getElementById(
+        "memberIconTrack"
+    );
+
 const memberSelect =
     document.getElementById(
         "memberSelect"
@@ -139,6 +149,12 @@ const heroGroupButtons =
 let currentGroup =
     "nogizaka46";
 
+let members =
+    [];
+
+let nogizakaMemberIconMap =
+    null;
+
 let blogs =
     [];
 
@@ -162,6 +178,19 @@ let selectedDate =
 
 let galleryScrollPosition =
     0;
+
+
+/*
+ * ========================================
+ * メンバーアイコン設定
+ * ========================================
+ */
+
+const IMAGE_PROXY_ORIGIN =
+    "https://sakamichi46-image-proxy.nogizaka-mail-mo.workers.dev";
+
+const MEMBER_ICONS_API_URL =
+    `${IMAGE_PROXY_ORIGIN}/api/member-icons`;
 
 
 /*
@@ -413,6 +442,515 @@ function updateHero(
             currentHeroGroup =
                 group;
         };
+}
+
+
+/*
+ * ========================================
+ * メンバー名正規化
+ * ========================================
+ */
+
+function normalizeMemberName(
+    value
+) {
+
+    return String(
+        value || ""
+    )
+        .normalize(
+            "NFKC"
+        )
+        .replace(
+            /\s+/g,
+            ""
+        );
+}
+
+
+/*
+ * ========================================
+ * 乃木坂46 メンバーアイコン取得
+ * ========================================
+ */
+
+async function loadNogizakaMemberIconMap() {
+
+    if (
+        nogizakaMemberIconMap
+    ) {
+        return nogizakaMemberIconMap;
+    }
+
+    const iconMap =
+        new Map();
+
+    try {
+
+        const response =
+            await fetch(
+                MEMBER_ICONS_API_URL,
+                {
+                    method:
+                        "GET",
+
+                    credentials:
+                        "include"
+                }
+            );
+
+        if (
+            !response.ok
+        ) {
+
+            throw new Error(
+                `メンバーアイコン一覧の取得に失敗しました: ${response.status}`
+            );
+        }
+
+        const data =
+            await response.json();
+
+        if (
+            !Array.isArray(
+                data.members
+            )
+        ) {
+
+            throw new Error(
+                "メンバーアイコン一覧の形式が不正です。"
+            );
+        }
+
+        data.members.forEach(
+            member => {
+
+                if (
+                    !member?.name ||
+                    !member?.fileId
+                ) {
+                    return;
+                }
+
+                iconMap.set(
+                    normalizeMemberName(
+                        member.name
+                    ),
+                    {
+                        name:
+                            member.name,
+
+                        fileId:
+                            member.fileId,
+
+                        fileName:
+                            member.fileName ||
+                            ""
+                    }
+                );
+            }
+        );
+
+        nogizakaMemberIconMap =
+            iconMap;
+
+    } catch (
+        error
+    ) {
+
+        console.error(
+            error
+        );
+
+        nogizakaMemberIconMap =
+            iconMap;
+    }
+
+    return nogizakaMemberIconMap;
+}
+
+
+/*
+ * ========================================
+ * メンバーアイコン選択状態更新
+ * ========================================
+ */
+
+function updateMemberIconSelection() {
+
+    if (
+        !memberIconTrack
+    ) {
+        return;
+    }
+
+    const selectedMemberKey =
+        memberSelect.value;
+
+    const buttons =
+        memberIconTrack.querySelectorAll(
+            ".member-icon-button"
+        );
+
+    buttons.forEach(
+        button => {
+
+            const selected =
+                button.dataset.memberKey ===
+                selectedMemberKey;
+
+            button.classList.toggle(
+                "active",
+                selected
+            );
+
+            button.setAttribute(
+                "aria-pressed",
+                selected
+                    ? "true"
+                    : "false"
+            );
+        }
+    );
+}
+
+
+/*
+ * ========================================
+ * メンバーアイコンボタン作成
+ * ========================================
+ */
+
+function createMemberIconButton({
+    memberKey,
+    memberName,
+    fileId = null,
+    isAll = false
+}) {
+
+    const button =
+        document.createElement(
+            "button"
+        );
+
+    button.type =
+        "button";
+
+    button.className =
+        "member-icon-button";
+
+    button.dataset.memberKey =
+        memberKey;
+
+    button.setAttribute(
+        "aria-pressed",
+        "false"
+    );
+
+    button.setAttribute(
+        "aria-label",
+        isAll
+            ? "全員を表示"
+            : `${memberName}を選択`
+    );
+
+
+    /*
+     * ========================================
+     * アイコン
+     * ========================================
+     */
+
+    const icon =
+        document.createElement(
+            "span"
+        );
+
+    icon.className =
+        "member-icon-image-wrap";
+
+    if (
+        isAll
+    ) {
+
+        const allIcon =
+            document.createElement(
+                "span"
+            );
+
+        allIcon.className =
+            "member-icon-all-symbol";
+
+        allIcon.textContent =
+            "ALL";
+
+        icon.appendChild(
+            allIcon
+        );
+
+    } else if (
+        fileId
+    ) {
+
+        const image =
+            document.createElement(
+                "img"
+            );
+
+        image.className =
+            "member-icon-image";
+
+        image.src =
+            `${IMAGE_PROXY_ORIGIN}/image/${encodeURIComponent(fileId)}`;
+
+        image.alt =
+            "";
+
+        image.loading =
+            "lazy";
+
+        image.decoding =
+            "async";
+
+        image.addEventListener(
+            "error",
+            () => {
+
+                image.remove();
+
+                const fallback =
+                    document.createElement(
+                        "span"
+                    );
+
+                fallback.className =
+                    "member-icon-fallback";
+
+                fallback.textContent =
+                    memberName.substring(
+                        0,
+                        1
+                    );
+
+                icon.appendChild(
+                    fallback
+                );
+            },
+            {
+                once:
+                    true
+            }
+        );
+
+        icon.appendChild(
+            image
+        );
+
+    } else {
+
+        const fallback =
+            document.createElement(
+                "span"
+            );
+
+        fallback.className =
+            "member-icon-fallback";
+
+        fallback.textContent =
+            memberName.substring(
+                0,
+                1
+            );
+
+        icon.appendChild(
+            fallback
+        );
+    }
+
+
+    /*
+     * ========================================
+     * 名前
+     * ========================================
+     */
+
+    const name =
+        document.createElement(
+            "span"
+        );
+
+    name.className =
+        "member-icon-name";
+
+    name.textContent =
+        isAll
+            ? "全員"
+            : memberName;
+
+
+    /*
+     * ========================================
+     * ボタン構築
+     * ========================================
+     */
+
+    button.append(
+        icon,
+        name
+    );
+
+
+    /*
+     * ========================================
+     * 選択
+     * ========================================
+     */
+
+    button.addEventListener(
+        "click",
+        () => {
+
+            if (
+                memberSelect.value ===
+                memberKey
+            ) {
+
+                updateMemberIconSelection();
+
+                return;
+            }
+
+            memberSelect.value =
+                memberKey;
+
+            memberSelect.dispatchEvent(
+                new Event(
+                    "change",
+                    {
+                        bubbles:
+                            true
+                    }
+                )
+            );
+        }
+    );
+
+    return button;
+}
+
+
+/*
+ * ========================================
+ * メンバーアイコン描画
+ * ========================================
+ */
+
+async function renderMemberIconSelector() {
+
+    if (
+        !memberIconSelector ||
+        !memberIconTrack
+    ) {
+        return;
+    }
+
+    memberIconTrack.innerHTML =
+        "";
+
+
+    /*
+     * ========================================
+     * 乃木坂46以外
+     * ========================================
+     */
+
+    if (
+        currentGroup !==
+        "nogizaka46"
+    ) {
+
+        memberIconSelector.hidden =
+            true;
+
+        memberSelect.hidden =
+            false;
+
+        return;
+    }
+
+    memberIconSelector.hidden =
+        false;
+
+    memberSelect.hidden =
+        true;
+
+
+    /*
+     * ========================================
+     * 全員
+     * ========================================
+     */
+
+    memberIconTrack.appendChild(
+        createMemberIconButton({
+            memberKey:
+                "",
+
+            memberName:
+                "全員",
+
+            isAll:
+                true
+        })
+    );
+
+
+    /*
+     * ========================================
+     * アー写情報
+     * ========================================
+     */
+
+    const iconMap =
+        await loadNogizakaMemberIconMap();
+
+
+    /*
+     * ========================================
+     * ブログ側メンバー順で描画
+     * ========================================
+     */
+
+    members.forEach(
+        member => {
+
+            const normalizedName =
+                normalizeMemberName(
+                    member.name
+                );
+
+            const iconData =
+                iconMap.get(
+                    normalizedName
+                );
+
+            memberIconTrack.appendChild(
+                createMemberIconButton({
+                    memberKey:
+                        member.key,
+
+                    memberName:
+                        member.name,
+
+                    fileId:
+                        iconData?.fileId ||
+                        null
+                })
+            );
+        }
+    );
+
+    updateMemberIconSelection();
 }
 
 
@@ -796,6 +1334,9 @@ async function changeGroup(
     memberSelect.value =
         "";
 
+    members =
+        [];
+
     blogs =
         [];
 
@@ -860,6 +1401,9 @@ async function loadMembers() {
         placeholder
     );
 
+    members =
+        [];
+
     try {
 
         const data =
@@ -872,10 +1416,17 @@ async function loadMembers() {
                 data.members
             )
         ) {
+
+            await renderMemberIconSelector();
+
             return;
         }
 
-        data.members.forEach(
+        members = [
+            ...data.members
+        ];
+
+        members.forEach(
             member => {
 
                 const option =
@@ -895,6 +1446,8 @@ async function loadMembers() {
             }
         );
 
+        await renderMemberIconSelector();
+
     } catch (
         error
     ) {
@@ -902,6 +1455,11 @@ async function loadMembers() {
         console.error(
             error
         );
+
+        members =
+            [];
+
+        await renderMemberIconSelector();
     }
 }
 
@@ -989,6 +1547,8 @@ memberSelect.addEventListener(
 
         const member =
             memberSelect.value;
+
+        updateMemberIconSelection();
 
         blogs =
             [];

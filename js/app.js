@@ -158,9 +158,6 @@ let nogizakaMemberIconMap =
 let blogs =
     [];
 
-let filteredBlogs =
-    [];
-
 let allPostDates =
     [];
 
@@ -1337,9 +1334,6 @@ async function changeGroup(
     blogs =
         [];
 
-    filteredBlogs =
-        [];
-
     allPostDates =
         [];
 
@@ -1517,9 +1511,6 @@ async function loadGroupPostDates() {
         blogs =
             [];
 
-        filteredBlogs =
-            [];
-
         lightbox.setImages(
             []
         );
@@ -1548,9 +1539,6 @@ memberSelect.addEventListener(
         updateMemberIconSelection();
 
         blogs =
-            [];
-
-        filteredBlogs =
             [];
 
         memberPostDates =
@@ -1634,9 +1622,6 @@ async function loadMemberPostDates(
         blogs =
             [];
 
-        filteredBlogs =
-            [];
-
         selectedDate =
             null;
 
@@ -1657,9 +1642,6 @@ async function loadMemberPostDates(
         );
 
         blogs =
-            [];
-
-        filteredBlogs =
             [];
 
         memberPostDates =
@@ -1728,9 +1710,6 @@ async function loadCurrentMonthBlogs() {
         blogs =
             [];
 
-        filteredBlogs =
-            [];
-
         gallery.clear();
 
         lightbox.setImages(
@@ -1765,9 +1744,6 @@ async function loadCurrentMonthBlogs() {
                 ? data.blogs
                 : [];
 
-        filteredBlogs =
-            [];
-
         updateBlogs();
 
     } catch (
@@ -1779,9 +1755,6 @@ async function loadCurrentMonthBlogs() {
         );
 
         blogs =
-            [];
-
-        filteredBlogs =
             [];
 
         lightbox.setImages(
@@ -1829,9 +1802,6 @@ async function loadBlogsByDate(
                 ? data.blogs
                 : [];
 
-        filteredBlogs =
-            [];
-
         updateBlogs();
 
     } catch (
@@ -1843,9 +1813,6 @@ async function loadBlogsByDate(
         );
 
         blogs =
-            [];
-
-        filteredBlogs =
             [];
 
         lightbox.setImages(
@@ -2051,12 +2018,8 @@ sortSelect.addEventListener(
 
 function updateBlogs() {
 
-    filteredBlogs = [
-        ...blogs
-    ];
-
     gallery.render(
-        filteredBlogs,
+        blogs,
         Boolean(
             memberSelect.value
         ),

@@ -190,7 +190,7 @@ const IMAGE_PROXY_ORIGIN =
     "https://sakamichi46-image-proxy.nogizaka-mail-mo.workers.dev";
 
 const MEMBER_ICONS_API_URL =
-    `${IMAGE_PROXY_ORIGIN}/api/member-icons`;
+    "/api/member-icons";
 
 
 /*
@@ -701,8 +701,8 @@ function createMemberIconButton({
             "member-icon-image";
 
         image.src =
-            `${IMAGE_PROXY_ORIGIN}/image/${encodeURIComponent(fileId)}`;
-
+            `/image/${encodeURIComponent(fileId)}`;
+        
         image.alt =
             "";
 

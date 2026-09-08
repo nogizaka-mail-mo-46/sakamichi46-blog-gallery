@@ -1111,3 +1111,158 @@
         height: 4px;
     }
 }
+
+/* ========================================
+ * スマホ カレンダー折りたたみ
+ *
+ * 初期状態:
+ * - 年月ナビだけ表示
+ * - 右端の矢印で月間カレンダーを開閉
+ *
+ * タブレット / PC:
+ * - 従来どおり常時展開
+ * ========================================
+ */
+
+.calendar-mobile-toggle {
+    display: none;
+}
+
+
+@media (max-width: 767px) {
+
+    .gallery-main-layout .calendar {
+        padding:
+            10px
+            10px;
+
+        border-radius: 14px;
+    }
+
+
+    /*
+     * ヘッダー
+     *
+     * スマホでは最古 / 最新ジャンプを隠し、
+     * 前月・年月・次月・開閉 の4要素にする
+     */
+
+    .gallery-main-layout .calendar-header {
+        grid-template-columns:
+            36px
+            minmax(0, 1fr)
+            36px
+            34px;
+
+        gap: 5px;
+
+        margin-bottom: 0;
+    }
+
+    .gallery-main-layout
+    .calendar-header
+    .calendar-nav-edge {
+        display: none;
+    }
+
+    .gallery-main-layout .calendar-title {
+        font-size: 15px;
+    }
+
+    .gallery-main-layout .calendar-title-button {
+        padding:
+            6px
+            4px;
+
+        white-space: nowrap;
+    }
+
+    .gallery-main-layout .calendar-nav {
+        width: 36px;
+        height: 36px;
+
+        border-radius: 9px;
+
+        font-size: 20px;
+    }
+
+
+    /*
+     * 開閉ボタン
+     */
+
+    .gallery-main-layout
+    .calendar-mobile-toggle {
+        display: inline-flex;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 34px;
+        height: 36px;
+
+        padding: 0;
+
+        border: none;
+
+        border-radius: 9px;
+
+        background: transparent;
+
+        color: #555;
+
+        font: inherit;
+
+        font-size: 20px;
+        line-height: 1;
+
+        cursor: pointer;
+    }
+
+    .gallery-main-layout
+    .calendar-mobile-toggle:active {
+        background:
+            rgba(0, 0, 0, 0.05);
+    }
+
+
+    /*
+     * 折りたたみ時
+     */
+
+    .gallery-main-layout
+    .calendar.mobile-collapsed
+    .calendar-weekdays,
+
+    .gallery-main-layout
+    .calendar.mobile-collapsed
+    .calendar-days,
+
+    .gallery-main-layout
+    .calendar.mobile-collapsed
+    .calendar-clear {
+        display: none;
+    }
+
+
+    /*
+     * 展開時だけ曜日との間隔を戻す
+     */
+
+    .gallery-main-layout
+    .calendar:not(.mobile-collapsed)
+    .calendar-header {
+        margin-bottom: 10px;
+    }
+
+
+    /*
+     * 年月選択パネルは折りたたみ状態でも利用可能
+     */
+
+    .gallery-main-layout
+    .calendar-month-picker {
+        top: 52px;
+    }
+}
+

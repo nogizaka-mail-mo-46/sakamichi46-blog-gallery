@@ -415,16 +415,20 @@ body {
 @media (max-width: 767px) {
 
     .hero {
-        min-height: 240px;
+        /*
+         * スマホ:
+         * HEROを約17%コンパクト化
+         */
+        min-height: 200px;
 
         margin-bottom: 14px;
     }
 
     .hero-content {
         padding:
-            48px
+            38px
             16px
-            28px;
+            20px;
     }
 
     .hero-title {
@@ -442,7 +446,7 @@ body {
     .hero-group-buttons {
         gap: 6px;
 
-        margin-top: 20px;
+        margin-top: 14px;
     }
 
     .hero-group-button {
@@ -614,19 +618,5 @@ body {
             0
             24px
             56px;
-    }
-}
-
-/* =========================
-   PC / Stickyメンバー選択対応
-
-   メンバー選択が画面上部に残るため、
-   左カレンダーはその直下で固定する。
-========================= */
-
-@media (min-width: 1200px) {
-
-    .gallery-calendar-column {
-        top: 154px;
     }
 }

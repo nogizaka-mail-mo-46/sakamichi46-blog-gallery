@@ -915,3 +915,124 @@
         white-space: nowrap;
     }
 }
+
+
+/* ========================================
+ * PC 2カラム用カレンダー
+ * ========================================
+ */
+
+@media (min-width: 1200px) {
+
+    .gallery-main-layout .calendar {
+        margin: 0;
+
+        padding:
+            18px
+            14px;
+
+        border-radius: 16px;
+    }
+
+    .gallery-main-layout .calendar-header {
+        grid-template-columns:
+            36px
+            36px
+            minmax(0, 1fr)
+            36px
+            36px;
+
+        gap: 4px;
+
+        margin-bottom: 10px;
+    }
+
+    .gallery-main-layout .calendar-title {
+        font-size: 16px;
+    }
+
+    .gallery-main-layout .calendar-title-button {
+        padding:
+            6px
+            4px;
+
+        white-space: nowrap;
+    }
+
+    .gallery-main-layout .calendar-nav {
+        width: 36px;
+        height: 36px;
+
+        border-radius: 9px;
+
+        font-size: 20px;
+    }
+
+    .gallery-main-layout .calendar-nav-edge {
+        font-size: 16px;
+    }
+
+    .gallery-main-layout .calendar-weekdays {
+        margin-bottom: 4px;
+
+        font-size: 11px;
+    }
+
+    .gallery-main-layout .calendar-weekdays div {
+        padding:
+            5px
+            0;
+    }
+
+    .gallery-main-layout .calendar-day,
+    .gallery-main-layout .calendar-day.empty {
+        min-height: 38px;
+
+        margin: 1px;
+
+        border-radius: 8px;
+
+        font-size: 13px;
+    }
+
+    .gallery-main-layout .calendar-day.has-post::after {
+        bottom: 4px;
+
+        width: 4px;
+        height: 4px;
+    }
+
+    .gallery-main-layout .calendar-clear {
+        margin-top: 12px;
+    }
+
+    .gallery-main-layout .calendar-month-picker {
+        top: 52px;
+
+        width:
+            calc(100% - 20px);
+
+        padding: 14px;
+    }
+
+    .gallery-main-layout .calendar-month-picker-grid {
+        gap: 6px;
+    }
+
+    .gallery-main-layout .calendar-month-picker-month {
+        min-height: 40px;
+
+        padding: 6px;
+
+        font-size: 13px;
+    }
+
+    .gallery-main-layout .blog-list-header {
+        min-height: 44px;
+
+        margin:
+            0
+            0
+            12px;
+    }
+}

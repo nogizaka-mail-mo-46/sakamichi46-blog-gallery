@@ -332,6 +332,12 @@
         blur(
             6px
         );
+
+    /*
+     * ライトボックス外へ
+     * スクロールを伝播させない
+     */
+    overscroll-behavior: contain;
 }
 
 .lightbox.active {
@@ -378,9 +384,33 @@
 
     object-fit: contain;
 
+
+    /*
+     * ========================================
+     * 画像選択・ドラッグ抑止
+     * ========================================
+     */
+
     user-select: none;
+    -webkit-user-select: none;
 
     -webkit-user-drag: none;
+
+    -webkit-touch-callout: none;
+
+
+    /*
+     * ========================================
+     * タッチ操作
+     *
+     * 縦方向はブラウザへ許可
+     * 横方向はlightbox.js側の
+     * スワイプ操作を優先
+     * ========================================
+     */
+
+    touch-action: pan-y;
+
 
     border-radius: 6px;
 
@@ -426,6 +456,14 @@
     line-height: 1.4;
 
     letter-spacing: 0.03em;
+
+
+    /*
+     * スワイプ中の文字選択防止
+     */
+
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 
@@ -458,6 +496,18 @@
     scrollbar-width: thin;
 
     overscroll-behavior-x: contain;
+
+
+    /*
+     * ========================================
+     * サムネイル側は
+     * 横スクロールを優先
+     * ========================================
+     */
+
+    touch-action: pan-x;
+
+    -webkit-overflow-scrolling: touch;
 }
 
 
@@ -501,6 +551,16 @@
         border-color 0.2s ease,
         transform 0.2s ease,
         background 0.2s ease;
+
+
+    /*
+     * 画像選択防止
+     */
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    -webkit-touch-callout: none;
 }
 
 .lightbox-thumbnail:hover {
@@ -537,6 +597,20 @@
     border-radius: 5px;
 
     pointer-events: none;
+
+
+    /*
+     * ========================================
+     * 画像選択・ドラッグ抑止
+     * ========================================
+     */
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    -webkit-user-drag: none;
+
+    -webkit-touch-callout: none;
 }
 
 
@@ -583,6 +657,11 @@
     transition:
         background 0.2s ease,
         transform 0.2s ease;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
 .close-button:hover {
@@ -649,6 +728,11 @@
     transition:
         background 0.2s ease,
         transform 0.2s ease;
+
+    user-select: none;
+    -webkit-user-select: none;
+
+    -webkit-tap-highlight-color: transparent;
 }
 
 .nav-button:hover {

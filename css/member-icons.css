@@ -569,3 +569,54 @@ body.group-hinatazaka46 {
         background: #f4f4f4;
     }
 }
+
+/* ========================================
+ * スマホ / メンバー選択 右端フェード
+ *
+ * 【仕様】
+ * - 横スクロールできる場合だけ表示
+ * - 右端までスクロールしたら自動で消える
+ * - 櫻坂 / 日向坂のように全員収まる場合は
+ *   フェードを表示しない
+ * ========================================
+ */
+
+@media (max-width: 767px) {
+
+    .member-icon-selector {
+        position: relative;
+    }
+
+    .member-icon-selector.has-member-overflow::after {
+        content: "";
+
+        position: absolute;
+
+        top: 0;
+        right: 0;
+        bottom: 6px;
+
+        width: 42px;
+
+        z-index: 3;
+
+        pointer-events: none;
+
+        opacity: 1;
+
+        background:
+            linear-gradient(
+                to right,
+                rgba(244, 244, 244, 0),
+                rgba(244, 244, 244, 0.96)
+            );
+
+        transition:
+            opacity 0.18s ease;
+    }
+
+    .member-icon-selector.has-member-overflow.member-scroll-end::after {
+        opacity: 0;
+    }
+}
+

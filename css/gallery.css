@@ -993,3 +993,28 @@
         right: 8px;
     }
 }
+
+
+/* =========================
+   PC 2カラム時のブログ一覧
+========================= */
+
+@media (min-width: 1200px) {
+
+    .gallery-main-layout .gallery {
+        padding: 0;
+    }
+
+    .gallery-main-layout .gallery-article {
+        max-width: none;
+
+        margin:
+            0
+            0
+            24px;
+    }
+
+    .gallery-main-layout .gallery-article:last-child {
+        margin-bottom: 0;
+    }
+}

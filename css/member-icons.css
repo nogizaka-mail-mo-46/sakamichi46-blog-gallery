@@ -262,6 +262,11 @@ body.group-sakurazaka46 {
     object-position:
         var(--member-icon-object-position);
 
+    /*
+     * 顔を少しアップで表示
+     */
+    transform: scale(1.2);
+
     border-radius: 50%;
 }
 

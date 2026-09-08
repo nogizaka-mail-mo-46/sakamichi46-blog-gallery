@@ -620,3 +620,123 @@ body {
             56px;
     }
 }
+
+/* =========================
+   PC / Stickyメンバー選択対応
+
+   メンバー選択が画面上部に残るため、
+   左カレンダーはその直下で固定する。
+========================= */
+
+@media (min-width: 1200px) {
+
+    .gallery-calendar-column {
+        top: 154px;
+    }
+}
+
+/* ========================================
+ * スマホ / ページ上部へ戻るボタン
+ *
+ * 【仕様】
+ * - 600px以上スクロールすると表示
+ * - スマホのみ表示
+ * - 右下固定
+ * ========================================
+ */
+
+.scroll-top-button {
+    display: none;
+}
+
+
+@media (max-width: 767px) {
+
+    .scroll-top-button {
+        position: fixed;
+
+        right:
+            max(
+                14px,
+                env(safe-area-inset-right)
+            );
+
+        bottom:
+            max(
+                18px,
+                calc(
+                    env(safe-area-inset-bottom) +
+                    12px
+                )
+            );
+
+        z-index: 80;
+
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        width: 46px;
+        height: 46px;
+
+        padding: 0;
+
+        border:
+            1px solid
+            rgba(255, 255, 255, 0.88);
+
+        border-radius: 50%;
+
+        background:
+            rgba(255, 255, 255, 0.94);
+
+        color:
+            #555;
+
+        box-shadow:
+            0 5px 18px
+            rgba(0, 0, 0, 0.14);
+
+        font-family: inherit;
+        font-size: 21px;
+        font-weight: 600;
+        line-height: 1;
+
+        cursor: pointer;
+
+        opacity: 0;
+
+        visibility: hidden;
+
+        transform:
+            translateY(10px);
+
+        pointer-events: none;
+
+        transition:
+            opacity 0.2s ease,
+            transform 0.2s ease,
+            visibility 0.2s ease;
+
+        -webkit-tap-highlight-color:
+            transparent;
+    }
+
+    .scroll-top-button.visible {
+        opacity: 1;
+
+        visibility: visible;
+
+        transform:
+            translateY(0);
+
+        pointer-events: auto;
+    }
+
+    .scroll-top-button:active {
+        transform:
+            scale(0.94);
+    }
+}
+

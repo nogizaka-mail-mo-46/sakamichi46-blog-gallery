@@ -504,3 +504,66 @@ body.group-hinatazaka46 {
         font-size: 12px;
     }
 }
+
+/* ========================================
+ * PC / 乃木坂46
+ * 右側に続きがあることを示すフェード
+ * ========================================
+ */
+
+@media (min-width: 1200px) {
+
+    body.group-nogizaka46
+    .member-icon-selector {
+        position: relative;
+    }
+
+    body.group-nogizaka46
+    .member-icon-selector::after {
+        content: "";
+
+        position: absolute;
+
+        top: 0;
+        right: 0;
+        bottom: 8px;
+
+        width: 56px;
+
+        pointer-events: none;
+
+        background:
+            linear-gradient(
+                to right,
+                rgba(244, 244, 244, 0),
+                rgba(244, 244, 244, 0.96)
+            );
+    }
+}
+
+/* ========================================
+ * PC / メンバー選択をスクロール時も固定
+ *
+ * 【仕様】
+ * - 現在の見た目・サイズは変更しない
+ * - PC（1200px以上）のみ sticky
+ * - ブログ一覧をスクロールしても上部に残す
+ * ========================================
+ */
+
+@media (min-width: 1200px) {
+
+    .member-icon-selector {
+        position: sticky;
+
+        top: 0;
+
+        z-index: 20;
+
+        /*
+         * 下のブログ内容が透けないよう、
+         * ページ背景と同じ色を使用する。
+         */
+        background: #f4f4f4;
+    }
+}

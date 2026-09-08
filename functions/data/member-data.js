@@ -2,6 +2,11 @@ export const members = {
     /*
      * 乃木坂46（3期生）
      */
+    riria_ito: {
+        name: "伊藤 理々杏",
+        group: "nogizaka46",
+        blogDataFolderId: "1-bVgL8_OKGGq6UnCYItn_o4KwTfLO_kl"
+    },
     enka_iwamoto: {
         name: "岩本 蓮加",
         group: "nogizaka46",
@@ -79,6 +84,11 @@ export const members = {
     /*
      * 乃木坂46（6期生）
      */
+    kokone_atago: {
+        name: "愛宕 心響",
+        group: "nogizaka46",
+        blogDataFolderId: "1dotZGDH81ZC9DP5BDX2NbsbjA1XUPVLh"
+    },
     hinano_okoshi: {
         name: "大越 ひなの",
         group: "nogizaka46",

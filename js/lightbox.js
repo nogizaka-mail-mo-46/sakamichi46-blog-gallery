@@ -80,8 +80,30 @@ export function createLightbox({
     let touchStartX =
         0;
 
+    let touchStartY =
+        0;
+
     let touchEndX =
         0;
+
+    let touchEndY =
+        0;
+
+    let isTouchTracking =
+        false;
+
+
+    /*
+     * ========================================
+     * スワイプ設定
+     * ========================================
+     */
+
+    const SWIPE_THRESHOLD =
+        50;
+
+    const SWIPE_DIRECTION_RATIO =
+        1.2;
 
 
     /*
@@ -187,6 +209,16 @@ export function createLightbox({
                     `画像 ${index + 1}`;
 
 
+                /*
+                 * ====================================
+                 * ブラウザ標準画像ドラッグ無効化
+                 * ====================================
+                 */
+
+                image.draggable =
+                    false;
+
+
                 button.appendChild(
                     image
                 );
@@ -258,12 +290,14 @@ export function createLightbox({
         const wasOpen =
             isOpen();
 
+
         lightbox.classList.add(
             "active"
         );
 
         document.body.style.overflow =
             "hidden";
+
 
         if (
             !wasOpen &&
@@ -306,6 +340,16 @@ export function createLightbox({
             return;
         }
 
+
+        /*
+         * ========================================
+         * タッチ状態リセット
+         * ========================================
+         */
+
+        resetTouchTracking();
+
+
         lightbox.classList.remove(
             "active"
         );
@@ -315,6 +359,7 @@ export function createLightbox({
 
         lightboxImage.src =
             "";
+
 
         if (
             notify &&
@@ -342,10 +387,12 @@ export function createLightbox({
             return;
         }
 
+
         const fileId =
             imageIds[
                 currentIndex
             ];
+
 
         lightboxImage.src =
             getThumbnailUrl(
@@ -354,6 +401,17 @@ export function createLightbox({
 
         lightboxImage.alt =
             `画像 ${currentIndex + 1}`;
+
+
+        /*
+         * ========================================
+         * ブラウザ標準画像ドラッグ無効化
+         * ========================================
+         */
+
+        lightboxImage.draggable =
+            false;
+
 
         imageCounter.textContent =
             `${currentIndex + 1} / ${imageIds.length}`;
@@ -385,6 +443,7 @@ export function createLightbox({
                 const isActive =
                     index ===
                     currentIndex;
+
 
                 button.classList.toggle(
                     "active",
@@ -434,7 +493,9 @@ export function createLightbox({
             return;
         }
 
+
         currentIndex--;
+
 
         if (
             currentIndex <
@@ -445,6 +506,7 @@ export function createLightbox({
                 imageIds.length -
                 1;
         }
+
 
         update();
     }
@@ -465,7 +527,9 @@ export function createLightbox({
             return;
         }
 
+
         currentIndex++;
+
 
         if (
             currentIndex >=
@@ -476,25 +540,133 @@ export function createLightbox({
                 0;
         }
 
+
         update();
     }
 
 
     /*
      * ========================================
+     * タッチ状態リセット
+     * ========================================
+     */
+
+    function resetTouchTracking() {
+
+        touchStartX =
+            0;
+
+        touchStartY =
+            0;
+
+        touchEndX =
+            0;
+
+        touchEndY =
+            0;
+
+        isTouchTracking =
+            false;
+    }
+
+
+    /*
+     * ========================================
+     * メイン画像上のタッチか判定
+     * ========================================
+     */
+
+    function isMainImageTouch(
+        target
+    ) {
+
+        return (
+            target ===
+            lightboxImage
+        );
+    }
+
+
+    /*
+     * ========================================
      * スワイプ判定
+     *
+     * 横方向の移動量が
+     * 縦方向より十分大きい場合のみ
+     * 画像切替する
      * ========================================
      */
 
     function handleSwipe() {
 
-        const difference =
+        if (
+            !isTouchTracking
+        ) {
+            return;
+        }
+
+
+        const differenceX =
             touchEndX -
             touchStartX;
 
+        const differenceY =
+            touchEndY -
+            touchStartY;
+
+
+        const absX =
+            Math.abs(
+                differenceX
+            );
+
+        const absY =
+            Math.abs(
+                differenceY
+            );
+
+
+        /*
+         * ========================================
+         * 移動量不足
+         * ========================================
+         */
+
         if (
-            difference <
-                -50
+            absX <
+            SWIPE_THRESHOLD
+        ) {
+
+            return;
+        }
+
+
+        /*
+         * ========================================
+         * 縦方向操作を誤判定しない
+         * ========================================
+         */
+
+        if (
+            absX <
+            absY *
+            SWIPE_DIRECTION_RATIO
+        ) {
+
+            return;
+        }
+
+
+        /*
+         * ========================================
+         * 左スワイプ
+         * → 次へ
+         * ========================================
+         */
+
+        if (
+            differenceX <
+            0
         ) {
 
             showNext();
@@ -502,13 +674,15 @@ export function createLightbox({
             return;
         }
 
-        if (
-            difference >
-                50
-        ) {
 
-            showPrevious();
-        }
+        /*
+         * ========================================
+         * 右スワイプ
+         * → 前へ
+         * ========================================
+         */
+
+        showPrevious();
     }
 
 
@@ -592,6 +766,7 @@ export function createLightbox({
                 return;
             }
 
+
             if (
                 event.key ===
                     "Escape"
@@ -604,6 +779,7 @@ export function createLightbox({
                 return;
             }
 
+
             if (
                 event.key ===
                     "ArrowLeft"
@@ -613,6 +789,7 @@ export function createLightbox({
 
                 return;
             }
+
 
             if (
                 event.key ===
@@ -627,7 +804,24 @@ export function createLightbox({
 
     /*
      * ========================================
+     * メイン画像ドラッグ無効化
+     * ========================================
+     */
+
+    lightboxImage.addEventListener(
+        "dragstart",
+        event => {
+
+            event.preventDefault();
+        }
+    );
+
+
+    /*
+     * ========================================
      * スワイプ開始
+     *
+     * メイン画像上だけを対象とする
      * ========================================
      */
 
@@ -635,16 +829,141 @@ export function createLightbox({
         "touchstart",
         event => {
 
+            if (
+                event.touches.length !==
+                1
+            ) {
+
+                resetTouchTracking();
+
+                return;
+            }
+
+
+            if (
+                !isMainImageTouch(
+                    event.target
+                )
+            ) {
+
+                resetTouchTracking();
+
+                return;
+            }
+
+
+            const touch =
+                event.touches[
+                    0
+                ];
+
+
             touchStartX =
-                event
-                    .changedTouches[
-                        0
-                    ]
-                    .screenX;
+                touch.clientX;
+
+            touchStartY =
+                touch.clientY;
+
+            touchEndX =
+                touchStartX;
+
+            touchEndY =
+                touchStartY;
+
+            isTouchTracking =
+                true;
         },
         {
             passive:
                 true
+        }
+    );
+
+
+    /*
+     * ========================================
+     * スワイプ移動
+     *
+     * 横方向の操作が明確になったら
+     * ブラウザ側のジェスチャーを抑止
+     * ========================================
+     */
+
+    lightbox.addEventListener(
+        "touchmove",
+        event => {
+
+            if (
+                !isTouchTracking
+            ) {
+                return;
+            }
+
+
+            if (
+                event.touches.length !==
+                1
+            ) {
+
+                resetTouchTracking();
+
+                return;
+            }
+
+
+            const touch =
+                event.touches[
+                    0
+                ];
+
+
+            touchEndX =
+                touch.clientX;
+
+            touchEndY =
+                touch.clientY;
+
+
+            const differenceX =
+                touchEndX -
+                touchStartX;
+
+            const differenceY =
+                touchEndY -
+                touchStartY;
+
+
+            const absX =
+                Math.abs(
+                    differenceX
+                );
+
+            const absY =
+                Math.abs(
+                    differenceY
+                );
+
+
+            /*
+             * ====================================
+             * 横方向操作の場合だけ
+             * ブラウザ標準動作を止める
+             * ====================================
+             */
+
+            if (
+                absX >
+                    10 &&
+                absX >
+                    absY
+            ) {
+
+                event.preventDefault();
+            }
+        },
+        {
+            passive:
+                false
         }
     );
 
@@ -659,14 +978,54 @@ export function createLightbox({
         "touchend",
         event => {
 
-            touchEndX =
-                event
-                    .changedTouches[
+            if (
+                !isTouchTracking
+            ) {
+                return;
+            }
+
+
+            if (
+                event.changedTouches.length >
+                0
+            ) {
+
+                const touch =
+                    event.changedTouches[
                         0
-                    ]
-                    .screenX;
+                    ];
+
+
+                touchEndX =
+                    touch.clientX;
+
+                touchEndY =
+                    touch.clientY;
+            }
+
 
             handleSwipe();
+
+            resetTouchTracking();
+        },
+        {
+            passive:
+                true
+        }
+    );
+
+
+    /*
+     * ========================================
+     * タッチキャンセル
+     * ========================================
+     */
+
+    lightbox.addEventListener(
+        "touchcancel",
+        () => {
+
+            resetTouchTracking();
         },
         {
             passive:

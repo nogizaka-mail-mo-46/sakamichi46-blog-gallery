@@ -558,7 +558,11 @@ body.group-hinatazaka46 {
     .member-icon-selector {
         position: sticky;
 
-        top: 0;
+        /*
+         * 画面上端に張り付きすぎないよう
+         * 固定時だけ少し余白を確保する
+         */
+        top: 14px;
 
         z-index: 20;
 

@@ -513,10 +513,12 @@ body.group-hinatazaka46 {
 
 @media (min-width: 1200px) {
 
-    body.group-nogizaka46
-    .member-icon-selector {
-        position: relative;
-    }
+    /*
+     * .member-icon-selector 本体の position は
+     * 共通の sticky をそのまま使用する。
+     * sticky 自体が positioned element なので、
+     * ::after の absolute 配置にも問題ない。
+     */
 
     body.group-nogizaka46
     .member-icon-selector::after {

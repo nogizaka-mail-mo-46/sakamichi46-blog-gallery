@@ -22,7 +22,7 @@
     /*
      * アー写表示位置
      */
-    --member-icon-object-position: center 18%;
+    --member-icon-object-position: center 10%;
 }
 
 
@@ -44,33 +44,9 @@ body.group-nogizaka46 {
     --member-icon-scroll-track: #f1edf2;
 
     /*
-     * 乃木坂46は少し上側を表示
-     */
-    --member-icon-object-position: center 20%;
-}
-
-
-/*
- * ========================================
- * 日向坂46
- * ========================================
- */
-
-body.group-hinatazaka46 {
-    --member-icon-color: #7cc7e8;
-    --member-icon-shadow: rgba(124, 199, 232, 0.28);
-    --member-icon-focus: rgba(124, 199, 232, 0.35);
-
-    --member-icon-all-start: #f2fbff;
-    --member-icon-all-end: #dceff8;
-
-    --member-icon-scroll-thumb: #a8d9ee;
-    --member-icon-scroll-track: #edf8fc;
-
-    /*
      * アー写表示位置
-     */
-    --member-icon-object-position: center 25%;
+     *
+    --member-icon-object-position: center 10%;
 }
 
 
@@ -94,7 +70,31 @@ body.group-sakurazaka46 {
     /*
      * アー写表示位置
      */
-    --member-icon-object-position: center 25%;
+    --member-icon-object-position: center 10%;
+}
+
+
+/*
+ * ========================================
+ * 日向坂46
+ * ========================================
+ */
+
+body.group-hinatazaka46 {
+    --member-icon-color: #7cc7e8;
+    --member-icon-shadow: rgba(124, 199, 232, 0.28);
+    --member-icon-focus: rgba(124, 199, 232, 0.35);
+
+    --member-icon-all-start: #f2fbff;
+    --member-icon-all-end: #dceff8;
+
+    --member-icon-scroll-thumb: #a8d9ee;
+    --member-icon-scroll-track: #edf8fc;
+
+    /*
+     * アー写表示位置
+     */
+    --member-icon-object-position: center 10%;
 }
 
 

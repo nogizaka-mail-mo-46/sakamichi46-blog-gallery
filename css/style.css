@@ -536,3 +536,56 @@ body {
         font-size: 12px;
     }
 }
+
+
+/* =========================
+   PC メイン2カラム
+========================= */
+
+.gallery-main-layout,
+.gallery-calendar-column,
+.gallery-blog-column {
+    min-width: 0;
+}
+
+.gallery-calendar-column,
+.gallery-blog-column {
+    display: block;
+}
+
+
+@media (min-width: 1200px) {
+
+    .gallery-controls {
+        max-width: 1320px;
+    }
+
+    .gallery-main-layout {
+        display: grid;
+
+        grid-template-columns:
+            320px
+            minmax(0, 1fr);
+
+        align-items: start;
+
+        gap: 32px;
+
+        padding:
+            0
+            30px
+            48px;
+    }
+
+    .gallery-calendar-column {
+        position: sticky;
+
+        top: 24px;
+
+        z-index: 5;
+    }
+
+    .gallery-blog-column {
+        min-width: 0;
+    }
+}

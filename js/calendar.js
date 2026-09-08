@@ -33,6 +33,20 @@ export function createCalendar({
 
     /*
      * ========================================
+     * スマホ用カレンダー開閉状態
+     *
+     * 初期状態:
+     * - スマホでは折りたたみ
+     * - PC / タブレットではCSS上常時表示
+     * ========================================
+     */
+
+    let isMobileCalendarExpanded =
+        false;
+
+
+    /*
+     * ========================================
      * 選択日タイトル
      * ========================================
      */
@@ -521,6 +535,11 @@ export function createCalendar({
         element.innerHTML =
             "";
 
+        element.classList.toggle(
+            "mobile-collapsed",
+            !isMobileCalendarExpanded
+        );
+
         const calendarYear =
             getCalendarYear();
 
@@ -829,6 +848,57 @@ export function createCalendar({
 
         header.appendChild(
             lastButton
+        );
+
+
+        /*
+         * ========================================
+         * スマホ用カレンダー開閉
+         * ========================================
+         */
+
+        const mobileToggleButton =
+            document.createElement(
+                "button"
+            );
+
+        mobileToggleButton.type =
+            "button";
+
+        mobileToggleButton.className =
+            "calendar-mobile-toggle";
+
+        mobileToggleButton.textContent =
+            isMobileCalendarExpanded
+                ? "⌃"
+                : "⌄";
+
+        mobileToggleButton.setAttribute(
+            "aria-label",
+            isMobileCalendarExpanded
+                ? "カレンダーを閉じる"
+                : "カレンダーを開く"
+        );
+
+        mobileToggleButton.setAttribute(
+            "aria-expanded",
+            isMobileCalendarExpanded
+                ? "true"
+                : "false"
+        );
+
+        mobileToggleButton.addEventListener(
+            "click",
+            () => {
+                isMobileCalendarExpanded =
+                    !isMobileCalendarExpanded;
+
+                render();
+            }
+        );
+
+        header.appendChild(
+            mobileToggleButton
         );
 
         element.appendChild(

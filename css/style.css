@@ -631,7 +631,11 @@ body {
 @media (min-width: 1200px) {
 
     .gallery-calendar-column {
-        top: 154px;
+        /*
+         * メンバー選択の上余白14px分だけ
+         * カレンダーの固定位置も下げる
+         */
+        top: 168px;
     }
 }
 

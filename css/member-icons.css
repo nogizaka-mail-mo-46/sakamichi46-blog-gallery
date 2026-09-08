@@ -1,6 +1,6 @@
 /*
  * ========================================
- * グループ別カラー
+ * グループ別カラー・画像表示位置
  * ========================================
  */
 
@@ -18,6 +18,11 @@
 
     --member-icon-scroll-thumb: #c9a8cf;
     --member-icon-scroll-track: #f1edf2;
+
+    /*
+     * アー写表示位置
+     */
+    --member-icon-object-position: center 18%;
 }
 
 
@@ -37,25 +42,11 @@ body.group-nogizaka46 {
 
     --member-icon-scroll-thumb: #c9a8cf;
     --member-icon-scroll-track: #f1edf2;
-}
 
-
-/*
- * ========================================
- * 櫻坂46
- * ========================================
- */
-
-body.group-sakurazaka46 {
-    --member-icon-color: #e88ca5;
-    --member-icon-shadow: rgba(232, 140, 165, 0.28);
-    --member-icon-focus: rgba(232, 140, 165, 0.35);
-
-    --member-icon-all-start: #fff5f8;
-    --member-icon-all-end: #f9dfe7;
-
-    --member-icon-scroll-thumb: #efb7c6;
-    --member-icon-scroll-track: #fdf1f4;
+    /*
+     * 乃木坂46は少し上側を表示
+     */
+    --member-icon-object-position: center 20%;
 }
 
 
@@ -75,6 +66,35 @@ body.group-hinatazaka46 {
 
     --member-icon-scroll-thumb: #a8d9ee;
     --member-icon-scroll-track: #edf8fc;
+
+    /*
+     * アー写表示位置
+     */
+    --member-icon-object-position: center 25%;
+}
+
+
+/*
+ * ========================================
+ * 櫻坂46
+ * ========================================
+ */
+
+body.group-sakurazaka46 {
+    --member-icon-color: #f19db5;
+    --member-icon-shadow: rgba(241, 157, 181, 0.28);
+    --member-icon-focus: rgba(241, 157, 181, 0.35);
+
+    --member-icon-all-start: #fff5f8;
+    --member-icon-all-end: #fbe1e8;
+
+    --member-icon-scroll-thumb: #f3bdcc;
+    --member-icon-scroll-track: #fdf1f4;
+
+    /*
+     * アー写表示位置
+     */
+    --member-icon-object-position: center 25%;
 }
 
 
@@ -237,10 +257,10 @@ body.group-hinatazaka46 {
     object-fit: cover;
 
     /*
-     * 顔がアイコン上部で切れすぎないよう
-     * 少し上側を表示
+     * グループごとに表示位置を変更
      */
-    object-position: center 20%;
+    object-position:
+        var(--member-icon-object-position);
 
     border-radius: 50%;
 }

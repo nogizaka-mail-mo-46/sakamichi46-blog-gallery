@@ -103,6 +103,36 @@ const blogImages =
 
 /*
  * ========================================
+ * スマホ用 ページ上部へ戻るボタン
+ * ========================================
+ */
+
+const scrollTopButton =
+    document.createElement(
+        "button"
+    );
+
+scrollTopButton.type =
+    "button";
+
+scrollTopButton.className =
+    "scroll-top-button";
+
+scrollTopButton.setAttribute(
+    "aria-label",
+    "ページ上部へ戻る"
+);
+
+scrollTopButton.textContent =
+    "↑";
+
+document.body.appendChild(
+    scrollTopButton
+);
+
+
+/*
+ * ========================================
  * ヒーロー DOM
  * ========================================
  */
@@ -907,6 +937,53 @@ function createMemberIconButton({
 
 /*
  * ========================================
+ * メンバー横スクロール フェード状態更新
+ *
+ * 【スマホ】
+ * - 横スクロールが必要な場合だけ
+ *   右端フェードを表示する
+ * - 右端まで到達したらフェードを消す
+ * ========================================
+ */
+
+function updateMemberIconFadeState() {
+
+    if (
+        !memberIconSelector ||
+        !memberIconTrack
+    ) {
+        return;
+    }
+
+
+    const overflow =
+        memberIconTrack.scrollWidth >
+            memberIconTrack.clientWidth +
+            2;
+
+
+    const atEnd =
+        memberIconTrack.scrollLeft +
+            memberIconTrack.clientWidth >=
+        memberIconTrack.scrollWidth -
+            2;
+
+
+    memberIconSelector.classList.toggle(
+        "has-member-overflow",
+        overflow
+    );
+
+    memberIconSelector.classList.toggle(
+        "member-scroll-end",
+        !overflow ||
+        atEnd
+    );
+}
+
+
+/*
+ * ========================================
  * メンバーアイコン描画
  * ========================================
  */
@@ -1021,6 +1098,15 @@ async function renderMemberIconSelector() {
      */
 
     updateMemberIconSelection();
+
+
+    /*
+     * DOM描画後に横幅を確定させて
+     * フェード状態を更新する
+     */
+    requestAnimationFrame(
+        updateMemberIconFadeState
+    );
 }
 
 
@@ -1311,6 +1397,86 @@ const calendar =
                 await clearSelectedDate();
             }
     });
+
+
+/*
+ * ========================================
+ * メンバー横スクロール フェード更新
+ * ========================================
+ */
+
+if (
+    memberIconTrack
+) {
+
+    memberIconTrack.addEventListener(
+        "scroll",
+        updateMemberIconFadeState,
+        {
+            passive:
+                true
+        }
+    );
+}
+
+
+window.addEventListener(
+    "resize",
+    () => {
+
+        requestAnimationFrame(
+            updateMemberIconFadeState
+        );
+    }
+);
+
+
+/*
+ * ========================================
+ * スマホ ページ上部へ戻る
+ * ========================================
+ */
+
+const SCROLL_TOP_VISIBLE_Y =
+    600;
+
+
+function updateScrollTopButton() {
+
+    scrollTopButton.classList.toggle(
+        "visible",
+        window.scrollY >=
+            SCROLL_TOP_VISIBLE_Y
+    );
+}
+
+
+window.addEventListener(
+    "scroll",
+    updateScrollTopButton,
+    {
+        passive:
+            true
+    }
+);
+
+
+scrollTopButton.addEventListener(
+    "click",
+    () => {
+
+        window.scrollTo({
+            top:
+                0,
+
+            behavior:
+                "smooth"
+        });
+    }
+);
+
+
+updateScrollTopButton();
 
 
 /*

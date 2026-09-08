@@ -589,3 +589,30 @@ body {
         min-width: 0;
     }
 }
+
+/* =========================
+   PC 2カラム 第2調整
+   - 全体幅を少し拡大
+   - 左カレンダー約290px
+   - 右ブログ領域を広く確保
+========================= */
+
+@media (min-width: 1200px) {
+
+    .gallery-controls {
+        max-width: 1380px;
+    }
+
+    .gallery-main-layout {
+        grid-template-columns:
+            290px
+            minmax(0, 1fr);
+
+        gap: 36px;
+
+        padding:
+            0
+            24px
+            56px;
+    }
+}

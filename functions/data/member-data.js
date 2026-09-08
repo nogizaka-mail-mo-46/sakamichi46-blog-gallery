@@ -75,6 +75,11 @@ export const members = {
         group: "nogizaka46",
         blogDataFolderId: "1DlXh9ev8CMUp4ctm8lURbPZ8NdkH-Hsu"
     },
+    sakura_kawasaki: {
+        name: "川﨑 桜",
+        group: "nogizaka46",
+        blogDataFolderId: "1HhDq31_Mq1MvqoOUh5uw2gnmQFr3vj_R"
+    },
     aruno_nakanishi: {
         name: "中西 アルノ",
         group: "nogizaka46",

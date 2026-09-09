@@ -134,6 +134,11 @@ export const members = {
     /*
      * 日向坂46（3期生）
      */
+    marie_morimoto: {
+        name: "森本 茉莉",
+        group: "hinatazaka46",
+        blogDataFolderId: "1L1L3XzlLKhvizoxLMQnqAliBXLUNeM-M"
+    },
     haruyo_yamaguchi: {
         name: "山口 陽世",
         group: "hinatazaka46",

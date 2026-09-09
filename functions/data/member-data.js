@@ -104,6 +104,11 @@ export const members = {
         group: "nogizaka46",
         blogDataFolderId: "1xkIkRM0S7ESCkPee52LHUGxZgm2KZzIv"
     },
+    akari_kaibe: {
+        name: "海邉 朱莉",
+        group: "nogizaka46",
+        blogDataFolderId: "17w1ALgFsiWyeVYSaMIOgw6DeE3DDASUC"
+    },
     mitsuki_setoguchi: {
         name: "瀬戸口 心月",
         group: "nogizaka46",

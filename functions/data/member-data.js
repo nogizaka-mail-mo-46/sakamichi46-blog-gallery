@@ -149,12 +149,12 @@ export const members = {
         blogDataFolderId: "13DqduBrK69Lcs-WJuRT8coIKwdOStlAq"
     },
 
-    // /*
-    //  * 日向坂46（5期生）
-    //  */
-    // yu_sato: {
-    //     name: "佐藤 優羽",
-    //     group: "hinatazaka46",
-    //     blogDataFolderId: "1wCWo0QvcrGPR7Y5JXV6s0jRzVUHfbu2B"
-    // }
+    /*
+     * 日向坂46（5期生）
+     */
+    yu_sato: {
+        name: "佐藤 優羽",
+        group: "hinatazaka46",
+        blogDataFolderId: "1FsFYu7aC11Emtd9cDYntVPdGJumCh2v9"
+    }
 };

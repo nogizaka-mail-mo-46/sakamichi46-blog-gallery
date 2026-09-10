@@ -137,6 +137,15 @@ export const members = {
 
     
     /*
+     * 日向坂46（2期生）
+     */
+    nao_kosaka: {
+        name: "小坂 菜緒",
+        group: "hinatazaka46",
+        blogDataFolderId: "1rMava3uLkj1txypUh8Pdl3PvvQPJVbb_"
+    },
+    
+    /*
      * 日向坂46（3期生）
      */
     marie_morimoto: {

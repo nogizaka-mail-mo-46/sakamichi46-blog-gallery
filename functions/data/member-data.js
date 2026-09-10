@@ -119,6 +119,11 @@ export const members = {
         group: "nogizaka46",
         blogDataFolderId: "1MS__Hl-Mnlbn9yqQD1v8rJQ-jvK7K4Wn"
     },
+    moeka_yada: {
+        name: "矢田 萌華",
+        group: "nogizaka46",
+        blogDataFolderId: "14cXP6ce-6VeUvwh2iXJ8Us_YobiVhtcu"
+    },
 
 
     /*

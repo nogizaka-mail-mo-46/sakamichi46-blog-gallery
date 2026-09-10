@@ -242,9 +242,152 @@ export function createBlogDetail({
                     text.className =
                         "blog-detail-text";
 
-                    text.textContent =
-                        block.text ||
-                        "";
+
+                    /*
+                     * ========================================
+                     * parts がある場合
+                     * ========================================
+                     */
+
+                    if (
+                        Array.isArray(
+                            block.parts
+                        ) &&
+                        block.parts.length >
+                            0
+                    ) {
+
+                        block.parts.forEach(
+                            part => {
+
+                                if (
+                                    !part
+                                ) {
+
+                                    return;
+                                }
+
+
+                                /*
+                                 * ========================================
+                                 * 通常テキスト
+                                 * ========================================
+                                 */
+
+                                if (
+                                    part.type ===
+                                        "text"
+                                ) {
+
+                                    text.appendChild(
+                                        document.createTextNode(
+                                            part.text ||
+                                            ""
+                                        )
+                                    );
+
+                                    return;
+                                }
+
+
+                                /*
+                                 * ========================================
+                                 * リンク
+                                 * ========================================
+                                 */
+
+                                if (
+                                    part.type ===
+                                        "link" &&
+                                    part.url
+                                ) {
+
+                                    let url;
+
+                                    try {
+
+                                        url =
+                                            new URL(
+                                                part.url
+                                            );
+
+                                    } catch (
+                                        error
+                                    ) {
+
+                                        text.appendChild(
+                                            document.createTextNode(
+                                                part.text ||
+                                                ""
+                                            )
+                                        );
+
+                                        return;
+                                    }
+
+
+                                    /*
+                                     * http / https のみ許可
+                                     */
+
+                                    if (
+                                        url.protocol !==
+                                            "http:" &&
+                                        url.protocol !==
+                                            "https:"
+                                    ) {
+
+                                        text.appendChild(
+                                            document.createTextNode(
+                                                part.text ||
+                                                ""
+                                            )
+                                        );
+
+                                        return;
+                                    }
+
+
+                                    const link =
+                                        document.createElement(
+                                            "a"
+                                        );
+
+                                    link.href =
+                                        url.href;
+
+                                    link.textContent =
+                                        part.text ||
+                                        part.url;
+
+                                    link.target =
+                                        "_blank";
+
+                                    link.rel =
+                                        "noopener noreferrer";
+
+                                    text.appendChild(
+                                        link
+                                    );
+                                }
+                            }
+                        );
+
+                    } else {
+
+
+                        /*
+                         * ========================================
+                         * 旧JSON
+                         * parts がない場合
+                         * ========================================
+                         */
+
+                        text.textContent =
+                            block.text ||
+                            "";
+                    }
+
 
                     blogDetail.appendChild(
                         text

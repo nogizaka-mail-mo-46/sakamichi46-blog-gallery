@@ -158,11 +158,11 @@ export const members = {
         group: "hinatazaka46",
         blogDataFolderId: "13DqduBrK69Lcs-WJuRT8coIKwdOStlAq"
     },
-    // honoka_hirao: {
-    //     name: "平尾 帆夏",
-    //     group: "hinatazaka46",
-    //     blogDataFolderId: "1gUzhAWkn4_ncBec3dwMGUQKC1fwaGBta"
-    // },
+    honoka_hirao: {
+        name: "平尾 帆夏",
+        group: "hinatazaka46",
+        blogDataFolderId: "1gUzhAWkn4_ncBec3dwMGUQKC1fwaGBta"
+    },
 
     /*
      * 日向坂46（5期生）

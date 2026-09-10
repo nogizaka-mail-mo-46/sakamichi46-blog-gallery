@@ -177,6 +177,16 @@ export const members = {
         group: "hinatazaka46",
         blogDataFolderId: "1gUzhAWkn4_ncBec3dwMGUQKC1fwaGBta"
     },
+    kaho_fujishima: {
+        name: "藤嶌 果歩",
+        group: "hinatazaka46",
+        blogDataFolderId: "15cibyoojGmXTXZS1l6iozh0OXJT558if"
+    },
+    rina_watanabe: {
+        name: "渡辺 莉奈",
+        group: "hinatazaka46",
+        blogDataFolderId: "1_20V0Rd2cnIWT1IWawjiH4Z4F_TdkeBd"
+    },
 
     /*
      * 日向坂46（5期生）

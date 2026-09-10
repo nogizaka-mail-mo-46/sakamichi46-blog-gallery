@@ -176,6 +176,11 @@ export const members = {
     /*
      * 日向坂46（5期生）
      */
+    hinano_kuramori: {
+        name: "蔵盛 妃那乃",
+        group: "hinatazaka46",
+        blogDataFolderId: "1YMU7O6OY3tJF3aHXh_0MlGjQ_1-F4o1-"
+    },
     yu_sato: {
         name: "佐藤 優羽",
         group: "hinatazaka46",

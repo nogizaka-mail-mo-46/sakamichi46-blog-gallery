@@ -506,22 +506,17 @@ body.group-hinatazaka46 {
 }
 
 /* ========================================
- * PC / 乃木坂46
- * 右側に続きがあることを示すフェード
+ * PC / メンバー選択 右端フェード
+ *
+ * 【仕様】
+ * - 横スクロールできる場合だけ表示
+ * - 右端までスクロールしたら自動で消える
  * ========================================
  */
 
 @media (min-width: 1024px) {
 
-    /*
-     * .member-icon-selector 本体の position は
-     * 共通の sticky をそのまま使用する。
-     * sticky 自体が positioned element なので、
-     * ::after の absolute 配置にも問題ない。
-     */
-
-    body.group-nogizaka46
-    .member-icon-selector::after {
+    .member-icon-selector.has-member-overflow::after {
         content: "";
 
         position: absolute;
@@ -534,12 +529,21 @@ body.group-hinatazaka46 {
 
         pointer-events: none;
 
+        opacity: 1;
+
         background:
             linear-gradient(
                 to right,
                 rgba(244, 244, 244, 0),
                 rgba(244, 244, 244, 0.96)
             );
+
+        transition:
+            opacity 0.18s ease;
+    }
+
+    .member-icon-selector.has-member-overflow.member-scroll-end::after {
+        opacity: 0;
     }
 }
 
@@ -573,13 +577,14 @@ body.group-hinatazaka46 {
          */
         box-shadow:
             0 -14px 0
-            #f4f4f4;
+            var(--ui-bg-page);
 
         /*
          * 下のブログ内容が透けないよう、
          * ページ背景と同じ色を使用する。
          */
-        background: #f4f4f4;
+        background:
+            var(--ui-bg-page);
     }
 }
 

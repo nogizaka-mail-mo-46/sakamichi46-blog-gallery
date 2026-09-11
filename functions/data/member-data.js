@@ -134,10 +134,24 @@ export const members = {
         group: "sakurazaka46",
         blogDataFolderId: "1KuADtqTDIbC7KyhxPtnmAevxJP-10ba4"
     },
+    hono_tamura: {
+        name: "田村 保乃",
+        group: "sakurazaka46",
+        blogDataFolderId: "13qb7jPoA-ZLrcXTtHIRXb3CHvTDd3sPO"
+    },
     kira_masumoto: {
         name: "増本 綺良",
         group: "sakurazaka46",
         blogDataFolderId: "1-QUAtAm7AuYxnSkGlrod-v8o6mD7MEY3"
+    },
+
+    /*
+     * 櫻坂46（3期生）
+     */
+    shizuki_yamashita: {
+        name: "山下 瞳月",
+        group: "sakurazaka46",
+        blogDataFolderId: "15b0Z3nVf76ZJLYy9UcRdHHHiw0qJivat"
     },
 
     

@@ -22,14 +22,18 @@
 
     padding: 20px;
 
-    background: #fff;
+    background:
+        var(--ui-panel-bg);
 
-    border: 1px solid #e8e8e8;
-    border-radius: 18px;
+    border:
+        1px solid
+        var(--ui-panel-border);
+
+    border-radius:
+        var(--ui-panel-radius);
 
     box-shadow:
-        0 4px 18px
-        rgba(0, 0, 0, 0.05);
+        var(--ui-panel-shadow);
 }
 
 .gallery-article:last-child {

@@ -78,12 +78,15 @@
         0
         34px
         0
-        0;
+        14px;
 
     border: none;
 
-    background: transparent;
+    border-left:
+        3px solid
+        var(--member-icon-color);
 
+    background: transparent;
     color: #222;
 
     font: inherit;

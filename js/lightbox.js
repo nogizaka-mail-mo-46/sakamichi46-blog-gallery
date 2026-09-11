@@ -1,3 +1,8 @@
+import {
+    createUiIcon
+} from "./ui-icons.js";
+
+
 /*
  * ========================================
  * Google Drive画像URL
@@ -64,6 +69,35 @@ export function createLightbox({
             "nextButton"
         );
 
+    closeButton.replaceChildren(
+        createUiIcon(
+            "x",
+            {
+                size:
+                    24
+            }
+        )
+    );
+
+    prevButton.replaceChildren(
+        createUiIcon(
+            "chevronLeft",
+            {
+                size:
+                    28
+            }
+        )
+    );
+
+    nextButton.replaceChildren(
+        createUiIcon(
+            "chevronRight",
+            {
+                size:
+                    28
+            }
+        )
+    );    
 
     /*
      * ========================================

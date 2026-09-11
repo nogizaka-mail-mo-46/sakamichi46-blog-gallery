@@ -23,6 +23,10 @@ import {
     createBlogImages
 } from "./blog-images.js";
 
+import {
+    createUiIcon
+} from "./ui-icons.js";
+
 
 /*
  * ========================================
@@ -123,8 +127,15 @@ scrollTopButton.setAttribute(
     "ページ上部へ戻る"
 );
 
-scrollTopButton.textContent =
-    "↑";
+scrollTopButton.appendChild(
+    createUiIcon(
+        "arrowUp",
+        {
+            size:
+                22
+        }
+    )
+);
 
 document.body.appendChild(
     scrollTopButton

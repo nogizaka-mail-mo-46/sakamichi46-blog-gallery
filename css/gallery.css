@@ -93,9 +93,7 @@
     cursor: pointer;
 }
 
-.gallery-article-title::after {
-    content: "›";
-
+.gallery-article-title > .ui-icon {
     position: absolute;
 
     top: 50%;
@@ -108,19 +106,17 @@
 
     color: #aaa;
 
-    font-size: 28px;
-    font-weight: 400;
-    line-height: 1;
+    transition:
+        color 0.2s ease;
+}
+
+.gallery-article-title:hover > .ui-icon {
+    color: #555;
 }
 
 .gallery-article-title:hover {
     color: #000;
 }
-
-.gallery-article-title:hover::after {
-    color: #555;
-}
-
 
 /* =========================
    ブログ画像
@@ -197,6 +193,10 @@
         );
 }
 
+.gallery-article-images-link > .ui-icon,
+.gallery-article-read-link > .ui-icon {
+    margin-left: 3px;
+}
 
 /* =========================
    全画像を見る
@@ -845,10 +845,8 @@
         line-height: 1.5;
     }
 
-    .gallery-article-title::after {
+    .gallery-article-title > .ui-icon {
         right: 2px;
-
-        font-size: 24px;
     }
 
     .gallery-article-images {

@@ -43,23 +43,17 @@
         24px;
 
     background:
-        #fff;
+        var(--ui-panel-bg);
 
     border:
         1px solid
-        #e8e8e8;
+        var(--ui-panel-border);
 
     border-radius:
-        18px;
+        var(--ui-panel-radius);
 
     box-shadow:
-        0 4px 18px
-        rgba(
-            0,
-            0,
-            0,
-            0.045
-        );
+        var(--ui-panel-shadow);
 }
 
 

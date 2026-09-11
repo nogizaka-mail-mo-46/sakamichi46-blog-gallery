@@ -395,13 +395,17 @@
 
 .calendar-month-picker-month.current {
     background:
-        rgba(91, 68, 166, 0.13);
+        var(--ui-bg-subtle);
 
-    color: #4f3b91;
+    color:
+        var(--member-icon-color);
 
     font-weight: 700;
-}
 
+    box-shadow:
+        inset 0 0 0 1px
+        var(--member-icon-color);
+}
 
 /*
  * ========================================

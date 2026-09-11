@@ -640,7 +640,7 @@
 @media (
     min-width: 768px
 ) and (
-    max-width: 1199px
+    max-width: 1023px
 ) {
 
     .calendar {
@@ -886,7 +886,7 @@
  * ========================================
  */
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
 
     .gallery-main-layout .calendar {
         margin: 0;
@@ -1007,7 +1007,7 @@
  * ========================================
  */
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
 
     .gallery-main-layout .calendar {
         padding:

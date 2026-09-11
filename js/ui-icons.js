@@ -25,7 +25,7 @@ const ICON_PATHS = {
     chevronsRight:
         '<path d="m13 17 5-5-5-5"></path>' +
         '<path d="m6 17 5-5-5-5"></path>',
-    
+
     x:
         '<path d="M18 6 6 18"></path>' +
         '<path d="m6 6 12 12"></path>',

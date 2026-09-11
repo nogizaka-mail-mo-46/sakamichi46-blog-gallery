@@ -1,3 +1,80 @@
+/*
+ * ========================================
+ * 共通UIアイコン
+ * ========================================
+ */
+
+.ui-icon {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    flex: 0 0 auto;
+
+    line-height: 0;
+}
+
+.ui-icon svg {
+    display: block;
+}
+
+
+/*
+ * ========================================
+ * 共通UIデザイン
+ * ========================================
+ */
+
+:root {
+    /*
+     * 背景
+     */
+    --ui-bg: #ffffff;
+    --ui-bg-page: #f4f4f4;
+    --ui-bg-subtle: #f7f7f7;
+
+    /*
+     * テキスト
+     */
+    --ui-text: #222222;
+    --ui-text-secondary: #555555;
+    --ui-text-muted: #888888;
+
+    /*
+     * ボーダー
+     */
+    --ui-border: #dedede;
+    --ui-border-hover: #c8c8c8;
+    --ui-border-focus: #aaaaaa;
+
+    /*
+     * 角丸
+     */
+    --ui-radius-sm: 8px;
+    --ui-radius-md: 12px;
+    --ui-radius-lg: 16px;
+    --ui-radius-round: 999px;
+
+    /*
+     * 影
+     */
+    --ui-shadow-sm:
+        0 2px 8px
+        rgba(0, 0, 0, 0.06);
+
+    --ui-shadow-md:
+        0 5px 18px
+        rgba(0, 0, 0, 0.14);
+
+    /*
+     * アニメーション
+     */
+    --ui-transition-fast:
+        0.2s ease;
+}
+
+
 * {
     box-sizing: border-box;
 }
@@ -16,8 +93,11 @@ body {
         "Noto Sans JP",
         sans-serif;
 
-    background: #f4f4f4;
-    color: #222;
+    background:
+        var(--ui-bg-page);
+
+    color:
+        var(--ui-text);
 }
 
 
@@ -315,18 +395,20 @@ body {
 
     border:
         1px solid
-        #dedede;
+        var(--ui-border);
 
-    border-radius: 12px;
+    border-radius:
+        var(--ui-radius-md);
 
     background:
-        #fff
+        var(--ui-bg)
         url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 14 14'%3E%3Cpath d='M3.5 5.25 7 8.75l3.5-3.5' fill='none' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")
         no-repeat
         right 14px
         center;
 
-    color: #222;
+    color:
+        var(--ui-text);
 
     font-size: 15px;
 
@@ -342,12 +424,14 @@ body {
 
 #memberSelect:hover,
 #sortSelect:hover {
-    border-color: #c8c8c8;
+    border-color:
+        var(--ui-border-hover);
 }
 
 #memberSelect:focus,
 #sortSelect:focus {
-    border-color: #aaa;
+    border-color:
+        var(--ui-border-focus);
 
     box-shadow:
         0 0 0 3px
@@ -380,7 +464,8 @@ body {
         right 10px
         center;
 
-    color: #555;
+    color:
+        var(--ui-text-secondary);
 
     font-size: 13px;
 }
@@ -742,25 +827,4 @@ body {
         transform:
             scale(0.94);
     }
-}
-
-/*
- * ========================================
- * 共通UIアイコン
- * ========================================
- */
-
-.ui-icon {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
-    flex: 0 0 auto;
-
-    line-height: 0;
-}
-
-.ui-icon svg {
-    display: block;
 }

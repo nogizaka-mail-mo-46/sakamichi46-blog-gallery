@@ -720,7 +720,7 @@ export function createCalendar({
             "button";
 
         title.className =
-            "calendar-title calendar-title-button";
+            "ui-text-button calendar-title calendar-title-button";
 
         title.textContent =
             `${calendarYear}年${calendarMonth}月`;
@@ -1153,7 +1153,7 @@ export function createCalendar({
                     "button";
 
                 monthButton.className =
-                    "calendar-month-picker-month";
+                    "ui-text-button calendar-month-picker-month";
 
                 monthButton.textContent =
                     `${month}月`;
@@ -1446,7 +1446,7 @@ export function createCalendar({
                 "button";
 
             clearButton.className =
-                "calendar-clear";
+                "ui-text-button calendar-clear";
 
             clearButton.textContent =
                 "この月をすべて表示";

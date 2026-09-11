@@ -193,15 +193,8 @@
  */
 
 .calendar-nav {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
     width: 40px;
     height: 40px;
-
-    padding: 0;
 
     border:
         1px solid
@@ -214,9 +207,6 @@
     color: #333;
 
     font-size: 22px;
-    line-height: 1;
-
-    cursor: pointer;
 
     transition:
         background 0.2s ease,
@@ -304,15 +294,8 @@
  */
 
 .calendar-month-picker-nav {
-    display: inline-flex;
-
-    align-items: center;
-    justify-content: center;
-
     width: 40px;
     height: 40px;
-
-    padding: 0;
 
     border: none;
 
@@ -323,9 +306,6 @@
     color: #333;
 
     font-size: 25px;
-    line-height: 1;
-
-    cursor: pointer;
 
     transition:
         background-color 0.2s ease,
@@ -1195,13 +1175,8 @@
     .calendar-mobile-toggle {
         display: inline-flex;
 
-        align-items: center;
-        justify-content: center;
-
         width: 34px;
         height: 36px;
-
-        padding: 0;
 
         border: none;
 
@@ -1210,10 +1185,6 @@
         background: transparent;
 
         color: #555;
-
-        font: inherit;
-
-        cursor: pointer;
     }
 
     .gallery-main-layout

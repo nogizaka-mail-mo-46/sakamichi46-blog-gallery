@@ -148,10 +148,29 @@ export const members = {
     /*
      * 櫻坂46（3期生）
      */
+    itoha_mukai: {
+        name: "向井 純葉",
+        group: "sakurazaka46",
+        blogDataFolderId: "1ZKIooKsnCnGdj5bmMoCQBYc21-YmO9L1"
+    },
     shizuki_yamashita: {
         name: "山下 瞳月",
         group: "sakurazaka46",
         blogDataFolderId: "15b0Z3nVf76ZJLYy9UcRdHHHiw0qJivat"
+    },
+
+    /*
+     * 櫻坂46（4期生）
+     */
+    haru_katsumata: {
+        name: "勝又 春",
+        group: "sakurazaka46",
+        blogDataFolderId: "1TI7b0vIKkzpPjNav_Kp-_0jtmVMTOvP6"
+    },
+    wako_matsumoto: {
+        name: "松本 和子",
+        group: "sakurazaka46",
+        blogDataFolderId: "1Tk7NQ5fBRL1yn6OhX-Cwd0zAp5epXyHo"
     },
 
     

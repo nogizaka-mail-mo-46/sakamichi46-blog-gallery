@@ -1406,6 +1406,30 @@ export function createCalendar({
 
 
             /*
+             * 今日
+             */
+
+            const today =
+                new Date();
+
+            const todayKey =
+                formatDateKey(
+                    today.getFullYear(),
+                    today.getMonth() + 1,
+                    today.getDate()
+                );
+
+            if (
+                dateKey ===
+                    todayKey
+            ) {
+                button.classList.add(
+                    "today"
+                );
+            }
+
+
+            /*
              * 選択中の日
              */
 

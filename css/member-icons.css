@@ -450,7 +450,7 @@ body.group-hinatazaka46 {
  */
 
 @media (
-    max-width: 600px
+    max-width: 767px
 ) {
 
     .member-icon-selector {

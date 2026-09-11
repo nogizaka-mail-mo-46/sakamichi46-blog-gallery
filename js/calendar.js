@@ -1303,6 +1303,16 @@ export function createCalendar({
                 0
             ).getDate();
 
+        const today =
+            new Date();
+
+        const todayKey =
+            formatDateKey(
+                today.getFullYear(),
+                today.getMonth() + 1,
+                today.getDate()
+            );
+
 
         /*
          * 月初までの空白
@@ -1408,16 +1418,6 @@ export function createCalendar({
             /*
              * 今日
              */
-
-            const today =
-                new Date();
-
-            const todayKey =
-                formatDateKey(
-                    today.getFullYear(),
-                    today.getMonth() + 1,
-                    today.getDate()
-                );
 
             if (
                 dateKey ===

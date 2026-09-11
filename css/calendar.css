@@ -1107,26 +1107,23 @@
     /*
      * ヘッダー
      *
-     * スマホでは最古 / 最新ジャンプを隠し、
-     * 前月・年月・次月・開閉 の4要素にする
+     * スマホでも
+     * 最古・前月・年月・次月・最新・開閉
+     * の6要素を表示する
      */
 
     .gallery-main-layout .calendar-header {
         grid-template-columns:
-            36px
+            32px
+            32px
             minmax(0, 1fr)
-            36px
+            32px
+            32px
             34px;
 
-        gap: 5px;
+        gap: 4px;
 
         margin-bottom: 0;
-    }
-
-    .gallery-main-layout
-    .calendar-header
-    .calendar-nav-edge {
-        display: none;
     }
 
     .gallery-main-layout .calendar-title {
@@ -1142,12 +1139,16 @@
     }
 
     .gallery-main-layout .calendar-nav {
-        width: 36px;
+        width: 32px;
         height: 36px;
 
         border-radius: 9px;
 
-        font-size: 20px;
+        font-size: 18px;
+    }
+
+    .gallery-main-layout .calendar-nav-edge {
+        font-size: 15px;
     }
 
 

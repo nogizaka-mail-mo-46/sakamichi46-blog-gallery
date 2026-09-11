@@ -107,6 +107,44 @@ const blogImages =
 
 /*
  * ========================================
+ * 戻るボタン 共通アイコン
+ * ========================================
+ */
+
+blogDetailBackButton.replaceChildren(
+    createUiIcon(
+        "arrowLeft",
+        {
+            size:
+                18
+        }
+    ),
+    document.createTextNode(
+        "戻る"
+    )
+);
+
+blogImagesBackButton.replaceChildren(
+    createUiIcon(
+        "arrowLeft",
+        {
+            size:
+                18
+        }
+    ),
+    document.createTextNode(
+        "戻る"
+    )
+);
+
+
+/*
+ * ========================================
+ * スマホ用 ページ上部へ戻るボタン
+
+
+/*
+ * ========================================
  * スマホ用 ページ上部へ戻るボタン
  * ========================================
  */

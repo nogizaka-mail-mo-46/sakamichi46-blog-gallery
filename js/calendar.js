@@ -618,8 +618,14 @@ export function createCalendar({
         firstButton.className =
             "calendar-nav calendar-nav-edge";
 
-        firstButton.textContent =
-            "≪";
+        firstButton.appendChild(
+            createUiIcon(
+                "chevronsLeft",
+                {
+                    size: 18
+                }
+            )
+        );
 
         firstButton.setAttribute(
             "aria-label",
@@ -664,8 +670,14 @@ export function createCalendar({
         prevButton.className =
             "calendar-nav";
 
-        prevButton.textContent =
-            "‹";
+        prevButton.appendChild(
+            createUiIcon(
+                "chevronLeft",
+                {
+                    size: 20
+                }
+            )
+        );
 
         prevButton.setAttribute(
             "aria-label",
@@ -750,8 +762,14 @@ export function createCalendar({
         nextButton.className =
             "calendar-nav";
 
-        nextButton.textContent =
-            "›";
+        nextButton.appendChild(
+            createUiIcon(
+                "chevronRight",
+                {
+                    size: 20
+                }
+            )
+        );
 
         nextButton.setAttribute(
             "aria-label",
@@ -798,8 +816,14 @@ export function createCalendar({
         lastButton.className =
             "calendar-nav calendar-nav-edge";
 
-        lastButton.textContent =
-            "≫";
+        lastButton.appendChild(
+            createUiIcon(
+                "chevronsRight",
+                {
+                    size: 18
+                }
+            )
+        );
 
         lastButton.setAttribute(
             "aria-label",
@@ -967,8 +991,14 @@ export function createCalendar({
             pickerPrevYear.className =
                 "calendar-month-picker-nav";
 
-            pickerPrevYear.textContent =
-                "‹";
+            pickerPrevYear.appendChild(
+                createUiIcon(
+                    "chevronLeft",
+                    {
+                        size: 18
+                    }
+                )
+            );
 
             pickerPrevYear.setAttribute(
                 "aria-label",
@@ -1011,8 +1041,14 @@ export function createCalendar({
             pickerNextYear.className =
                 "calendar-month-picker-nav";
 
-            pickerNextYear.textContent =
-                "›";
+            pickerNextYear.appendChild(
+                createUiIcon(
+                    "chevronRight",
+                    {
+                        size: 18
+                    }
+                )
+            );
 
             pickerNextYear.setAttribute(
                 "aria-label",

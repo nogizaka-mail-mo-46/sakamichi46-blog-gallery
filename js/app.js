@@ -275,6 +275,33 @@ let galleryScrollPosition =
 
 /*
  * ========================================
+ * ギャラリーのスクロール位置保存
+ * ========================================
+ */
+
+function saveGalleryScrollPosition() {
+
+    galleryScrollPosition =
+        window.scrollY;
+
+    history.replaceState(
+        {
+            ...history.state,
+
+            view:
+                "gallery",
+
+            scrollY:
+                galleryScrollPosition
+        },
+        "",
+        `${window.location.pathname}${window.location.search}`
+    );
+}
+
+
+/*
+ * ========================================
  * メンバーアイコン設定
  * ========================================
  */
@@ -1342,8 +1369,7 @@ const gallery =
                 memberKey
             }) => {
 
-                galleryScrollPosition =
-                    window.scrollY;
+                saveGalleryScrollPosition();
 
                 await blogDetailController.open({
                     articleId:
@@ -1365,8 +1391,7 @@ const gallery =
                 images
             }) => {
 
-                galleryScrollPosition =
-                    window.scrollY;
+                saveGalleryScrollPosition();
 
                 blogImagesController.open({
                     articleId:
@@ -2365,7 +2390,10 @@ blogImagesBackButton.addEventListener(
  * ========================================
  */
 
-function showGalleryView() {
+function showGalleryView(
+    scrollPosition =
+        galleryScrollPosition
+) {
 
     blogDetailController.hide();
 
@@ -2374,13 +2402,33 @@ function showGalleryView() {
     galleryView.hidden =
         false;
 
-    window.scrollTo({
-        top:
-            galleryScrollPosition,
+    const restoreScrollPosition =
+        Number.isFinite(
+            scrollPosition
+        )
+            ? scrollPosition
+            : galleryScrollPosition;
 
-        behavior:
-            "auto"
-    });
+    galleryScrollPosition =
+        restoreScrollPosition;
+
+    requestAnimationFrame(
+        () => {
+
+            requestAnimationFrame(
+                () => {
+
+                    window.scrollTo({
+                        top:
+                            restoreScrollPosition,
+
+                        behavior:
+                            "auto"
+                    });
+                }
+            );
+        }
+    );
 }
 
 
@@ -2436,7 +2484,7 @@ function showBlogImagesView() {
 
 window.addEventListener(
     "popstate",
-    () => {
+    event => {
 
         if (
             lightbox.isOpen()
@@ -2474,6 +2522,15 @@ window.addEventListener(
             return;
         }
 
-        showGalleryView();
+        const scrollPosition =
+            Number.isFinite(
+                event.state?.scrollY
+            )
+                ? event.state.scrollY
+                : galleryScrollPosition;
+
+        showGalleryView(
+            scrollPosition
+        );
     }
 );

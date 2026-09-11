@@ -787,11 +787,6 @@ body {
             0 5px 18px
             rgba(0, 0, 0, 0.14);
 
-        font-family: inherit;
-        font-size: 21px;
-        font-weight: 600;
-        line-height: 1;
-
         cursor: pointer;
 
         opacity: 0;

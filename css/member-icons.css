@@ -369,10 +369,12 @@ body.group-hinatazaka46 {
 .member-icon-button.active
 .member-icon-image-wrap {
     border-color:
-        var(--member-icon-color);
+        #fff;
 
     box-shadow:
-        0 3px 12px
+        0 0 0 3px
+        var(--member-icon-color),
+        0 4px 14px
         var(--member-icon-shadow);
 
     transform:

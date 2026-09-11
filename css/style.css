@@ -75,6 +75,85 @@
 }
 
 
+/*
+ * ========================================
+ * 共通 戻るボタン
+ * ========================================
+ */
+
+.ui-back-button {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    gap:
+        6px;
+
+    padding:
+        10px
+        14px;
+
+    border:
+        1px solid
+        var(--ui-border);
+
+    border-radius:
+        var(--ui-radius-md);
+
+    background:
+        var(--ui-bg);
+
+    color:
+        #333;
+
+    font: inherit;
+
+    font-size:
+        14px;
+
+    font-weight:
+        600;
+
+    cursor:
+        pointer;
+
+    transition:
+        background var(--ui-transition-fast),
+        border-color var(--ui-transition-fast),
+        transform var(--ui-transition-fast);
+}
+
+.ui-back-button:hover {
+    background:
+        var(--ui-bg-subtle);
+
+    border-color:
+        var(--ui-border-hover);
+
+    transform:
+        translateY(
+            -1px
+        );
+}
+
+
+@media (max-width: 767px) {
+
+    .ui-back-button {
+        padding:
+            9px
+            12px;
+
+        border-radius:
+            10px;
+
+        font-size:
+            13px;
+    }
+}
+
+
 * {
     box-sizing: border-box;
 }

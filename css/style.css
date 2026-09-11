@@ -610,7 +610,7 @@ body {
 @media (
     min-width: 768px
 ) and (
-    max-width: 1199px
+    max-width: 1023px
 ) {
 
     .hero-content {
@@ -775,7 +775,7 @@ body {
 }
 
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
 
     .gallery-controls {
         max-width: 1320px;
@@ -818,7 +818,7 @@ body {
    - 右ブログ領域を広く確保
 ========================= */
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
 
     .gallery-controls {
         max-width: 1380px;
@@ -845,7 +845,7 @@ body {
    左カレンダーはその直下で固定する。
 ========================= */
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
 
     .gallery-calendar-column {
         /*

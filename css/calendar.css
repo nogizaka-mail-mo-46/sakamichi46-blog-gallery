@@ -509,7 +509,8 @@
 
     border-radius: 50%;
 
-    background: #333;
+    background:
+        var(--member-icon-color);
 
     transform:
         translateX(-50%);
@@ -522,11 +523,15 @@
 
 
 .calendar-day.selected {
-    background: #222;
+    background:
+        var(--member-icon-color);
 
     color: #fff;
-}
 
+    box-shadow:
+        0 3px 10px
+        var(--member-icon-shadow);
+}
 
 .calendar-day.selected::after {
     background: #fff;

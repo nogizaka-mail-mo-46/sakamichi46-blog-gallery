@@ -30,6 +30,9 @@
     align-items: center;
     justify-content: center;
 
+    gap:
+        6px;
+
     margin:
         0
         0

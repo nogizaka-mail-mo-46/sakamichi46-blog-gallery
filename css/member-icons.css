@@ -511,7 +511,7 @@ body.group-hinatazaka46 {
  * ========================================
  */
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
 
     /*
      * .member-icon-selector 本体の position は
@@ -548,12 +548,12 @@ body.group-hinatazaka46 {
  *
  * 【仕様】
  * - 現在の見た目・サイズは変更しない
- * - PC（1200px以上）のみ sticky
+ * - PC（1024px以上）のみ sticky
  * - ブログ一覧をスクロールしても上部に残す
  * ========================================
  */
 
-@media (min-width: 1200px) {
+@media (min-width: 1024px) {
 
     .member-icon-selector {
         position: sticky;

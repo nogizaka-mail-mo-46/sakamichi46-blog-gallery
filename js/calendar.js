@@ -873,10 +873,16 @@ export function createCalendar({
         mobileToggleButton.className =
             "calendar-mobile-toggle";
 
-        mobileToggleButton.textContent =
-            isMobileCalendarExpanded
-                ? "⌃"
-                : "⌄";
+        mobileToggleButton.appendChild(
+            createUiIcon(
+                isMobileCalendarExpanded
+                    ? "chevronUp"
+                    : "chevronDown",
+                {
+                    size: 20
+                }
+            )
+        );
 
         mobileToggleButton.setAttribute(
             "aria-label",

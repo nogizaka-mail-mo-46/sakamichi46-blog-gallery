@@ -186,10 +186,15 @@
 
     transition:
         transform 0.2s ease,
-        opacity 0.2s ease;
+        opacity 0.2s ease,
+        box-shadow 0.2s ease;
 }
 
 .gallery-item:hover {
+    box-shadow:
+        0 6px 18px
+        rgba(0, 0, 0, 0.10);
+
     transform:
         translateY(
             -2px
@@ -321,10 +326,14 @@
     font-weight: 600;
 
     cursor: pointer;
+
+    transition:
+        color var(--ui-transition-fast);
 }
 
 .gallery-article-read-link:hover {
-    color: #000;
+    color:
+        var(--member-icon-color);
 }
 
 
@@ -1051,6 +1060,10 @@
         padding: 22px;
 
         margin-bottom: 26px;
+
+        box-shadow:
+            0 6px 24px
+            rgba(0, 0, 0, 0.055);
     }
 
     .gallery-main-layout .gallery-article-images {

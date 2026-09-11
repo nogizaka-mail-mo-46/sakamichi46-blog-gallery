@@ -68,6 +68,22 @@
         rgba(0, 0, 0, 0.14);
 
     /*
+     * 共通パネル
+     */
+    --ui-panel-bg:
+        var(--ui-bg);
+
+    --ui-panel-border:
+        #e8e8e8;
+
+    --ui-panel-radius:
+        18px;
+
+    --ui-panel-shadow:
+        0 4px 18px
+        rgba(0, 0, 0, 0.045);
+    
+    /*
      * アニメーション
      */
     --ui-transition-fast:

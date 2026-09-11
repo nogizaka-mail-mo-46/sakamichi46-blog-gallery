@@ -1,3 +1,8 @@
+import {
+    createUiIcon
+} from "./ui-icons.js";
+
+
 /*
  * ========================================
  * Google Drive画像URL
@@ -227,9 +232,31 @@ export function createGallery({
                 titleElement.className =
                     "gallery-article-title";
 
-                titleElement.textContent =
+                const titleText =
+                    document.createElement(
+                        "span"
+                    );
+
+                titleText.className =
+                    "gallery-article-title-text";
+
+                titleText.textContent =
                     blog.title ||
                     "（無題）";
+
+                titleElement.appendChild(
+                    titleText
+                );
+
+                titleElement.appendChild(
+                    createUiIcon(
+                        "chevronRight",
+                        {
+                            size:
+                                22
+                        }
+                    )
+                );
 
                 titleElement.dataset.articleId =
                     blog.articleId ||
@@ -440,8 +467,27 @@ export function createGallery({
                     imagesLink.className =
                         "gallery-article-images-link";
 
-                    imagesLink.textContent =
-                        `全${blogImages.length}枚を見る →`;
+                    const imagesLinkText =
+                        document.createElement(
+                            "span"
+                        );
+
+                    imagesLinkText.textContent =
+                        `全${blogImages.length}枚を見る`;
+
+                    imagesLink.appendChild(
+                        imagesLinkText
+                    );
+
+                    imagesLink.appendChild(
+                        createUiIcon(
+                            "chevronRight",
+                            {
+                                size:
+                                    16
+                            }
+                        )
+                    );
 
                     imagesLink.addEventListener(
                         "click",
@@ -534,8 +580,27 @@ export function createGallery({
                     readButton.className =
                         "gallery-article-read-link";
 
-                    readButton.textContent =
-                        "ブログを読む →";
+                    const readButtonText =
+                        document.createElement(
+                            "span"
+                        );
+
+                    readButtonText.textContent =
+                        "ブログを読む";
+
+                    readButton.appendChild(
+                        readButtonText
+                    );
+
+                    readButton.appendChild(
+                        createUiIcon(
+                            "chevronRight",
+                            {
+                                size:
+                                    16
+                            }
+                        )
+                    );
 
                     readButton.addEventListener(
                         "click",

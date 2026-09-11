@@ -522,12 +522,31 @@
 }
 
 
+/*
+ * ========================================
+ * 今日
+ * ========================================
+ */
+
+.calendar-day.today {
+    box-shadow:
+        inset 0 0 0 1px
+        var(--member-icon-color);
+}
+
+
 .calendar-day.selected {
     background:
         var(--member-icon-color);
 
     color: #fff;
 
+    box-shadow:
+        0 3px 10px
+        var(--member-icon-shadow);
+}
+
+.calendar-day.today.selected {
     box-shadow:
         0 3px 10px
         var(--member-icon-shadow);

@@ -228,45 +228,56 @@
     display: inline-flex;
 
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
+
+    gap: 3px;
 
     margin-top: 14px;
 
-    padding: 0;
+    padding:
+        7px
+        11px;
 
-    border: none;
+    border:
+        1px solid
+        var(--ui-border);
 
-    background: transparent;
+    border-radius:
+        var(--ui-radius-md);
 
-    color: #555;
+    background:
+        var(--ui-bg-subtle);
+
+    color:
+        var(--ui-text-secondary);
 
     font: inherit;
 
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
     line-height: 1.5;
 
     cursor: pointer;
 
     transition:
-        color 0.2s ease;
+        color var(--ui-transition-fast),
+        background var(--ui-transition-fast),
+        border-color var(--ui-transition-fast),
+        transform var(--ui-transition-fast);
 }
 
 .gallery-article-images-link:hover {
-    color: #000;
-}
+    color:
+        var(--member-icon-color);
 
+    background:
+        var(--ui-bg);
 
-/* =========================
-   画像なしブログ
-========================= */
+    border-color:
+        var(--member-icon-color);
 
-.gallery-article-no-images {
-    padding: 18px;
-
-    background: #f8f8f8;
-
-    border-radius: 12px;
+    transform:
+        translateY(-1px);
 }
 
 

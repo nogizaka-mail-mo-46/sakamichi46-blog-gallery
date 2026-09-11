@@ -616,7 +616,7 @@ export function createCalendar({
             "button";
 
         firstButton.className =
-            "calendar-nav calendar-nav-edge";
+            "ui-icon-button calendar-nav calendar-nav-edge";
 
         firstButton.appendChild(
             createUiIcon(
@@ -668,7 +668,7 @@ export function createCalendar({
             "button";
 
         prevButton.className =
-            "calendar-nav";
+            "ui-icon-button calendar-nav";
 
         prevButton.appendChild(
             createUiIcon(
@@ -760,7 +760,7 @@ export function createCalendar({
             "button";
 
         nextButton.className =
-            "calendar-nav";
+            "ui-icon-button calendar-nav";
 
         nextButton.appendChild(
             createUiIcon(
@@ -814,7 +814,7 @@ export function createCalendar({
             "button";
 
         lastButton.className =
-            "calendar-nav calendar-nav-edge";
+            "ui-icon-button calendar-nav calendar-nav-edge";
 
         lastButton.appendChild(
             createUiIcon(
@@ -895,7 +895,7 @@ export function createCalendar({
             "button";
 
         mobileToggleButton.className =
-            "calendar-mobile-toggle";
+            "ui-icon-button calendar-mobile-toggle";
 
         mobileToggleButton.appendChild(
             createUiIcon(
@@ -989,7 +989,7 @@ export function createCalendar({
                 "button";
 
             pickerPrevYear.className =
-                "calendar-month-picker-nav";
+                "ui-icon-button calendar-month-picker-nav";
 
             pickerPrevYear.appendChild(
                 createUiIcon(
@@ -1039,7 +1039,7 @@ export function createCalendar({
                 "button";
 
             pickerNextYear.className =
-                "calendar-month-picker-nav";
+                "ui-icon-button calendar-month-picker-nav";
 
             pickerNextYear.appendChild(
                 createUiIcon(

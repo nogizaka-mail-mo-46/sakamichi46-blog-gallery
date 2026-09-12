@@ -408,37 +408,61 @@ async function getMemberBlogs(
     memberKey,
     member
 ) {
-    if (
-        !member.blogDataFolderId
-    ) {
-        console.warn(
-            `blogDataFolderId未設定: ${memberKey}`
-        );
+    /*
+     * ========================================
+     * index.json ファイルID取得
+     *
+     * blogIndexFileId が設定済みなら
+     * Drive検索を省略して直接取得する
+     *
+     * 未設定なら従来どおり
+     * blogDataFolderId から検索する
+     * ========================================
+     */
 
-        return [];
-    }
+    let indexFileId =
+        member.blogIndexFileId ||
+        null;
 
 
     /*
      * ========================================
-     * index.json検索
+     * 従来方式
      * ========================================
      */
 
-    const indexFile =
-        await getBlogIndexFile(
-            accessToken,
-            member.blogDataFolderId
-        );
-
     if (
-        !indexFile
+        !indexFileId
     ) {
-        console.warn(
-            `index.jsonなし: ${memberKey}`
-        );
 
-        return [];
+        if (
+            !member.blogDataFolderId
+        ) {
+            console.warn(
+                `blogDataFolderId未設定: ${memberKey}`
+            );
+
+            return [];
+        }
+
+        const indexFile =
+            await getBlogIndexFile(
+                accessToken,
+                member.blogDataFolderId
+            );
+
+        if (
+            !indexFile
+        ) {
+            console.warn(
+                `index.jsonなし: ${memberKey}`
+            );
+
+            return [];
+        }
+
+        indexFileId =
+            indexFile.id;
     }
 
 
@@ -451,7 +475,7 @@ async function getMemberBlogs(
     const text =
         await getDriveFileText(
             accessToken,
-            indexFile.id
+            indexFileId
         );
 
 

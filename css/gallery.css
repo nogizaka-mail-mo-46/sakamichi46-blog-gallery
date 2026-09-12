@@ -1034,6 +1034,7 @@
         padding: 0;
     }
 
+
     .gallery-main-layout .gallery-article {
         max-width: none;
 
@@ -1044,14 +1045,26 @@
 
         padding: 22px;
 
+        /*
+         * スクロール停止時に
+         * ブログカード先頭へ位置を揃える。
+         */
+        scroll-snap-align:
+            start;
+
+        scroll-snap-stop:
+            normal;
+
         box-shadow:
             0 6px 24px
             rgba(0, 0, 0, 0.055);
     }
 
+
     .gallery-main-layout .gallery-article:last-child {
         margin-bottom: 0;
     }
+
 
     .gallery-main-layout .gallery-article-images {
         grid-template-columns:
@@ -1065,6 +1078,7 @@
 
         gap: 12px;
     }
+
 
     .gallery-main-layout .gallery-item {
         border-radius: 13px;

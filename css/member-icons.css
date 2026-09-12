@@ -568,6 +568,15 @@ body.group-hinatazaka46 {
 
         z-index: 20;
 
+        /*
+         * 下余白をmarginではなくpaddingで確保し、
+         * スクロール中のブログ画像が
+         * 隙間から見えないようにする。
+         */
+        margin-bottom: 0;
+
+        padding-bottom: 20px;
+
         background:
             var(--ui-bg-page);
     }

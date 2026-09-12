@@ -77,7 +77,10 @@ export async function onRequestGet(
                         member.name,
 
                     group:
-                        member.group
+                        member.group,
+
+                    generation:
+                        member.generation
                 })
             );
 

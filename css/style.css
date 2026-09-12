@@ -793,9 +793,28 @@ body {
 
 @media (min-width: 1024px) {
 
+    html {
+        /*
+         * PCではブログカード単位で
+         * 縦スクロール位置を揃える。
+         */
+        scroll-snap-type:
+            y
+            mandatory;
+
+        /*
+         * Stickyメンバー選択の下から
+         * ブログカードを表示する。
+         */
+        scroll-padding-top:
+            168px;
+    }
+
+
     .gallery-controls {
         max-width: 1380px;
     }
+
 
     .gallery-main-layout {
         display: grid;
@@ -814,6 +833,7 @@ body {
             56px;
     }
 
+
     .gallery-calendar-column {
         position: sticky;
 
@@ -825,6 +845,7 @@ body {
 
         z-index: 5;
     }
+
 
     .gallery-blog-column {
         min-width: 0;

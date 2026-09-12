@@ -400,17 +400,13 @@ function createBlogSummary(
  * 1メンバー分のブログ一覧取得
  *
  * index.jsonだけを取得する
- *
- * Cloudflare Cache APIで
- * メンバーごとに1時間キャッシュする
  * ========================================
  */
 
 async function getMemberBlogs(
     accessToken,
     memberKey,
-    member,
-    origin
+    member
 ) {
     if (
         !member.blogDataFolderId
@@ -425,105 +421,38 @@ async function getMemberBlogs(
 
     /*
      * ========================================
-     * index.json キャッシュ
+     * index.json検索
      * ========================================
      */
 
-    const cache =
-        caches.default;
-
-    const cacheRequest =
-        new Request(
-            `${origin}/__cache/blog-index/` +
-            `${encodeURIComponent(memberKey)}`,
-            {
-                method:
-                    "GET"
-            }
+    const indexFile =
+        await getBlogIndexFile(
+            accessToken,
+            member.blogDataFolderId
         );
 
-    let text =
-        null;
-
-    let cacheHit =
-        false;
-
-
-    try {
-
-        const cachedResponse =
-            await cache.match(
-                cacheRequest
-            );
-
-        if (
-            cachedResponse
-        ) {
-
-            text =
-                await cachedResponse.text();
-
-            cacheHit =
-                true;
-        }
-
-    } catch (
-        error
+    if (
+        !indexFile
     ) {
-
         console.warn(
-            `index.jsonキャッシュ取得失敗: ${memberKey}`,
-            error
+            `index.jsonなし: ${memberKey}`
         );
+
+        return [];
     }
 
 
     /*
      * ========================================
-     * キャッシュがない場合のみ
-     * Google Driveから取得
+     * index.json取得
      * ========================================
      */
 
-    if (
-        !text
-    ) {
-
-        /*
-         * ========================================
-         * index.json検索
-         * ========================================
-         */
-
-        const indexFile =
-            await getBlogIndexFile(
-                accessToken,
-                member.blogDataFolderId
-            );
-
-        if (
-            !indexFile
-        ) {
-            console.warn(
-                `index.jsonなし: ${memberKey}`
-            );
-
-            return [];
-        }
-
-
-        /*
-         * ========================================
-         * index.json取得
-         * ========================================
-         */
-
-        text =
-            await getDriveFileText(
-                accessToken,
-                indexFile.id
-            );
-    }
+    const text =
+        await getDriveFileText(
+            accessToken,
+            indexFile.id
+        );
 
 
     /*
@@ -577,47 +506,6 @@ async function getMemberBlogs(
 
     /*
      * ========================================
-     * Driveから取得した場合だけ
-     * 1時間キャッシュ
-     * ========================================
-     */
-
-    if (
-        !cacheHit
-    ) {
-
-        try {
-
-            await cache.put(
-                cacheRequest,
-                new Response(
-                    text,
-                    {
-                        headers: {
-                            "Content-Type":
-                                "application/json; charset=utf-8",
-
-                            "Cache-Control":
-                                "public, max-age=3600"
-                        }
-                    }
-                )
-            );
-
-        } catch (
-            error
-        ) {
-
-            console.warn(
-                `index.jsonキャッシュ保存失敗: ${memberKey}`,
-                error
-            );
-        }
-    }
-
-
-    /*
-     * ========================================
      * 一覧データ生成
      * ========================================
      */
@@ -637,6 +525,175 @@ async function getMemberBlogs(
                     indexData
                 )
         );
+}
+
+
+/*
+ * ========================================
+ * グループ全体ブログ取得
+ *
+ * Cloudflare Cache APIで
+ * グループごとに1時間キャッシュする
+ * ========================================
+ */
+
+async function getGroupBlogs(
+    group,
+    env,
+    origin
+) {
+
+    /*
+     * ========================================
+     * キャッシュキー
+     * ========================================
+     */
+
+    const cache =
+        caches.default;
+
+    const cacheRequest =
+        new Request(
+            `${origin}/__cache/blog-group/` +
+            `${encodeURIComponent(group)}`,
+            {
+                method:
+                    "GET"
+            }
+        );
+
+
+    /*
+     * ========================================
+     * キャッシュ確認
+     * ========================================
+     */
+
+    try {
+
+        const cachedResponse =
+            await cache.match(
+                cacheRequest
+            );
+
+        if (
+            cachedResponse
+        ) {
+
+            const cachedData =
+                await cachedResponse.json();
+
+            if (
+                Array.isArray(
+                    cachedData.blogs
+                )
+            ) {
+
+                return cachedData.blogs;
+            }
+        }
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            `グループキャッシュ取得失敗: ${group}`,
+            error
+        );
+    }
+
+
+    /*
+     * ========================================
+     * 対象グループ全メンバー
+     * ========================================
+     */
+
+    const targetMembers =
+        getTargetMembers(
+            group
+        );
+
+
+    /*
+     * ========================================
+     * Googleアクセストークン
+     *
+     * キャッシュミス時だけ取得する
+     * ========================================
+     */
+
+    const accessToken =
+        await getGoogleAccessToken(
+            env
+        );
+
+
+    /*
+     * ========================================
+     * Driveからブログ取得
+     * ========================================
+     */
+
+    const memberResults =
+        await processInBatches(
+            targetMembers,
+            5,
+            async ([
+                targetMemberKey,
+                member
+            ]) =>
+                await getMemberBlogs(
+                    accessToken,
+                    targetMemberKey,
+                    member
+                )
+        );
+
+    const allBlogs =
+        memberResults.flat();
+
+
+    /*
+     * ========================================
+     * 1時間キャッシュ
+     * ========================================
+     */
+
+    try {
+
+        const cacheResponse =
+            Response.json(
+                {
+                    blogs:
+                        allBlogs
+                },
+                {
+                    headers: {
+                        "Cache-Control":
+                            "public, max-age=3600"
+                    }
+                }
+            );
+
+        await cache.put(
+            cacheRequest,
+            cacheResponse
+        );
+
+    } catch (
+        error
+    ) {
+
+        console.warn(
+            `グループキャッシュ保存失敗: ${group}`,
+            error
+        );
+    }
+
+
+    return allBlogs;
 }
 
 
@@ -936,29 +993,22 @@ export async function onRequestGet(
      */
 
     try {
-        const accessToken =
-            await getGoogleAccessToken(
-                env
-            );
 
-        const memberResults =
-            await processInBatches(
-                targetMembers,
-                5,
-                async ([
-                    targetMemberKey,
-                    member
-                ]) =>
-                    await getMemberBlogs(
-                        accessToken,
-                        targetMemberKey,
-                        member,
-                        url.origin
-                    )
+        const groupBlogs =
+            await getGroupBlogs(
+                group,
+                env,
+                url.origin
             );
 
         const allBlogs =
-            memberResults.flat();
+            memberKey
+                ? groupBlogs.filter(
+                    blog =>
+                        blog.member?.key ===
+                        memberKey
+                )
+                : groupBlogs;
 
 
         /*

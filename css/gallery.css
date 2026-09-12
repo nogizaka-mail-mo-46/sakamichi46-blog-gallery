@@ -1045,16 +1045,6 @@
 
         padding: 22px;
 
-        /*
-         * スクロール停止時に
-         * ブログカード先頭へ位置を揃える。
-         */
-        scroll-snap-align:
-            start;
-
-        scroll-snap-stop:
-            normal;
-
         box-shadow:
             0 6px 24px
             rgba(0, 0, 0, 0.055);

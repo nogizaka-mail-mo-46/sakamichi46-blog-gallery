@@ -2,18 +2,9 @@ import {
     createUiIcon
 } from "./ui-icons.js";
 
-
-/*
- * ========================================
- * Google Drive画像URL
- * ========================================
- */
-
-function getThumbnailUrl(
-    fileId
-) {
-    return `/image/${fileId}`;
-}
+import {
+    getImageUrl
+} from "./image-url.js";
 
 
 /*
@@ -385,7 +376,7 @@ export function createGallery({
                                 );
 
                             img.src =
-                                getThumbnailUrl(
+                                getImageUrl(
                                     image.fileId
                                 );
 

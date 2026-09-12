@@ -5,7 +5,8 @@ export const members = {
     riria_ito: {
         name: "伊藤 理々杏",
         group: "nogizaka46",
-        blogDataFolderId: "1-bVgL8_OKGGq6UnCYItn_o4KwTfLO_kl"
+        blogDataFolderId: "1-bVgL8_OKGGq6UnCYItn_o4KwTfLO_kl",
+        blogIndexFileId: "1U0CLchMz8_ldP8Bb2kaxnwLojaiX14eR"
     },
     enka_iwamoto: {
         name: "岩本 蓮加",

@@ -1,14 +1,6 @@
-/*
- * ========================================
- * Google Drive画像URL
- * ========================================
- */
-
-function getImageUrl(
-    fileId
-) {
-    return `/image/${fileId}`;
-}
+import {
+    getImageUrl
+} from "./image-url.js";
 
 
 /*

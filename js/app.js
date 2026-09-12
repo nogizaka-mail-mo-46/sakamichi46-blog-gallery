@@ -27,6 +27,10 @@ import {
     createUiIcon
 } from "./ui-icons.js";
 
+import {
+    getImageUrl
+} from "./image-url.js";
+
 
 /*
  * ========================================
@@ -933,7 +937,9 @@ function createMemberIconButton({
             "member-icon-image";
 
         image.src =
-            `/image/${encodeURIComponent(fileId)}`;
+            getImageUrl(
+                fileId
+            );
 
         image.alt =
             "";

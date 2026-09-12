@@ -20,7 +20,8 @@ export const sakurazakaMembers = {
         name: "藤吉 夏鈴",
         group: "sakurazaka46",
         generation: 2,
-        blogDataFolderId: "1ftCbH3ZMGWsJiZbw71L6MlepOysDvjq-"
+        blogDataFolderId: "1ftCbH3ZMGWsJiZbw71L6MlepOysDvjq-",
+        blogIndexFileId: "111iKlkpghZ02pAo7HMkAdi91ihfvPTfQ"
     },
     kira_masumoto: {
         name: "増本 綺良",
@@ -33,7 +34,8 @@ export const sakurazakaMembers = {
         name: "松田 里奈",
         group: "sakurazaka46",
         generation: 2,
-        blogDataFolderId: "14VYBB1KOP2LEAqJv8iPy5tVGYUXyE89s"
+        blogDataFolderId: "14VYBB1KOP2LEAqJv8iPy5tVGYUXyE89s",
+        blogIndexFileId: "1nI25bC2p_M1xAY11Qd-z4tBP6dQ66Jab"
     },
     hikaru_morita: {
         name: "森田 ひかる",
@@ -46,7 +48,8 @@ export const sakurazakaMembers = {
         name: "山﨑 天",
         group: "sakurazaka46",
         generation: 2,
-        blogDataFolderId: "14cGbN7vUzHHCQpdfK0cPImg_iHGR6ipw"
+        blogDataFolderId: "14cGbN7vUzHHCQpdfK0cPImg_iHGR6ipw",
+        blogIndexFileId: "1Jo1kYD1zvsfYylwdRE47xKGrIPyBvXyF"
     },
 
     /*

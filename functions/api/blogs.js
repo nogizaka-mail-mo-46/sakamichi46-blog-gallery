@@ -80,7 +80,8 @@ async function processInBatches(
 
 function getTargetMembers(
     group,
-    memberKey = null
+    memberKey = null,
+    generation = null
 ) {
     if (
         memberKey
@@ -117,9 +118,27 @@ function getTargetMembers(
         ([
             key,
             member
-        ]) =>
-            member.group ===
-            group
+        ]) => {
+
+            if (
+                member.group !==
+                    group
+            ) {
+                return false;
+            }
+
+            if (
+                generation !==
+                    null
+            ) {
+                return (
+                    member.generation ===
+                    generation
+                );
+            }
+
+            return true;
+        }
     );
 }
 
@@ -870,6 +889,19 @@ export async function onRequestGet(
             "member"
         );
 
+    const generationParam =
+        url.searchParams.get(
+            "generation"
+        );
+
+    const generation =
+        generationParam ===
+            null
+            ? null
+            : Number(
+                generationParam
+            );
+
     const date =
         url.searchParams.get(
             "date"
@@ -900,6 +932,46 @@ export async function onRequestGet(
             {
                 error:
                     "groupは必須です。"
+            },
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+    if (
+        generation !==
+            null &&
+        (
+            !Number.isInteger(
+                generation
+            ) ||
+            generation <=
+                0
+        )
+    ) {
+        return Response.json(
+            {
+                error:
+                    "generationは正の整数で指定してください。"
+            },
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+    if (
+        memberKey &&
+        generation !==
+            null
+    ) {
+        return Response.json(
+            {
+                error:
+                    "memberとgenerationは同時に指定できません。"
             },
             {
                 status:
@@ -988,7 +1060,8 @@ export async function onRequestGet(
     const targetMembers =
         getTargetMembers(
             group,
-            memberKey
+            memberKey,
+            generation
         );
 
     if (
@@ -1000,7 +1073,10 @@ export async function onRequestGet(
                 error:
                     memberKey
                         ? "指定されたグループにそのメンバーは存在しません。"
-                        : "存在しないグループです。"
+                        : generation !==
+                            null
+                            ? "指定されたグループにその期は存在しません。"
+                            : "存在しないグループです。"
             },
             {
                 status:
@@ -1025,12 +1101,25 @@ export async function onRequestGet(
                 url.origin
             );
 
+        const targetMemberKeys =
+            new Set(
+                targetMembers.map(
+                    ([
+                        targetMemberKey
+                    ]) =>
+                        targetMemberKey
+                )
+            );
+
         const allBlogs =
-            memberKey
+            memberKey ||
+            generation !==
+                null
                 ? groupBlogs.filter(
                     blog =>
-                        blog.member?.key ===
-                        memberKey
+                        targetMemberKeys.has(
+                            blog.member?.key
+                        )
                 )
                 : groupBlogs;
 
@@ -1089,6 +1178,9 @@ export async function onRequestGet(
 
             member:
                 memberKey,
+
+            generation:
+                generation,
 
             date:
                 date,

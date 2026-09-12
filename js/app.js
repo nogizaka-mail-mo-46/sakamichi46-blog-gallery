@@ -1578,10 +1578,13 @@ async function initialize() {
         currentGroup
     );
 
-    await loadMembers();
-
-    await loadGroupPostDates();
+    await Promise.all([
+        loadMembers(),
+        loadGroupPostDates()
+    ]);
 }
+
+initialize();
 
 initialize();
 

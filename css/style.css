@@ -794,56 +794,17 @@ body {
 @media (min-width: 1024px) {
 
     .gallery-controls {
-        max-width: 1320px;
+        max-width: 1380px;
     }
 
     .gallery-main-layout {
         display: grid;
 
         grid-template-columns:
-            320px
+            290px
             minmax(0, 1fr);
 
         align-items: start;
-
-        gap: 32px;
-
-        padding:
-            0
-            30px
-            48px;
-    }
-
-    .gallery-calendar-column {
-        position: sticky;
-
-        top: 24px;
-
-        z-index: 5;
-    }
-
-    .gallery-blog-column {
-        min-width: 0;
-    }
-}
-
-/* =========================
-   PC 2カラム 第2調整
-   - 全体幅を少し拡大
-   - 左カレンダー約290px
-   - 右ブログ領域を広く確保
-========================= */
-
-@media (min-width: 1024px) {
-
-    .gallery-controls {
-        max-width: 1380px;
-    }
-
-    .gallery-main-layout {
-        grid-template-columns:
-            290px
-            minmax(0, 1fr);
 
         gap: 36px;
 
@@ -852,23 +813,21 @@ body {
             24px
             56px;
     }
-}
-
-/* =========================
-   PC / Stickyメンバー選択対応
-
-   メンバー選択が画面上部に残るため、
-   左カレンダーはその直下で固定する。
-========================= */
-
-@media (min-width: 1024px) {
 
     .gallery-calendar-column {
+        position: sticky;
+
         /*
-         * メンバー選択の上余白14px分だけ
-         * カレンダーの固定位置も下げる
+         * Stickyメンバー選択の直下で
+         * カレンダーを固定する。
          */
         top: 168px;
+
+        z-index: 5;
+    }
+
+    .gallery-blog-column {
+        min-width: 0;
     }
 }
 

@@ -400,13 +400,17 @@ function createBlogSummary(
  * 1メンバー分のブログ一覧取得
  *
  * index.jsonだけを取得する
+ *
+ * Cloudflare Cache APIで
+ * メンバーごとに1時間キャッシュする
  * ========================================
  */
 
 async function getMemberBlogs(
     accessToken,
     memberKey,
-    member
+    member,
+    origin
 ) {
     if (
         !member.blogDataFolderId
@@ -421,38 +425,105 @@ async function getMemberBlogs(
 
     /*
      * ========================================
-     * index.json検索
+     * index.json キャッシュ
      * ========================================
      */
 
-    const indexFile =
-        await getBlogIndexFile(
-            accessToken,
-            member.blogDataFolderId
+    const cache =
+        caches.default;
+
+    const cacheRequest =
+        new Request(
+            `${origin}/__cache/blog-index/` +
+            `${encodeURIComponent(memberKey)}`,
+            {
+                method:
+                    "GET"
+            }
         );
 
-    if (
-        !indexFile
+    let text =
+        null;
+
+    let cacheHit =
+        false;
+
+
+    try {
+
+        const cachedResponse =
+            await cache.match(
+                cacheRequest
+            );
+
+        if (
+            cachedResponse
+        ) {
+
+            text =
+                await cachedResponse.text();
+
+            cacheHit =
+                true;
+        }
+
+    } catch (
+        error
     ) {
-        console.warn(
-            `index.jsonなし: ${memberKey}`
-        );
 
-        return [];
+        console.warn(
+            `index.jsonキャッシュ取得失敗: ${memberKey}`,
+            error
+        );
     }
 
 
     /*
      * ========================================
-     * index.json取得
+     * キャッシュがない場合のみ
+     * Google Driveから取得
      * ========================================
      */
 
-    const text =
-        await getDriveFileText(
-            accessToken,
-            indexFile.id
-        );
+    if (
+        !text
+    ) {
+
+        /*
+         * ========================================
+         * index.json検索
+         * ========================================
+         */
+
+        const indexFile =
+            await getBlogIndexFile(
+                accessToken,
+                member.blogDataFolderId
+            );
+
+        if (
+            !indexFile
+        ) {
+            console.warn(
+                `index.jsonなし: ${memberKey}`
+            );
+
+            return [];
+        }
+
+
+        /*
+         * ========================================
+         * index.json取得
+         * ========================================
+         */
+
+        text =
+            await getDriveFileText(
+                accessToken,
+                indexFile.id
+            );
+    }
 
 
     /*
@@ -464,6 +535,7 @@ async function getMemberBlogs(
     let indexData;
 
     try {
+
         indexData =
             JSON.parse(
                 text
@@ -472,6 +544,7 @@ async function getMemberBlogs(
     } catch (
         error
     ) {
+
         console.error(
             `index.json解析失敗: ${memberKey}`,
             error
@@ -493,11 +566,53 @@ async function getMemberBlogs(
             indexData.blogs
         )
     ) {
+
         console.warn(
             `index.jsonのblogsが不正: ${memberKey}`
         );
 
         return [];
+    }
+
+
+    /*
+     * ========================================
+     * Driveから取得した場合だけ
+     * 1時間キャッシュ
+     * ========================================
+     */
+
+    if (
+        !cacheHit
+    ) {
+
+        try {
+
+            await cache.put(
+                cacheRequest,
+                new Response(
+                    text,
+                    {
+                        headers: {
+                            "Content-Type":
+                                "application/json; charset=utf-8",
+
+                            "Cache-Control":
+                                "public, max-age=3600"
+                        }
+                    }
+                )
+            );
+
+        } catch (
+            error
+        ) {
+
+            console.warn(
+                `index.jsonキャッシュ保存失敗: ${memberKey}`,
+                error
+            );
+        }
     }
 
 
@@ -837,7 +952,8 @@ export async function onRequestGet(
                     await getMemberBlogs(
                         accessToken,
                         targetMemberKey,
-                        member
+                        member,
+                        url.origin
                     )
             );
 

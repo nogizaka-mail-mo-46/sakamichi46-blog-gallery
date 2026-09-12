@@ -921,44 +921,49 @@
         margin: 0;
 
         padding:
-            18px
-            14px;
+            20px
+            16px;
 
-        border-radius: 16px;
+        background:
+            var(--ui-bg);
+
+        border-radius: 17px;
+
+        box-shadow: none;
     }
 
     .gallery-main-layout .calendar-header {
         grid-template-columns:
-            36px
-            36px
+            38px
+            38px
             minmax(0, 1fr)
-            36px
-            36px;
+            38px
+            38px;
 
-        gap: 4px;
+        gap: 5px;
 
-        margin-bottom: 10px;
+        margin-bottom: 12px;
     }
 
     .gallery-main-layout .calendar-title {
-        font-size: 16px;
+        font-size: 17px;
     }
 
     .gallery-main-layout .calendar-title-button {
         padding:
-            6px
+            7px
             4px;
 
         white-space: nowrap;
     }
 
     .gallery-main-layout .calendar-nav {
-        width: 36px;
-        height: 36px;
+        width: 38px;
+        height: 38px;
 
         border-radius: 9px;
 
-        font-size: 20px;
+        font-size: 21px;
     }
 
     .gallery-main-layout .calendar-nav-edge {
@@ -966,26 +971,26 @@
     }
 
     .gallery-main-layout .calendar-weekdays {
-        margin-bottom: 4px;
+        margin-bottom: 5px;
 
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .gallery-main-layout .calendar-weekdays div {
         padding:
-            5px
+            6px
             0;
     }
 
     .gallery-main-layout .calendar-day,
     .gallery-main-layout .calendar-day.empty {
-        min-height: 38px;
+        min-height: 41px;
 
         margin: 1px;
 
         border-radius: 8px;
 
-        font-size: 13px;
+        font-size: 14px;
     }
 
     .gallery-main-layout .calendar-day.has-post::after {
@@ -1027,86 +1032,6 @@
             0
             0
             12px;
-    }
-}
-
-/* ========================================
- * PC 2カラム 第2調整
- * - 左カレンダーを約10%拡大
- * ========================================
- */
-
-@media (min-width: 1024px) {
-
-    .gallery-main-layout .calendar {
-        padding:
-            20px
-            16px;
-
-        background:
-            var(--ui-bg);
-
-        border-radius: 17px;
-
-        box-shadow: none;
-    }
-
-    .gallery-main-layout .calendar-header {
-        grid-template-columns:
-            38px
-            38px
-            minmax(0, 1fr)
-            38px
-            38px;
-
-        gap: 5px;
-
-        margin-bottom: 12px;
-    }
-
-    .gallery-main-layout .calendar-title {
-        font-size: 17px;
-    }
-
-    .gallery-main-layout .calendar-title-button {
-        padding:
-            7px
-            4px;
-    }
-
-    .gallery-main-layout .calendar-nav {
-        width: 38px;
-        height: 38px;
-
-        font-size: 21px;
-    }
-
-    .gallery-main-layout .calendar-weekdays {
-        margin-bottom: 5px;
-
-        font-size: 12px;
-    }
-
-    .gallery-main-layout .calendar-weekdays div {
-        padding:
-            6px
-            0;
-    }
-
-    .gallery-main-layout .calendar-day,
-    .gallery-main-layout .calendar-day.empty {
-        min-height: 41px;
-
-        margin: 1px;
-
-        font-size: 14px;
-    }
-
-    .gallery-main-layout .calendar-day.has-post::after {
-        bottom: 4px;
-
-        width: 4px;
-        height: 4px;
     }
 }
 

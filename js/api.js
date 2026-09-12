@@ -48,6 +48,7 @@ export async function fetchMembers(
  * 【対応パラメータ】
  * - group
  * - member
+ * - generation
  * - month
  * - date
  * - sort
@@ -57,6 +58,7 @@ export async function fetchMembers(
 export async function fetchBlogs({
     group,
     member = null,
+    generation = null,
     month = null,
     date = null,
     sort = null
@@ -73,6 +75,16 @@ export async function fetchBlogs({
         params.set(
             "member",
             member
+        );
+    }
+
+    if (
+        generation !==
+            null
+    ) {
+        params.set(
+            "generation",
+            generation
         );
     }
 

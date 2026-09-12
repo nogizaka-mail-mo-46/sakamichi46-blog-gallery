@@ -2,6 +2,12 @@ export const hinatazakaMembers = {
     /*
      * 日向坂46（2期生）
      */
+    miku_kanemura: {
+        name: "金村 美玖",
+        group: "hinatazaka46",
+        generation: 2,
+        blogDataFolderId: "1FOO1_5RLgaTwusSb70fag4-SoQXnO3Tu"
+    },
     nao_kosaka: {
         name: "小坂 菜緒",
         group: "hinatazaka46",
@@ -10,9 +16,16 @@ export const hinatazakaMembers = {
         blogIndexFileId: "1s6Y8Nv5qNEYBdFALx11tO1phcnHra9Y7"
     },
 
+
     /*
      * 日向坂46（3期生）
      */
+    mikuni_takahashi: {
+        name: "髙橋 未来虹",
+        group: "hinatazaka46",
+        generation: 3,
+        blogDataFolderId: "14VaOTtdFwM1UAXrbwHe8z9FLi9AmZM2x"
+    },
     marie_morimoto: {
         name: "森本 茉莉",
         group: "hinatazaka46",

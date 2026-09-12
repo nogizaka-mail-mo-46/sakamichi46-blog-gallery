@@ -71,6 +71,11 @@ export const members = {
         group: "nogizaka46",
         blogDataFolderId: "17hra8rHJVBUNf0yW08mqHqRZVi-t80t-"
     },
+    hina_okamoto: {
+        name: "岡本 姫奈",
+        group: "nogizaka46",
+        blogDataFolderId: "166rGlq8UNPrrP2H2JsKsB5Evbx_puiF1"
+    },
     aya_ogawa: {
         name: "小川 彩",
         group: "nogizaka46",
@@ -85,6 +90,11 @@ export const members = {
         name: "川﨑 桜",
         group: "nogizaka46",
         blogDataFolderId: "1HhDq31_Mq1MvqoOUh5uw2gnmQFr3vj_R"
+    },
+    nao_tomisato: {
+        name: "冨里 奈央",
+        group: "nogizaka46",
+        blogDataFolderId: "1pup-2MuqmmjXbnus82LnN2fu5_2au4V1"
     },
     aruno_nakanishi: {
         name: "中西 アルノ",
@@ -114,6 +124,11 @@ export const members = {
         name: "瀬戸口 心月",
         group: "nogizaka46",
         blogDataFolderId: "1fPmVJoLVY64Sd2kFUlXtJMmrl9nRWv7k"
+    },
+    mirine_masuda: {
+        name: "増田 三莉音",
+        group: "nogizaka46",
+        blogDataFolderId: "10volpFE5XxrHlwotzhUuuGdo5KoVCbhF"
     },
     urumi_morihira: {
         name: "森平 麗心",
@@ -145,10 +160,20 @@ export const members = {
         group: "sakurazaka46",
         blogDataFolderId: "1-QUAtAm7AuYxnSkGlrod-v8o6mD7MEY3"
     },
+    hikaru_morita: {
+        name: "森田 ひかる",
+        group: "sakurazaka46",
+        blogDataFolderId: "1i_R4nuvKU50oy0YGpDS5IoDSfpNGe0tw"
+    },
 
     /*
      * 櫻坂46（3期生）
      */
+    airi_taniguchi: {
+        name: "谷口 愛季",
+        group: "sakurazaka46",
+        blogDataFolderId: "12cKACtbscK_tkDKfj1XjvAuDz1XCO-4d"
+    },
     itoha_mukai: {
         name: "向井 純葉",
         group: "sakurazaka46",
@@ -225,6 +250,16 @@ export const members = {
     /*
      * 日向坂46（5期生）
      */
+    manami_ono: {
+        name: "大野 愛実",
+        group: "hinatazaka46",
+        blogDataFolderId: "1PEHpjpaSbvUp1MUgih5IlTLRzGX1W2Et"
+    },
+    saki_katayama: {
+        name: "片山 紗希",
+        group: "hinatazaka46",
+        blogDataFolderId: "1mucuCkgnf3ljfIhoeZquMEgHCwm4DGH8"
+    },
     hinano_kuramori: {
         name: "蔵盛 妃那乃",
         group: "hinatazaka46",

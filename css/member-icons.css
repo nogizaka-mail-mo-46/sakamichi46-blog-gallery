@@ -564,27 +564,10 @@ body.group-hinatazaka46 {
     .member-icon-selector {
         position: sticky;
 
-        /*
-         * 画面上端に張り付きすぎないよう
-         * 固定時だけ少し余白を確保する
-         */
         top: 14px;
 
         z-index: 20;
 
-        /*
-         * sticky の上14pxに
-         * 下のブログ画像が見えないよう、
-         * 背景色でマスクする
-         */
-        box-shadow:
-            0 -14px 0
-            var(--ui-bg-page);
-
-        /*
-         * 下のブログ内容が透けないよう、
-         * ページ背景と同じ色を使用する。
-         */
         background:
             var(--ui-bg-page);
     }

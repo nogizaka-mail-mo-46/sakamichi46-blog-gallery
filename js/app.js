@@ -1690,9 +1690,10 @@ async function changeGroup(
 
     calendar.updateSelectedDateTitle();
 
-    await loadMembers();
-
-    await loadGroupPostDates();
+    await Promise.all([
+        loadMembers(),
+        loadGroupPostDates()
+    ]);
 }
 
 

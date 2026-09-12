@@ -556,17 +556,29 @@ body.group-hinatazaka46 {
  * - 現在の見た目・サイズは変更しない
  * - PC（1024px以上）のみ sticky
  * - ブログ一覧をスクロールしても上部に残す
+ * - 下余白もsticky領域に含める
  * ========================================
  */
 
 @media (min-width: 1024px) {
 
-    .member-icon-selector {
+    .member-sticky-area {
         position: sticky;
 
         top: 14px;
 
         z-index: 20;
+
+        padding-bottom: 20px;
+
+        background:
+            var(--ui-bg-page);
+    }
+
+    .member-icon-selector {
+        position: relative;
+
+        margin-bottom: 0;
 
         background:
             var(--ui-bg-page);

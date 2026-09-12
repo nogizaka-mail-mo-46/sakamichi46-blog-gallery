@@ -1164,6 +1164,27 @@ function createMemberIconButton({
                     null
             ) {
 
+                if (
+                    selectedGeneration ===
+                        generation &&
+                    !memberSelect.value
+                ) {
+
+                    updateMemberIconSelection();
+
+                    return;
+                }
+
+                selectedGeneration =
+                    generation;
+
+                memberSelect.value =
+                    "";
+
+                changeGeneration(
+                    generation
+                );
+
                 return;
             }
 
@@ -1686,7 +1707,9 @@ const calendar =
             () =>
                 Boolean(
                     memberSelect.value
-                ),
+                ) ||
+                selectedGeneration !==
+                    null,
 
         onDateSelect:
             async (
@@ -1927,6 +1950,10 @@ async function changeGroup(
 
     memberSelect.value =
         "";
+
+
+    selectedGeneration =
+        null;
 
 
     members =
@@ -2264,6 +2291,54 @@ async function loadGroupPostDates(
 
 /*
  * ========================================
+ * 期変更
+ * ========================================
+ */
+
+async function changeGeneration(
+    generation
+) {
+
+    const requestVersion =
+        createDataRequestVersion();
+
+    updateMemberIconSelection();
+
+    blogs =
+        [];
+
+    memberPostDates =
+        [];
+
+    selectedDate =
+        null;
+
+    calendarYear =
+        null;
+
+    calendarMonth =
+        null;
+
+    galleryScrollPosition =
+        0;
+
+    gallery.clear();
+
+    lightbox.setImages(
+        []
+    );
+
+    calendar.updateSelectedDateTitle();
+
+    await loadGenerationPostDates(
+        generation,
+        requestVersion
+    );
+}
+
+
+/*
+ * ========================================
  * メンバー変更
  * ========================================
  */
@@ -2274,6 +2349,9 @@ memberSelect.addEventListener(
 
         const member =
             memberSelect.value;
+
+        selectedGeneration =
+            null;
 
         const requestVersion =
             createDataRequestVersion();
@@ -2329,6 +2407,143 @@ memberSelect.addEventListener(
         );
     }
 );
+
+
+/*
+ * ========================================
+ * 期投稿日取得
+ * ========================================
+ */
+
+async function loadGenerationPostDates(
+    generation,
+    requestVersion =
+        dataRequestVersion
+) {
+
+    const requestGroup =
+        currentGroup;
+
+
+    calendarElement.innerHTML =
+        "読み込み中...";
+
+    gallery.clear();
+
+    try {
+
+        const data =
+            await fetchBlogs({
+                group:
+                    requestGroup,
+
+                generation:
+                    generation
+            });
+
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            memberSelect.value ||
+            selectedGeneration !==
+                generation
+        ) {
+
+            return;
+        }
+
+
+        memberPostDates =
+            Array.isArray(
+                data.postDates
+            )
+                ? data.postDates
+                : [];
+
+        selectedDate =
+            null;
+
+        setInitialCalendarMonth();
+
+        calendar.updateSelectedDateTitle();
+
+        calendar.render();
+
+        const month =
+            getCurrentMonthKey();
+
+        blogs =
+            Array.isArray(
+                data.blogs
+            )
+                ? data.blogs.filter(
+                    blog => {
+
+                        const date =
+                            String(
+                                blog.date ||
+                                ""
+                            ).replace(
+                                /-/g,
+                                ""
+                            );
+
+                        return (
+                            month &&
+                            date.startsWith(
+                                month
+                            )
+                        );
+                    }
+                )
+                : [];
+
+        updateBlogs();
+
+    } catch (
+        error
+    ) {
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            memberSelect.value ||
+            selectedGeneration !==
+                generation
+        ) {
+
+            return;
+        }
+
+
+        console.error(
+            error
+        );
+
+        blogs =
+            [];
+
+        memberPostDates =
+            [];
+
+        lightbox.setImages(
+            []
+        );
+
+        calendarElement.innerHTML =
+            "";
+
+        galleryElement.textContent =
+            "ブログの読み込みに失敗しました。";
+    }
+}
 
 
 /*
@@ -2516,6 +2731,9 @@ async function loadCurrentMonthBlogs(
         memberSelect.value ||
         null;
 
+    const requestGeneration =
+        selectedGeneration;
+
     const month =
         getCurrentMonthKey();
 
@@ -2548,6 +2766,9 @@ async function loadCurrentMonthBlogs(
                 member:
                     requestMember,
 
+                generation:
+                    requestGeneration,
+
                 month:
                     month
             });
@@ -2563,7 +2784,9 @@ async function loadCurrentMonthBlogs(
                 memberSelect.value ||
                 null
             ) !==
-                requestMember
+                requestMember ||
+            selectedGeneration !==
+                requestGeneration
         ) {
 
             return;
@@ -2593,7 +2816,9 @@ async function loadCurrentMonthBlogs(
                 memberSelect.value ||
                 null
             ) !==
-                requestMember
+                requestMember ||
+            selectedGeneration !==
+                requestGeneration
         ) {
 
             return;
@@ -2636,6 +2861,9 @@ async function loadBlogsByDate(
         memberSelect.value ||
         null;
 
+    const requestGeneration =
+        selectedGeneration;
+
 
     galleryElement.textContent =
         "読み込み中...";
@@ -2649,6 +2877,9 @@ async function loadBlogsByDate(
 
                 member:
                     requestMember,
+
+                generation:
+                    requestGeneration,
 
                 date:
                     dateKey
@@ -2666,6 +2897,8 @@ async function loadBlogsByDate(
                 null
             ) !==
                 requestMember ||
+            selectedGeneration !==
+                requestGeneration ||
             selectedDate !==
                 dateKey
         ) {
@@ -2698,6 +2931,8 @@ async function loadBlogsByDate(
                 null
             ) !==
                 requestMember ||
+            selectedGeneration !==
+                requestGeneration ||
             selectedDate !==
                 dateKey
         ) {
@@ -2732,7 +2967,9 @@ async function loadBlogsByDate(
 function getPostDates() {
 
     if (
-        memberSelect.value
+        memberSelect.value ||
+        selectedGeneration !==
+            null
     ) {
 
         return new Set(

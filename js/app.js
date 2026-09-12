@@ -3169,7 +3169,9 @@ function updateBlogs() {
         blogs,
         Boolean(
             memberSelect.value
-        ),
+        ) ||
+        selectedGeneration !==
+            null,
         sortSelect.value
     );
 

@@ -1040,30 +1040,17 @@
         margin:
             0
             0
-            24px;
-    }
+            26px;
 
-    .gallery-main-layout .gallery-article:last-child {
-        margin-bottom: 0;
-    }
-}
-
-/* =========================
-   PC 2カラム 第2調整
-   - ブログ領域を広く使う
-   - サムネイルを少し大きくする
-========================= */
-
-@media (min-width: 1024px) {
-
-    .gallery-main-layout .gallery-article {
         padding: 22px;
-
-        margin-bottom: 26px;
 
         box-shadow:
             0 6px 24px
             rgba(0, 0, 0, 0.055);
+    }
+
+    .gallery-main-layout .gallery-article:last-child {
+        margin-bottom: 0;
     }
 
     .gallery-main-layout .gallery-article-images {

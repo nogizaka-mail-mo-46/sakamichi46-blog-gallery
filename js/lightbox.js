@@ -310,8 +310,6 @@ export function createLightbox({
                 safeIndex;
         }
 
-        update();
-
         const wasOpen =
             isOpen();
 
@@ -322,6 +320,9 @@ export function createLightbox({
 
         document.body.style.overflow =
             "hidden";
+
+
+        update();
 
 
         if (

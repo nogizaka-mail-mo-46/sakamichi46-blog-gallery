@@ -6,7 +6,8 @@ export const hinatazakaMembers = {
         name: "金村 美玖",
         group: "hinatazaka46",
         generation: 2,
-        blogDataFolderId: "1FOO1_5RLgaTwusSb70fag4-SoQXnO3Tu"
+        blogDataFolderId: "1FOO1_5RLgaTwusSb70fag4-SoQXnO3Tu",
+        blogIndexFileId: "1K1QRj83_tRqjFI0bzLVwwvXeD-yFknXl"
     },
     nao_kosaka: {
         name: "小坂 菜緒",
@@ -24,7 +25,8 @@ export const hinatazakaMembers = {
         name: "髙橋 未来虹",
         group: "hinatazaka46",
         generation: 3,
-        blogDataFolderId: "14VaOTtdFwM1UAXrbwHe8z9FLi9AmZM2x"
+        blogDataFolderId: "14VaOTtdFwM1UAXrbwHe8z9FLi9AmZM2x",
+        blogIndexFileId: "1jbXcoaJrvxX4hyCdTr3RelPayEv_t-E1"
     },
     marie_morimoto: {
         name: "森本 茉莉",

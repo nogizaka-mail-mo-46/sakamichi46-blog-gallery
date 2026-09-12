@@ -1979,9 +1979,6 @@ async function loadMemberPostDates(
                 ? data.postDates
                 : [];
 
-        blogs =
-            [];
-
         selectedDate =
             null;
 
@@ -1991,7 +1988,36 @@ async function loadMemberPostDates(
 
         calendar.render();
 
-        await loadCurrentMonthBlogs();
+        const month =
+            getCurrentMonthKey();
+
+        blogs =
+            Array.isArray(
+                data.blogs
+            )
+                ? data.blogs.filter(
+                    blog => {
+
+                        const date =
+                            String(
+                                blog.date ||
+                                ""
+                            ).replace(
+                                /-/g,
+                                ""
+                            );
+
+                        return (
+                            month &&
+                            date.startsWith(
+                                month
+                            )
+                        );
+                    }
+                )
+                : [];
+
+        updateBlogs();
 
     } catch (
         error

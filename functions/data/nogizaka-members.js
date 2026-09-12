@@ -41,6 +41,13 @@ export const nogizakaMembers = {
         blogDataFolderId: "1ssFbOUv3p2khtJL6-mZpWfLJgRXBKbJu",
         blogIndexFileId: "1KGWsIG98kI3be8KviwTAXV6rLt5Jy4Xs"
     },
+    saya_kanagawa: {
+        name: "金川 紗耶",
+        group: "nogizaka46",
+        generation: 4,
+        blogDataFolderId: "10OsuiAahH50glMpIBtPVYB2P7FmFFiOy",
+        blogIndexFileId: "1I6f2lr90WM_nwfAsDUF-BjLvqdORhZz8"
+    },
     yuna_shibata: {
         name: "柴田 柚菜",
         group: "nogizaka46",
@@ -55,12 +62,26 @@ export const nogizakaMembers = {
         blogDataFolderId: "1h1dWtt64ynk6dhxhHTB5sNKu1cO5MJHS",
         blogIndexFileId: "1duyUqh1lTzShUszD46Jz8VT0e8AOXZ2q"
     },
+    ayame_tsutsui: {
+        name: "筒井 あやめ",
+        group: "nogizaka46",
+        generation: 4,
+        blogDataFolderId: "1IU61kUnvMVNETpwgtnx9JMRIHAL6st85",
+        blogIndexFileId: "1nclg-DJn3Fssw1hJCeOVPU2zMK-NESR_"
+    },
     runa_hayashi: {
         name: "林 瑠奈",
         group: "nogizaka46",
         generation: 4,
         blogDataFolderId: "1kIfZL0snHrbbuwnu8JyVNhmtIrBmuTdY",
         blogIndexFileId: "1ItxMEQB0m5EzaoBGQvYlBZ7TAH-EAr25"
+    },
+    nao_yumiki: {
+        name: "弓木 奈於",
+        group: "nogizaka46",
+        generation: 4,
+        blogDataFolderId: "1WgjnQjnQ5MDbZy-HwF1fdR7aLHyA5QUg",
+        blogIndexFileId: "1gyS5DGeOMdL0jRHkj3dCLaaWlmxEun8A"
     },
 
     /*
@@ -121,6 +142,13 @@ export const nogizakaMembers = {
         generation: 5,
         blogDataFolderId: "1HhDq31_Mq1MvqoOUh5uw2gnmQFr3vj_R",
         blogIndexFileId: "1vGz6HSu6wi6ecJrjq1lhz12MfGGnnEmx"
+    },
+    satsuki_sugawara: {
+        name: "菅原 咲月",
+        group: "nogizaka46",
+        generation: 5,
+        blogDataFolderId: "18w4E6r9YjjaQIMEKcAG-h5E8zEMGxol2",
+        blogIndexFileId: "1nURwpn-p-SushMQVqVj_M-398dgEEaIv"
     },
     nao_tomisato: {
         name: "冨里 奈央",

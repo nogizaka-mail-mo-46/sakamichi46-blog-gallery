@@ -2,11 +2,6 @@ import {
     getGoogleAccessToken
 } from "../lib/google.js";
 
-import {
-    SESSION_COOKIE_NAME,
-    createSession
-} from "../lib/session.js";
-
 
 /*
  * ========================================
@@ -22,68 +17,6 @@ export async function onRequestGet(
         env,
         params
     } = context;
-
-
-    /*
-     * ========================================
-     * ログインセッション確認
-     * ========================================
-     */
-
-    const cookieHeader =
-        request.headers.get(
-            "Cookie"
-        ) || "";
-
-    const match =
-        cookieHeader.match(
-            new RegExp(
-                `${SESSION_COOKIE_NAME}=([^;]+)`
-            )
-        );
-
-    if (
-        !match
-    ) {
-        return new Response(
-            "ログインが必要です。",
-            {
-                status:
-                    401,
-
-                headers: {
-                    "Content-Type":
-                        "text/plain; charset=UTF-8"
-                }
-            }
-        );
-    }
-
-
-    /*
-     * ========================================
-     * 正しいセッションか確認
-     * ========================================
-     */
-
-    const expectedSession =
-        await createSession(
-            env.GOOGLE_ALLOWED_EMAIL,
-            env.SESSION_SECRET
-        );
-
-    if (
-        match[1] !==
-        expectedSession
-    ) {
-        return new Response(
-            "ログインが必要です。",
-            {
-                status:
-                    401
-            }
-        );
-    }
 
 
     /*

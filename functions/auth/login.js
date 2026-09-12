@@ -1,9 +1,52 @@
-export async function onRequestGet(context) {
-    const { env } = context;
+const OAUTH_STATE_COOKIE_NAME =
+    "sakamichi_oauth_state";
 
-    const authUrl = new URL(
-        "https://accounts.google.com/o/oauth2/v2/auth"
+
+function createOAuthState() {
+
+    const bytes =
+        new Uint8Array(
+            32
+        );
+
+    crypto.getRandomValues(
+        bytes
     );
+
+    return Array.from(
+        bytes
+    )
+        .map(
+            (byte) =>
+                byte
+                    .toString(
+                        16
+                    )
+                    .padStart(
+                        2,
+                        "0"
+                    )
+        )
+        .join(
+            ""
+        );
+}
+
+
+export async function onRequestGet(
+    context
+) {
+    const {
+        env
+    } = context;
+
+    const state =
+        createOAuthState();
+
+    const authUrl =
+        new URL(
+            "https://accounts.google.com/o/oauth2/v2/auth"
+        );
 
     authUrl.searchParams.set(
         "client_id",
@@ -26,8 +69,8 @@ export async function onRequestGet(context) {
     );
 
     authUrl.searchParams.set(
-        "access_type",
-        "offline"
+        "state",
+        state
     );
 
     authUrl.searchParams.set(
@@ -35,8 +78,19 @@ export async function onRequestGet(context) {
         "select_account"
     );
 
-    return Response.redirect(
-        authUrl.toString(),
-        302
+    return new Response(
+        null,
+        {
+            status:
+                302,
+
+            headers: {
+                Location:
+                    authUrl.toString(),
+
+                "Set-Cookie":
+                    `${OAUTH_STATE_COOKIE_NAME}=${state}; Path=/auth/callback; HttpOnly; Secure; SameSite=Lax; Max-Age=600`
+            }
+        }
     );
 }

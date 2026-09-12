@@ -4,6 +4,28 @@ import {
 } from "../lib/session.js";
 
 
+const OAUTH_STATE_COOKIE_NAME =
+    "sakamichi_oauth_state";
+
+
+function getCookieValue(
+    cookieHeader,
+    cookieName
+) {
+
+    const match =
+        cookieHeader.match(
+            new RegExp(
+                `(?:^|;\\s*)${cookieName}=([^;]+)`
+            )
+        );
+
+    return match
+        ? match[1]
+        : null;
+}
+
+
 export async function onRequestGet(
     context
 ) {
@@ -22,6 +44,50 @@ export async function onRequestGet(
             "code"
         );
 
+    const state =
+        url.searchParams.get(
+            "state"
+        );
+
+    const cookieHeader =
+        request.headers.get(
+            "Cookie"
+        ) || "";
+
+    const expectedState =
+        getCookieValue(
+            cookieHeader,
+            OAUTH_STATE_COOKIE_NAME
+        );
+
+
+    /*
+     * ========================================
+     * OAuth state確認
+     * ========================================
+     */
+
+    if (
+        !state ||
+        !expectedState ||
+        state !==
+            expectedState
+    ) {
+        return new Response(
+            "Invalid OAuth state",
+            {
+                status:
+                    400,
+
+                headers: {
+                    "Set-Cookie":
+                        `${OAUTH_STATE_COOKIE_NAME}=; Path=/auth/callback; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+                }
+            }
+        );
+    }
+
+
     if (
         !code
     ) {
@@ -29,7 +95,12 @@ export async function onRequestGet(
             "Authorization code not found",
             {
                 status:
-                    400
+                    400,
+
+                headers: {
+                    "Set-Cookie":
+                        `${OAUTH_STATE_COOKIE_NAME}=; Path=/auth/callback; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+                }
             }
         );
     }
@@ -80,7 +151,12 @@ export async function onRequestGet(
             "Google token exchange failed",
             {
                 status:
-                    400
+                    400,
+
+                headers: {
+                    "Set-Cookie":
+                        `${OAUTH_STATE_COOKIE_NAME}=; Path=/auth/callback; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+                }
             }
         );
     }
@@ -113,7 +189,12 @@ export async function onRequestGet(
             "Failed to get Google account",
             {
                 status:
-                    400
+                    400,
+
+                headers: {
+                    "Set-Cookie":
+                        `${OAUTH_STATE_COOKIE_NAME}=; Path=/auth/callback; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+                }
             }
         );
     }
@@ -140,7 +221,10 @@ export async function onRequestGet(
 
                 headers: {
                     "Content-Type":
-                        "text/plain; charset=UTF-8"
+                        "text/plain; charset=UTF-8",
+
+                    "Set-Cookie":
+                        `${OAUTH_STATE_COOKIE_NAME}=; Path=/auth/callback; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
                 }
             }
         );
@@ -166,19 +250,31 @@ export async function onRequestGet(
      * ========================================
      */
 
+    const headers =
+        new Headers();
+
+    headers.set(
+        "Location",
+        "/"
+    );
+
+    headers.append(
+        "Set-Cookie",
+        `${SESSION_COOKIE_NAME}=${session}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`
+    );
+
+    headers.append(
+        "Set-Cookie",
+        `${OAUTH_STATE_COOKIE_NAME}=; Path=/auth/callback; HttpOnly; Secure; SameSite=Lax; Max-Age=0`
+    );
+
     return new Response(
         null,
         {
             status:
                 302,
 
-            headers: {
-                Location:
-                    "/",
-
-                "Set-Cookie":
-                    `${SESSION_COOKIE_NAME}=${session}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=2592000`
-            }
+            headers
         }
     );
 }

@@ -275,6 +275,53 @@ let galleryScrollPosition =
 
 /*
  * ========================================
+ * データ取得 世代番号
+ *
+ * グループ・メンバー・月・日付などが
+ * 切り替わった際に番号を進め、
+ * 古い非同期処理の結果を破棄する。
+ * ========================================
+ */
+
+let dataRequestVersion =
+    0;
+
+
+/*
+ * ========================================
+ * データ取得 世代更新
+ * ========================================
+ */
+
+function createDataRequestVersion() {
+
+    dataRequestVersion +=
+        1;
+
+
+    return dataRequestVersion;
+}
+
+
+/*
+ * ========================================
+ * 最新のデータ取得か確認
+ * ========================================
+ */
+
+function isCurrentDataRequest(
+    requestVersion
+) {
+
+    return (
+        requestVersion ===
+        dataRequestVersion
+    );
+}
+
+
+/*
+ * ========================================
  * ギャラリーのスクロール位置保存
  * ========================================
  */
@@ -1077,7 +1124,12 @@ function updateMemberIconFadeState() {
  * ========================================
  */
 
-async function renderMemberIconSelector() {
+async function renderMemberIconSelector(
+    requestVersion =
+        dataRequestVersion,
+    requestGroup =
+        currentGroup
+) {
 
     if (
         !memberIconSelector ||
@@ -1140,8 +1192,20 @@ async function renderMemberIconSelector() {
 
     const iconMap =
         await loadMemberIconMap(
-            currentGroup
+            requestGroup
         );
+
+
+    if (
+        !isCurrentDataRequest(
+            requestVersion
+        ) ||
+        currentGroup !==
+            requestGroup
+    ) {
+
+        return;
+    }
 
 
     /*
@@ -1462,6 +1526,10 @@ const calendar =
                 month
             ) => {
 
+                const requestVersion =
+                    createDataRequestVersion();
+
+
                 calendarYear =
                     year;
 
@@ -1475,7 +1543,9 @@ const calendar =
 
                 calendar.render();
 
-                await loadCurrentMonthBlogs();
+                await loadCurrentMonthBlogs(
+                    requestVersion
+                );
             },
 
         onClearDate:
@@ -1578,9 +1648,18 @@ async function initialize() {
         currentGroup
     );
 
+
+    const requestVersion =
+        dataRequestVersion;
+
+
     await Promise.all([
-        loadMembers(),
-        loadGroupPostDates()
+        loadMembers(
+            requestVersion
+        ),
+        loadGroupPostDates(
+            requestVersion
+        )
     ]);
 }
 
@@ -1636,6 +1715,7 @@ async function changeGroup(
         return;
     }
 
+
     if (
         currentGroup ===
             group
@@ -1645,54 +1725,82 @@ async function changeGroup(
             group
         );
 
+
         return;
     }
 
+
+    /*
+     * ここより前に開始された
+     * データ取得を無効化する。
+     */
+    const requestVersion =
+        createDataRequestVersion();
+
+
     currentGroup =
         group;
+
 
     updateHero(
         currentGroup
     );
 
+
     memberSelect.value =
         "";
+
 
     members =
         [];
 
+
     blogs =
         [];
+
 
     allPostDates =
         [];
 
+
     memberPostDates =
         [];
+
 
     selectedDate =
         null;
 
+
     calendarYear =
         null;
+
 
     calendarMonth =
         null;
 
+
     galleryScrollPosition =
         0;
 
+
     gallery.clear();
+
 
     lightbox.setImages(
         []
     );
 
+
     calendar.updateSelectedDateTitle();
 
+
     await Promise.all([
-        loadMembers(),
-        loadGroupPostDates()
+        loadMembers(
+            requestVersion
+        ),
+        loadGroupPostDates(
+            requestVersion
+        )
     ]);
 }
 
@@ -1703,35 +1811,65 @@ async function changeGroup(
  * ========================================
  */
 
-async function loadMembers() {
+async function loadMembers(
+    requestVersion =
+        dataRequestVersion
+) {
+
+    const requestGroup =
+        currentGroup;
+
 
     memberSelect.innerHTML =
         "";
+
 
     const placeholder =
         document.createElement(
             "option"
         );
 
+
     placeholder.value =
         "";
 
+
     placeholder.textContent =
         "メンバーを選択";
+
 
     memberSelect.appendChild(
         placeholder
     );
 
+
     members =
         [];
+
 
     try {
 
         const data =
             await fetchMembers(
-                currentGroup
+                requestGroup
             );
+
+
+        /*
+         * 取得中に画面状態が変わっていたら
+         * 古い結果を使用しない。
+         */
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup
+        ) {
+
+            return;
+        }
+
 
         if (
             !Array.isArray(
@@ -1739,14 +1877,20 @@ async function loadMembers() {
             )
         ) {
 
-            await renderMemberIconSelector();
+            await renderMemberIconSelector(
+                requestVersion,
+                requestGroup
+            );
+
 
             return;
         }
 
+
         members = [
             ...data.members
         ];
+
 
         members.forEach(
             member => {
@@ -1756,11 +1900,14 @@ async function loadMembers() {
                         "option"
                     );
 
+
                 option.value =
                     member.key;
 
+
                 option.textContent =
                     member.name;
+
 
                 memberSelect.appendChild(
                     option
@@ -1768,20 +1915,45 @@ async function loadMembers() {
             }
         );
 
-        await renderMemberIconSelector();
+
+        await renderMemberIconSelector(
+            requestVersion,
+            requestGroup
+        );
 
     } catch (
         error
     ) {
 
+        /*
+         * 古いリクエストのエラーなら
+         * 現在の画面には反映しない。
+         */
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup
+        ) {
+
+            return;
+        }
+
+
         console.error(
             error
         );
 
+
         members =
             [];
 
-        await renderMemberIconSelector();
+
+        await renderMemberIconSelector(
+            requestVersion,
+            requestGroup
+        );
     }
 }
 
@@ -1792,7 +1964,13 @@ async function loadMembers() {
  * ========================================
  */
 
-async function loadGroupPostDates() {
+async function loadGroupPostDates(
+    requestVersion =
+        dataRequestVersion
+) {
+
+    const requestGroup =
+        currentGroup;
 
     calendarElement.innerHTML =
         "読み込み中...";
@@ -1804,8 +1982,20 @@ async function loadGroupPostDates() {
         const data =
             await fetchBlogs({
                 group:
-                    currentGroup
+                    requestGroup
             });
+
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup
+        ) {
+
+            return;
+        }
 
         allPostDates =
             Array.isArray(
@@ -1861,6 +2051,17 @@ async function loadGroupPostDates() {
         error
     ) {
 
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup
+        ) {
+
+            return;
+        }
+
         console.error(
             error
         );
@@ -1895,6 +2096,9 @@ memberSelect.addEventListener(
 
         const member =
             memberSelect.value;
+
+        const requestVersion =
+            createDataRequestVersion();
 
         updateMemberIconSelection();
 
@@ -1934,13 +2138,16 @@ memberSelect.addEventListener(
 
             calendar.render();
 
-            await loadCurrentMonthBlogs();
+            await loadCurrentMonthBlogs(
+                requestVersion
+            );
 
             return;
         }
 
         await loadMemberPostDates(
-            member
+            member,
+            requestVersion
         );
     }
 );
@@ -1953,8 +2160,14 @@ memberSelect.addEventListener(
  */
 
 async function loadMemberPostDates(
-    memberKey
+    memberKey,
+    requestVersion =
+        dataRequestVersion
 ) {
+
+    const requestGroup =
+        currentGroup;
+
 
     calendarElement.innerHTML =
         "読み込み中...";
@@ -1966,11 +2179,26 @@ async function loadMemberPostDates(
         const data =
             await fetchBlogs({
                 group:
-                    currentGroup,
+                    requestGroup,
 
                 member:
                     memberKey
             });
+
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            memberSelect.value !==
+                memberKey
+        ) {
+
+            return;
+        }
+
 
         memberPostDates =
             Array.isArray(
@@ -2022,6 +2250,20 @@ async function loadMemberPostDates(
     } catch (
         error
     ) {
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            memberSelect.value !==
+                memberKey
+        ) {
+
+            return;
+        }
+
 
         console.error(
             error
@@ -2084,7 +2326,17 @@ function getCurrentMonthKey() {
  * ========================================
  */
 
-async function loadCurrentMonthBlogs() {
+async function loadCurrentMonthBlogs(
+    requestVersion =
+        dataRequestVersion
+) {
+
+    const requestGroup =
+        currentGroup;
+
+    const requestMember =
+        memberSelect.value ||
+        null;
 
     const month =
         getCurrentMonthKey();
@@ -2113,15 +2365,32 @@ async function loadCurrentMonthBlogs() {
         const data =
             await fetchBlogs({
                 group:
-                    currentGroup,
+                    requestGroup,
 
                 member:
-                    memberSelect.value ||
-                    null,
+                    requestMember,
 
                 month:
                     month
             });
+
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            (
+                memberSelect.value ||
+                null
+            ) !==
+                requestMember
+        ) {
+
+            return;
+        }
+
 
         blogs =
             Array.isArray(
@@ -2135,6 +2404,23 @@ async function loadCurrentMonthBlogs() {
     } catch (
         error
     ) {
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            (
+                memberSelect.value ||
+                null
+            ) !==
+                requestMember
+        ) {
+
+            return;
+        }
+
 
         console.error(
             error
@@ -2160,8 +2446,18 @@ async function loadCurrentMonthBlogs() {
  */
 
 async function loadBlogsByDate(
-    dateKey
+    dateKey,
+    requestVersion =
+        dataRequestVersion
 ) {
+
+    const requestGroup =
+        currentGroup;
+
+    const requestMember =
+        memberSelect.value ||
+        null;
+
 
     galleryElement.textContent =
         "読み込み中...";
@@ -2171,15 +2467,34 @@ async function loadBlogsByDate(
         const data =
             await fetchBlogs({
                 group:
-                    currentGroup,
+                    requestGroup,
 
                 member:
-                    memberSelect.value ||
-                    null,
+                    requestMember,
 
                 date:
                     dateKey
             });
+
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            (
+                memberSelect.value ||
+                null
+            ) !==
+                requestMember ||
+            selectedDate !==
+                dateKey
+        ) {
+
+            return;
+        }
+
 
         blogs =
             Array.isArray(
@@ -2193,6 +2508,25 @@ async function loadBlogsByDate(
     } catch (
         error
     ) {
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            (
+                memberSelect.value ||
+                null
+            ) !==
+                requestMember ||
+            selectedDate !==
+                dateKey
+        ) {
+
+            return;
+        }
+
 
         console.error(
             error
@@ -2342,6 +2676,11 @@ async function selectCalendarDate(
         return;
     }
 
+
+    const requestVersion =
+        createDataRequestVersion();
+
+
     selectedDate =
         dateKey;
 
@@ -2350,7 +2689,8 @@ async function selectCalendarDate(
     calendar.render();
 
     await loadBlogsByDate(
-        dateKey
+        dateKey,
+        requestVersion
     );
 }
 
@@ -2363,6 +2703,10 @@ async function selectCalendarDate(
 
 async function clearSelectedDate() {
 
+    const requestVersion =
+        createDataRequestVersion();
+
+
     selectedDate =
         null;
 
@@ -2370,7 +2714,9 @@ async function clearSelectedDate() {
 
     calendar.render();
 
-    await loadCurrentMonthBlogs();
+    await loadCurrentMonthBlogs(
+        requestVersion
+    );
 }
 
 

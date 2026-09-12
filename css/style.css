@@ -826,24 +826,6 @@ body {
         z-index: 5;
     }
 
-    .gallery-calendar-column::before {
-        content: "";
-
-        position: absolute;
-
-        left: 0;
-        right: 0;
-
-        bottom: 100%;
-
-        height: 168px;
-
-        background:
-            var(--ui-bg-page);
-
-        pointer-events: none;
-    }
-
     .gallery-blog-column {
         min-width: 0;
     }

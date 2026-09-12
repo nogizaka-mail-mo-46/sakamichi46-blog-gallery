@@ -248,6 +248,9 @@ let currentGroup =
 let members =
     [];
 
+let selectedGeneration =
+    null;
+
 /*
  * グループ別
  * メンバーアイコンMapキャッシュ
@@ -831,9 +834,38 @@ function updateMemberIconSelection() {
     buttons.forEach(
         button => {
 
-            const selected =
-                button.dataset.memberKey ===
-                selectedMemberKey;
+            const buttonMemberKey =
+                button.dataset.memberKey ||
+                "";
+
+            const buttonGeneration =
+                button.dataset.generation
+                    ? Number(
+                        button.dataset.generation
+                    )
+                    : null;
+
+            let selected =
+                false;
+
+            if (
+                buttonGeneration !==
+                    null
+            ) {
+
+                selected =
+                    !selectedMemberKey &&
+                    selectedGeneration ===
+                        buttonGeneration;
+
+            } else {
+
+                selected =
+                    selectedGeneration ===
+                        null &&
+                    buttonMemberKey ===
+                        selectedMemberKey;
+            }
 
             button.classList.toggle(
                 "active",
@@ -853,15 +885,71 @@ function updateMemberIconSelection() {
 
 /*
  * ========================================
+ * 期表記
+ * ========================================
+ */
+
+function getGenerationOrdinal(
+    generation
+) {
+
+    const value =
+        Number(
+            generation
+        );
+
+    const mod100 =
+        value %
+        100;
+
+    let suffix =
+        "th";
+
+    if (
+        mod100 <
+            11 ||
+        mod100 >
+            13
+    ) {
+
+        switch (
+            value %
+            10
+        ) {
+
+            case 1:
+                suffix =
+                    "st";
+                break;
+
+            case 2:
+                suffix =
+                    "nd";
+                break;
+
+            case 3:
+                suffix =
+                    "rd";
+                break;
+        }
+    }
+
+    return `${value}${suffix}`;
+}
+
+
+/*
+ * ========================================
  * メンバーアイコンボタン作成
  * ========================================
  */
 
 function createMemberIconButton({
-    memberKey,
+    memberKey = "",
     memberName,
     fileId = null,
-    isAll = false
+    isAll = false,
+    generation = null
 }) {
 
     const button =
@@ -878,6 +966,17 @@ function createMemberIconButton({
     button.dataset.memberKey =
         memberKey;
 
+    if (
+        generation !==
+            null
+    ) {
+
+        button.dataset.generation =
+            String(
+                generation
+            );
+    }
+
     button.setAttribute(
         "aria-pressed",
         "false"
@@ -887,7 +986,10 @@ function createMemberIconButton({
         "aria-label",
         isAll
             ? "全員を表示"
-            : `${memberName}を選択`
+            : generation !==
+                null
+                ? `${generation}期生を表示`
+                : `${memberName}を選択`
     );
 
 
@@ -906,22 +1008,28 @@ function createMemberIconButton({
         "member-icon-image-wrap";
 
     if (
-        isAll
+        isAll ||
+        generation !==
+            null
     ) {
 
-        const allIcon =
+        const textIcon =
             document.createElement(
                 "span"
             );
 
-        allIcon.className =
+        textIcon.className =
             "member-icon-all-symbol";
 
-        allIcon.textContent =
-            "ALL";
+        textIcon.textContent =
+            isAll
+                ? "ALL"
+                : getGenerationOrdinal(
+                    generation
+                );
 
         icon.appendChild(
-            allIcon
+            textIcon
         );
 
     } else if (
@@ -1023,7 +1131,10 @@ function createMemberIconButton({
     name.textContent =
         isAll
             ? "全員"
-            : memberName;
+            : generation !==
+                null
+                ? `${generation}期生`
+                : memberName;
 
 
     /*
@@ -1049,14 +1160,27 @@ function createMemberIconButton({
         () => {
 
             if (
+                generation !==
+                    null
+            ) {
+
+                return;
+            }
+
+            if (
                 memberSelect.value ===
-                    memberKey
+                    memberKey &&
+                selectedGeneration ===
+                    null
             ) {
 
                 updateMemberIconSelection();
 
                 return;
             }
+
+            selectedGeneration =
+                null;
 
             memberSelect.value =
                 memberKey;
@@ -1217,11 +1341,59 @@ async function renderMemberIconSelector(
     /*
      * ========================================
      * ブログ側メンバー順で描画
+     *
+     * 期が切り替わる位置に
+     * 期選択ボタンを挿入する
      * ========================================
      */
 
+    let previousGeneration =
+        null;
+
     members.forEach(
         member => {
+
+            const generation =
+                Number.isInteger(
+                    member.generation
+                )
+                    ? member.generation
+                    : null;
+
+
+            /*
+             * ========================================
+             * 期
+             * ========================================
+             */
+
+            if (
+                generation !==
+                    null &&
+                generation !==
+                    previousGeneration
+            ) {
+
+                memberIconTrack.appendChild(
+                    createMemberIconButton({
+                        memberName:
+                            `${generation}期生`,
+
+                        generation:
+                            generation
+                    })
+                );
+
+                previousGeneration =
+                    generation;
+            }
+
+
+            /*
+             * ========================================
+             * メンバー
+             * ========================================
+             */
 
             const normalizedName =
                 normalizeMemberName(

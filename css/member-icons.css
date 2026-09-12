@@ -568,41 +568,8 @@ body.group-hinatazaka46 {
 
         z-index: 20;
 
-        /*
-         * 下余白は元の20pxを維持する。
-         * selector自体の高さは変更しない。
-         */
-        margin-bottom: 20px;
-
-        padding-bottom: 0;
-
-        /*
-         * 直下のマスクをselector外へ
-         * 表示できるようにする。
-         */
-        overflow: visible;
-
         background:
             var(--ui-bg-page);
-    }
-
-    .member-icon-selector::before {
-        content: "";
-
-        position: absolute;
-
-        top: 100%;
-        left: 0;
-        right: 0;
-
-        height: 20px;
-
-        z-index: 2;
-
-        background:
-            var(--ui-bg-page);
-
-        pointer-events: none;
     }
 }
 

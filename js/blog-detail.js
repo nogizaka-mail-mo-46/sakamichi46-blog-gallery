@@ -2,6 +2,10 @@ import {
     fetchBlogDetail
 } from "./api.js";
 
+import {
+    getImageUrl
+} from "./image-url.js";
+
 
 /*
  * ========================================
@@ -423,7 +427,9 @@ export function createBlogDetail({
                         );
 
                     image.src =
-                        `/image/${block.fileId}`;
+                        getImageUrl(
+                            block.fileId
+                        );
 
                     image.alt =
                         blogData.title ||

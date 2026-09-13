@@ -445,13 +445,17 @@
      * ========================================
      * タッチ操作
      *
-     * 縦方向はブラウザへ許可
-     * 横方向はlightbox.js側の
-     * スワイプ操作を優先
+     * 1本指スワイプ・ドラッグと
+     * 2本指ピンチズームを
+     * lightbox.js 側で制御する
      * ========================================
      */
 
-    touch-action: pan-y;
+    touch-action: none;
+
+    transform-origin: center center;
+
+    will-change: transform;
 
 
     border-radius: 6px;
@@ -464,6 +468,14 @@
             0,
             0.45
         );
+}
+
+.lightbox-image.zoomed {
+    cursor: grab;
+}
+
+.lightbox-image.zoomed.dragging {
+    cursor: grabbing;
 }
 
 

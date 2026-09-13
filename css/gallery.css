@@ -411,6 +411,10 @@
 ========================= */
 
 .lightbox-image {
+    position: relative;
+
+    z-index: 2;
+
     display: block;
 
     width: auto;
@@ -526,6 +530,10 @@
 ========================= */
 
 .lightbox-thumbnails {
+    position: relative;
+
+    z-index: 1;
+
     display: flex;
 
     align-items: center;

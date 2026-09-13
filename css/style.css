@@ -802,7 +802,7 @@ body {
         display: grid;
 
         grid-template-columns:
-            290px
+            330px
             minmax(0, 1fr);
 
         align-items: start;

@@ -117,10 +117,64 @@ export function createLightbox({
     let isTouchTracking =
         false;
 
+    let scale =
+        1;
+
+    let translateX =
+        0;
+
+    let translateY =
+        0;
+
+    let isPinching =
+        false;
+
+    let pinchStartDistance =
+        0;
+
+    let pinchStartScale =
+        1;
+
+    let pinchAnchorX =
+        0;
+
+    let pinchAnchorY =
+        0;
+
+    let isPanning =
+        false;
+
+    let panStartX =
+        0;
+
+    let panStartY =
+        0;
+
+    let panStartTranslateX =
+        0;
+
+    let panStartTranslateY =
+        0;
+
+    let isMouseDragging =
+        false;
+
+    let mouseDragStartX =
+        0;
+
+    let mouseDragStartY =
+        0;
+
+    let mouseDragStartTranslateX =
+        0;
+
+    let mouseDragStartTranslateY =
+        0;
+
 
     /*
      * ========================================
-     * スワイプ設定
+     * スワイプ・ズーム設定
      * ========================================
      */
 
@@ -129,6 +183,15 @@ export function createLightbox({
 
     const SWIPE_DIRECTION_RATIO =
         1.2;
+
+    const MIN_SCALE =
+        1;
+
+    const MAX_SCALE =
+        4;
+
+    const WHEEL_ZOOM_SPEED =
+        0.0015;
 
 
     /*
@@ -375,6 +438,8 @@ export function createLightbox({
 
         resetTouchTracking();
 
+        resetZoom();
+
 
         lightbox.classList.remove(
             "active"
@@ -412,6 +477,9 @@ export function createLightbox({
         ) {
             return;
         }
+
+
+        resetZoom();
 
 
         const fileId =
@@ -573,6 +641,315 @@ export function createLightbox({
 
     /*
      * ========================================
+     * ズーム値制限
+     * ========================================
+     */
+
+    function clampScale(
+        value
+    ) {
+
+        return Math.min(
+            MAX_SCALE,
+            Math.max(
+                MIN_SCALE,
+                value
+            )
+        );
+    }
+
+
+    /*
+     * ========================================
+     * 画像移動範囲制限
+     * ========================================
+     */
+
+    function clampTranslation() {
+
+        if (
+            scale <=
+                MIN_SCALE
+        ) {
+
+            translateX =
+                0;
+
+            translateY =
+                0;
+
+            return;
+        }
+
+
+        const scaledWidth =
+            lightboxImage.offsetWidth *
+            scale;
+
+        const scaledHeight =
+            lightboxImage.offsetHeight *
+            scale;
+
+        const maxX =
+            Math.max(
+                0,
+                (
+                    scaledWidth -
+                    window.innerWidth
+                ) /
+                2 +
+                24
+            );
+
+        const maxY =
+            Math.max(
+                0,
+                (
+                    scaledHeight -
+                    window.innerHeight
+                ) /
+                2 +
+                24
+            );
+
+
+        translateX =
+            Math.max(
+                -maxX,
+                Math.min(
+                    maxX,
+                    translateX
+                )
+            );
+
+        translateY =
+            Math.max(
+                -maxY,
+                Math.min(
+                    maxY,
+                    translateY
+                )
+            );
+    }
+
+
+    /*
+     * ========================================
+     * ズーム表示反映
+     * ========================================
+     */
+
+    function applyZoomTransform() {
+
+        clampTranslation();
+
+        lightboxImage.style.transform =
+            `translate(${translateX}px, ${translateY}px) scale(${scale})`;
+
+        lightboxImage.classList.toggle(
+            "zoomed",
+            scale >
+                MIN_SCALE
+        );
+    }
+
+
+    /*
+     * ========================================
+     * ズーム状態リセット
+     * ========================================
+     */
+
+    function resetZoom() {
+
+        scale =
+            MIN_SCALE;
+
+        translateX =
+            0;
+
+        translateY =
+            0;
+
+        isPinching =
+            false;
+
+        isPanning =
+            false;
+
+        isMouseDragging =
+            false;
+
+        lightboxImage.classList.remove(
+            "zoomed",
+            "dragging"
+        );
+
+        lightboxImage.style.transform =
+            "";
+    }
+
+
+    /*
+     * ========================================
+     * 2点間距離
+     * ========================================
+     */
+
+    function getTouchDistance(
+        firstTouch,
+        secondTouch
+    ) {
+
+        return Math.hypot(
+            secondTouch.clientX -
+                firstTouch.clientX,
+            secondTouch.clientY -
+                firstTouch.clientY
+        );
+    }
+
+
+    /*
+     * ========================================
+     * 2点の中心座標
+     * ========================================
+     */
+
+    function getTouchMidpoint(
+        firstTouch,
+        secondTouch
+    ) {
+
+        return {
+            x:
+                (
+                    firstTouch.clientX +
+                    secondTouch.clientX
+                ) /
+                2,
+
+            y:
+                (
+                    firstTouch.clientY +
+                    secondTouch.clientY
+                ) /
+                2
+        };
+    }
+
+
+    /*
+     * ========================================
+     * 画像の変形前中心座標
+     * ========================================
+     */
+
+    function getImageBaseCenter() {
+
+        const rect =
+            lightboxImage.getBoundingClientRect();
+
+
+        return {
+            x:
+                rect.left +
+                rect.width /
+                2 -
+                translateX,
+
+            y:
+                rect.top +
+                rect.height /
+                2 -
+                translateY
+        };
+    }
+
+
+    /*
+     * ========================================
+     * 指定位置を基準にズーム
+     * ========================================
+     */
+
+    function zoomAtPoint(
+        nextScale,
+        clientX,
+        clientY
+    ) {
+
+        const limitedScale =
+            clampScale(
+                nextScale
+            );
+
+
+        if (
+            limitedScale ===
+                scale
+        ) {
+            return;
+        }
+
+
+        if (
+            limitedScale <=
+                MIN_SCALE
+        ) {
+
+            scale =
+                MIN_SCALE;
+
+            translateX =
+                0;
+
+            translateY =
+                0;
+
+            applyZoomTransform();
+
+            return;
+        }
+
+
+        const center =
+            getImageBaseCenter();
+
+        const ratio =
+            limitedScale /
+            scale;
+
+
+        translateX =
+            clientX -
+            center.x -
+            (
+                clientX -
+                center.x -
+                translateX
+            ) *
+            ratio;
+
+        translateY =
+            clientY -
+            center.y -
+            (
+                clientY -
+                center.y -
+                translateY
+            ) *
+            ratio;
+
+        scale =
+            limitedScale;
+
+        applyZoomTransform();
+    }
+
+
+    /*
+     * ========================================
      * タッチ状態リセット
      * ========================================
      */
@@ -592,6 +969,12 @@ export function createLightbox({
             0;
 
         isTouchTracking =
+            false;
+
+        isPinching =
+            false;
+
+        isPanning =
             false;
     }
 
@@ -626,7 +1009,9 @@ export function createLightbox({
     function handleSwipe() {
 
         if (
-            !isTouchTracking
+            !isTouchTracking ||
+            scale >
+                MIN_SCALE
         ) {
             return;
         }
@@ -845,26 +1230,154 @@ export function createLightbox({
 
     /*
      * ========================================
-     * スワイプ開始
+     * PC: マウスホイールでズーム
+     * ========================================
+     */
+
+    lightboxImage.addEventListener(
+        "wheel",
+        event => {
+
+            if (
+                !isOpen()
+            ) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+
+            const zoomFactor =
+                Math.exp(
+                    -event.deltaY *
+                    WHEEL_ZOOM_SPEED
+                );
+
+
+            zoomAtPoint(
+                scale *
+                    zoomFactor,
+                event.clientX,
+                event.clientY
+            );
+        },
+        {
+            passive:
+                false
+        }
+    );
+
+
+    /*
+     * ========================================
+     * PC: 拡大中のマウスドラッグ開始
+     * ========================================
+     */
+
+    lightboxImage.addEventListener(
+        "mousedown",
+        event => {
+
+            if (
+                event.button !==
+                    0 ||
+                scale <=
+                    MIN_SCALE
+            ) {
+                return;
+            }
+
+
+            event.preventDefault();
+
+            isMouseDragging =
+                true;
+
+            mouseDragStartX =
+                event.clientX;
+
+            mouseDragStartY =
+                event.clientY;
+
+            mouseDragStartTranslateX =
+                translateX;
+
+            mouseDragStartTranslateY =
+                translateY;
+
+            lightboxImage.classList.add(
+                "dragging"
+            );
+        }
+    );
+
+
+    document.addEventListener(
+        "mousemove",
+        event => {
+
+            if (
+                !isMouseDragging
+            ) {
+                return;
+            }
+
+
+            translateX =
+                mouseDragStartTranslateX +
+                event.clientX -
+                mouseDragStartX;
+
+            translateY =
+                mouseDragStartTranslateY +
+                event.clientY -
+                mouseDragStartY;
+
+            applyZoomTransform();
+        }
+    );
+
+
+    document.addEventListener(
+        "mouseup",
+        () => {
+
+            if (
+                !isMouseDragging
+            ) {
+                return;
+            }
+
+
+            isMouseDragging =
+                false;
+
+            lightboxImage.classList.remove(
+                "dragging"
+            );
+        }
+    );
+
+
+    /*
+     * ========================================
+     * スマホ・タブレット: タッチ開始
      *
-     * メイン画像上だけを対象とする
+     * 1本指 + 1倍
+     * → 左右スワイプ
+     *
+     * 1本指 + 拡大中
+     * → 画像移動
+     *
+     * 2本指
+     * → ピンチズーム
      * ========================================
      */
 
     lightbox.addEventListener(
         "touchstart",
         event => {
-
-            if (
-                event.touches.length !==
-                1
-            ) {
-
-                resetTouchTracking();
-
-                return;
-            }
-
 
             if (
                 !isMainImageTouch(
@@ -878,10 +1391,112 @@ export function createLightbox({
             }
 
 
+            if (
+                event.touches.length ===
+                    2
+            ) {
+
+                const firstTouch =
+                    event.touches[
+                        0
+                    ];
+
+                const secondTouch =
+                    event.touches[
+                        1
+                    ];
+
+                const midpoint =
+                    getTouchMidpoint(
+                        firstTouch,
+                        secondTouch
+                    );
+
+                const center =
+                    getImageBaseCenter();
+
+
+                pinchStartDistance =
+                    getTouchDistance(
+                        firstTouch,
+                        secondTouch
+                    );
+
+                pinchStartScale =
+                    scale;
+
+                pinchAnchorX =
+                    (
+                        midpoint.x -
+                        center.x -
+                        translateX
+                    ) /
+                    scale;
+
+                pinchAnchorY =
+                    (
+                        midpoint.y -
+                        center.y -
+                        translateY
+                    ) /
+                    scale;
+
+                isPinching =
+                    true;
+
+                isPanning =
+                    false;
+
+                isTouchTracking =
+                    false;
+
+                event.preventDefault();
+
+                return;
+            }
+
+
+            if (
+                event.touches.length !==
+                    1
+            ) {
+
+                resetTouchTracking();
+
+                return;
+            }
+
+
             const touch =
                 event.touches[
                     0
                 ];
+
+
+            if (
+                scale >
+                    MIN_SCALE
+            ) {
+
+                isPanning =
+                    true;
+
+                panStartX =
+                    touch.clientX;
+
+                panStartY =
+                    touch.clientY;
+
+                panStartTranslateX =
+                    translateX;
+
+                panStartTranslateY =
+                    translateY;
+
+                event.preventDefault();
+
+                return;
+            }
 
 
             touchStartX =
@@ -901,17 +1516,14 @@ export function createLightbox({
         },
         {
             passive:
-                true
+                false
         }
     );
 
 
     /*
      * ========================================
-     * スワイプ移動
-     *
-     * 横方向の操作が明確になったら
-     * ブラウザ側のジェスチャーを抑止
+     * スマホ・タブレット: タッチ移動
      * ========================================
      */
 
@@ -920,19 +1532,116 @@ export function createLightbox({
         event => {
 
             if (
-                !isTouchTracking
+                isPinching &&
+                event.touches.length ===
+                    2
             ) {
+
+                const firstTouch =
+                    event.touches[
+                        0
+                    ];
+
+                const secondTouch =
+                    event.touches[
+                        1
+                    ];
+
+                const distance =
+                    getTouchDistance(
+                        firstTouch,
+                        secondTouch
+                    );
+
+                const midpoint =
+                    getTouchMidpoint(
+                        firstTouch,
+                        secondTouch
+                    );
+
+                const center =
+                    getImageBaseCenter();
+
+                const nextScale =
+                    clampScale(
+                        pinchStartScale *
+                        distance /
+                        pinchStartDistance
+                    );
+
+
+                translateX =
+                    midpoint.x -
+                    center.x -
+                    pinchAnchorX *
+                    nextScale;
+
+                translateY =
+                    midpoint.y -
+                    center.y -
+                    pinchAnchorY *
+                    nextScale;
+
+                scale =
+                    nextScale;
+
+
+                if (
+                    scale <=
+                        MIN_SCALE
+                ) {
+
+                    translateX =
+                        0;
+
+                    translateY =
+                        0;
+                }
+
+
+                applyZoomTransform();
+
+                event.preventDefault();
+
                 return;
             }
 
 
             if (
-                event.touches.length !==
-                1
+                isPanning &&
+                event.touches.length ===
+                    1
             ) {
 
-                resetTouchTracking();
+                const touch =
+                    event.touches[
+                        0
+                    ];
 
+
+                translateX =
+                    panStartTranslateX +
+                    touch.clientX -
+                    panStartX;
+
+                translateY =
+                    panStartTranslateY +
+                    touch.clientY -
+                    panStartY;
+
+                applyZoomTransform();
+
+                event.preventDefault();
+
+                return;
+            }
+
+
+            if (
+                !isTouchTracking ||
+                event.touches.length !==
+                    1
+            ) {
                 return;
             }
 
@@ -970,13 +1679,6 @@ export function createLightbox({
                 );
 
 
-            /*
-             * ====================================
-             * 横方向操作の場合だけ
-             * ブラウザ標準動作を止める
-             * ====================================
-             */
-
             if (
                 absX >
                     10 &&
@@ -996,13 +1698,87 @@ export function createLightbox({
 
     /*
      * ========================================
-     * スワイプ終了
+     * スマホ・タブレット: タッチ終了
      * ========================================
      */
 
     lightbox.addEventListener(
         "touchend",
         event => {
+
+            if (
+                isPinching
+            ) {
+
+                if (
+                    event.touches.length ===
+                        1 &&
+                    scale >
+                        MIN_SCALE
+                ) {
+
+                    const touch =
+                        event.touches[
+                            0
+                        ];
+
+                    isPinching =
+                        false;
+
+                    isPanning =
+                        true;
+
+                    panStartX =
+                        touch.clientX;
+
+                    panStartY =
+                        touch.clientY;
+
+                    panStartTranslateX =
+                        translateX;
+
+                    panStartTranslateY =
+                        translateY;
+
+                } else {
+
+                    isPinching =
+                        false;
+
+                    isPanning =
+                        false;
+                }
+
+
+                if (
+                    scale <=
+                        MIN_SCALE
+                ) {
+
+                    resetZoom();
+                }
+
+
+                return;
+            }
+
+
+            if (
+                isPanning
+            ) {
+
+                if (
+                    event.touches.length ===
+                        0
+                ) {
+
+                    isPanning =
+                        false;
+                }
+
+                return;
+            }
+
 
             if (
                 !isTouchTracking
@@ -1013,7 +1789,7 @@ export function createLightbox({
 
             if (
                 event.changedTouches.length >
-                0
+                    0
             ) {
 
                 const touch =
@@ -1056,6 +1832,29 @@ export function createLightbox({
         {
             passive:
                 true
+        }
+    );
+
+
+    /*
+     * ========================================
+     * 画面サイズ変更時
+     * ========================================
+     */
+
+    window.addEventListener(
+        "resize",
+        () => {
+
+            if (
+                scale <=
+                    MIN_SCALE
+            ) {
+                return;
+            }
+
+
+            applyZoomTransform();
         }
     );
 

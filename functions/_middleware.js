@@ -20,13 +20,18 @@ export async function onRequest(
 
     /*
      * ========================================
-     * Googleログイン関連はそのまま通す
+     * 認証不要ページはそのまま通す
      * ========================================
      */
 
     if (
         url.pathname.startsWith(
             "/auth/"
+        ) ||
+        url.pathname ===
+            "/privacy.html" ||
+        url.pathname.startsWith(
+            "/images/favicon/"
         )
     ) {
         return context.next();

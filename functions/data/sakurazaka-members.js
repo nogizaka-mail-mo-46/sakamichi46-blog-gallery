@@ -44,6 +44,13 @@ export const sakurazakaMembers = {
         blogDataFolderId: "1i_R4nuvKU50oy0YGpDS5IoDSfpNGe0tw",
         blogIndexFileId: "1BwZsSKU3Dx_8xB6QTM_1gfmU-AAwub_K"
     },
+    rena_moriya: {
+        name: "守屋 麗奈",
+        group: "sakurazaka46",
+        generation: 2,
+        blogDataFolderId: "1XqVH2SRYyaoR8mc8a_ZF2tIBrSBcExZ_",
+        blogIndexFileId: "1RqpD54N5wvfVJezBUFjn3Ho8iwKYoSZl"
+    },
     ten_yamasaki: {
         name: "山﨑 天",
         group: "sakurazaka46",
@@ -55,12 +62,26 @@ export const sakurazakaMembers = {
     /*
      * 櫻坂46（3期生）
      */
+    rika_ishimori: {
+        name: "石森 璃花",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "1xA8Lq9GC9Ybt0psI_Ib9N4s16DZ8b0CA",
+        blogIndexFileId: "1vVujKO-_tjRoWDZn8fUEc3AFzmyIEKnA"
+    },
     airi_taniguchi: {
         name: "谷口 愛季",
         group: "sakurazaka46",
         generation: 3,
         blogDataFolderId: "12cKACtbscK_tkDKfj1XjvAuDz1XCO-4d",
         blogIndexFileId: "1Y1C6kIugaD5C9hYVvp2xwunZ4T2sSSRj"
+    },
+    yuzuki_nakashima: {
+        name: "中嶋 優月",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "18p1tD5ASUDYxzQTK7JuqJ0EacGv0rU0C",
+        blogIndexFileId: "1UbX7sIVOwR7w7ldK2qU77u4cGfzCaHY-"
     },
     itoha_mukai: {
         name: "向井 純葉",

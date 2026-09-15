@@ -48,6 +48,13 @@ export const nogizakaMembers = {
         blogDataFolderId: "10OsuiAahH50glMpIBtPVYB2P7FmFFiOy",
         blogIndexFileId: "1I6f2lr90WM_nwfAsDUF-BjLvqdORhZz8"
     },
+    haruka_kuromi: {
+        name: "黒見 明香",
+        group: "nogizaka46",
+        generation: 4,
+        blogDataFolderId: "1bwFADDb0VRue4Kh9E6_R5t3MFld4z0C-",
+        blogIndexFileId: "1kOXiYrDAqogPO2F3gRh6qlOr-OcZcGNn"
+    },
     yuna_shibata: {
         name: "柴田 柚菜",
         group: "nogizaka46",
@@ -182,6 +189,13 @@ export const nogizakaMembers = {
         blogDataFolderId: "1xkIkRM0S7ESCkPee52LHUGxZgm2KZzIv",
         blogIndexFileId: "1Di-Nlje9fSsICNGbaYuOaiHmO-QhIc-8"
     },
+    reina_ozu: {
+        name: "小津 玲奈",
+        group: "nogizaka46",
+        generation: 6,
+        blogDataFolderId: "1_o8UYRDbtCVzJ8UiMwa8CdwwBgedU7Aq",
+        blogIndexFileId: "1wEcVuR-eTtoTlaCHAtHCOntgxzuil7Nd"
+    },
     akari_kaibe: {
         name: "海邉 朱莉",
         group: "nogizaka46",
@@ -189,12 +203,33 @@ export const nogizakaMembers = {
         blogDataFolderId: "17w1ALgFsiWyeVYSaMIOgw6DeE3DDASUC",
         blogIndexFileId: "1tHJ1cXUj51Ls26RvVQkIzXSJH0CE6eS4"
     },
+    hina_kawabata: {
+        name: "川端 晃菜",
+        group: "nogizaka46",
+        generation: 6,
+        blogDataFolderId: "1S1i4yq0Y7k2f44udE6Ryd28zK5nI4UfP",
+        blogIndexFileId: "1Gg4-RPY7NuGbCDAmjGbYbAEKIktFtJjO"
+    },
+    yuuna_suzuki: {
+        name: "鈴木 佑捺",
+        group: "nogizaka46",
+        generation: 6,
+        blogDataFolderId: "1uR1mSmmpTt7ZbRhOciZCX2sNwMnZo0CY",
+        blogIndexFileId: "1UktTTjDEu8Rs3sufK2Q0DC-vKmQ9Vl2Z"
+    },
     mitsuki_setoguchi: {
         name: "瀬戸口 心月",
         group: "nogizaka46",
         generation: 6,
         blogDataFolderId: "1fPmVJoLVY64Sd2kFUlXtJMmrl9nRWv7k",
         blogIndexFileId: "1Q1NF6QXN_UqjJs7reZkBv8AY6W0HiVLq"
+    },
+    rio_nagashima: {
+        name: "長嶋 凛桜",
+        group: "nogizaka46",
+        generation: 6,
+        blogDataFolderId: "1Ey1uBb1ZW1qA9nIJzFMABArFb9AgT_Ru",
+        blogIndexFileId: "1L4Yvkg8M-X43kz848fOcej4We1FXclQo"
     },
     mirine_masuda: {
         name: "増田 三莉音",

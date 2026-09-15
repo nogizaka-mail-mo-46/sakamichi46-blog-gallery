@@ -29,6 +29,8 @@ export async function onRequest(
             "/auth/"
         ) ||
         url.pathname ===
+            "/privacy" ||
+        url.pathname ===
             "/privacy.html" ||
         url.pathname.startsWith(
             "/images/favicon/"

@@ -21,6 +21,13 @@ export const hinatazakaMembers = {
     /*
      * 日向坂46（3期生）
      */
+    hinano_kamimura: {
+        name: "上村 ひなの",
+        group: "hinatazaka46",
+        generation: 3,
+        blogDataFolderId: "1OSRO4Jj9KVZf9f4fXwKomndtvOAKoRvI",
+        blogIndexFileId: "1eRRJHcaVg6fiZunySSXb_RER0hbgxme7"
+    },
     mikuni_takahashi: {
         name: "髙橋 未来虹",
         group: "hinatazaka46",
@@ -67,6 +74,13 @@ export const hinatazakaMembers = {
         blogDataFolderId: "15cibyoojGmXTXZS1l6iozh0OXJT558if",
         blogIndexFileId: "10At9pK-Zi97CpdJpGwkUIXCOUaVhsjIo"
     },
+    sumire_miyachi: {
+        name: "宮地 すみれ",
+        group: "hinatazaka46",
+        generation: 4,
+        blogDataFolderId: "1ARfb5SKJkqReB0X_RwMUn--iICYH0GRC",
+        blogIndexFileId: "1GoF146NS8n4iVjXLUQ3MIV6vCM8uHDOQ"
+    },
     rina_watanabe: {
         name: "渡辺 莉奈",
         group: "hinatazaka46",
@@ -105,5 +119,12 @@ export const hinatazakaMembers = {
         generation: 5,
         blogDataFolderId: "1FsFYu7aC11Emtd9cDYntVPdGJumCh2v9",
         blogIndexFileId: "1KqPust73laNzhS5TK03k-JVBY0E0GNs3"
+    },
+    sakura_matsuo: {
+        name: "松尾 桜",
+        group: "hinatazaka46",
+        generation: 5,
+        blogDataFolderId: "1PKOdDyGcrhE6x7i0RUf-EZvfWPliXVDk",
+        blogIndexFileId: "1edsMvMXjuI8a06iZSg1dFyafCHgDujrC"
     }
 };

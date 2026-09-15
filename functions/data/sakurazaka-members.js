@@ -2,6 +2,13 @@ export const sakurazakaMembers = {
     /*
      * 櫻坂46（2期生）
      */
+    rei_ozono: {
+        name: "大園 玲",
+        group: "sakurazaka46",
+        generation: 2,
+        blogDataFolderId: "1A7G6PCt00jdxJVgbfBfbPfKXN5lNNwHe",
+        blogIndexFileId: "1vZHfh1nkaRL0aStvODU2odQDzOM7wf0q"
+    },
     marino_kousaka: {
         name: "幸阪 茉里乃",
         group: "sakurazaka46",
@@ -68,6 +75,13 @@ export const sakurazakaMembers = {
         generation: 3,
         blogDataFolderId: "1xA8Lq9GC9Ybt0psI_Ib9N4s16DZ8b0CA",
         blogIndexFileId: "1vVujKO-_tjRoWDZn8fUEc3AFzmyIEKnA"
+    },
+    reina_odakura: {
+        name: "小田倉 麗奈",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "1uJKLTaWqwGHeJNBx8tShOxOfnWA8kSJf",
+        blogIndexFileId: "1aWYCfb8z03_70qz9p4aOX_QzU-fAAefO"
     },
     airi_taniguchi: {
         name: "谷口 愛季",

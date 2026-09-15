@@ -81,6 +81,13 @@ export const hinatazakaMembers = {
         blogDataFolderId: "1ARfb5SKJkqReB0X_RwMUn--iICYH0GRC",
         blogIndexFileId: "1GoF146NS8n4iVjXLUQ3MIV6vCM8uHDOQ"
     },
+    haruka_yamashita: {
+        name: "山下 葉留花",
+        group: "hinatazaka46",
+        generation: 4,
+        blogDataFolderId: "1xGtz-qeEVSOsDQ6oNrzIwFC2LRTuFJ25",
+        blogIndexFileId: "1ncaaJo7GfbvWffoKC5yesQ5BbnoS9ru3"
+    },
     rina_watanabe: {
         name: "渡辺 莉奈",
         group: "hinatazaka46",

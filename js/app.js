@@ -3990,7 +3990,7 @@ function renderSearchMonthPicker() {
 
         button.type = "button";
         button.className =
-            "search-date-month-picker-month";
+            "ui-text-button calendar-month-picker-month search-date-month-picker-month";
         button.textContent =
             `${month}月`;
 

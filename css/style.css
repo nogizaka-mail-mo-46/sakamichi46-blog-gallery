@@ -1914,12 +1914,43 @@ body {
     }
 }
 
+/* ========================================
+ * iPad / WebKit 回転時の表示倍率安定化
+ * 2026-09-17
+ * ======================================== */
 
 /*
- * タブレット回転時の文字自動拡大を抑止する。
- * ページ自体のピンチズームは無効化しない。
+ * iPadOS の Safari / Chrome は同じ WebKit 系のため、
+ * 縦横回転時に文字サイズの自動補正や、16px未満のフォーム部品に
+ * 起因するフォーカス拡大が残ることがある。
+ * viewport の拡大禁止は行わず、通常のピンチズームは維持する。
  */
 html {
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    width: 100%;
+    overflow-x: hidden;
+}
+
+body {
+    width: 100%;
+    min-width: 0;
+    overflow-x: hidden;
+}
+
+/*
+ * iPad / タブレット相当のタッチ端末だけ、入力系を16px以上にする。
+ * iOS WebKit の入力フォーカス時自動ズームを防ぎ、
+ * その倍率が画面回転後に残る現象を避ける。
+ */
+@media (min-width: 768px) and (max-width: 1366px) and (hover: none) and (pointer: coarse) {
+    input,
+    select,
+    textarea,
+    .blog-search-input,
+    .search-filter-keyword-input,
+    #memberSelect,
+    #sortSelect {
+        font-size: 16px !important;
+    }
 }

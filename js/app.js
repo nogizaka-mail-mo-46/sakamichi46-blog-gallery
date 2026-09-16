@@ -4186,6 +4186,13 @@ function renderSearchDatePicker() {
 
     renderSearchMonthPicker();
 
+    // 年月ジャンプを開いた直後にも、実際の年月ナビ行を基準に
+    // ポップアップ位置を再計算する。
+    // hidden解除後のレイアウト確定を待つため requestAnimationFrame 内で実行。
+    if (isSearchMonthPickerOpen) {
+        updateSearchMonthPickerArrow();
+    }
+
     searchDateGrid.innerHTML = "";
 
     const firstDay =

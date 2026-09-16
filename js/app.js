@@ -4623,92 +4623,81 @@ memberIconTrack?.addEventListener(
 
 /*
  * ========================================
- * タブレット 画面回転時の表示倍率リセット
+ * iPad 回転時デバッグ表示
  * ========================================
- *
- * 縦向き/横向きの切り替え時に、一部のモバイルブラウザが
- * 旧レイアウト幅を基準に拡大表示を残すことがある。
- * 回転した瞬間だけ viewport の scale=1 を明示して再計算させ、
- * 直後に通常の viewport へ戻すことで、通常時のピンチズームは残す。
+ * viewport は変更せず、実際の layout / visual viewport を観測する。
+ * 原因特定後にこのブロックは削除する。
  */
-
-const DEFAULT_VIEWPORT_CONTENT =
-    "width=device-width, initial-scale=1.0";
-
-function isTabletViewport() {
+function isIPadLikeDebugTarget() {
     return (
         window.matchMedia("(pointer: coarse)").matches &&
         Math.max(window.screen.width, window.screen.height) >= 768
     );
 }
 
-let orientationViewportResetTimer = null;
+let viewportDebugTimer = null;
 
-function resetTabletViewportAfterOrientationChange() {
-    if (!isTabletViewport()) {
+function updateViewportDebugPanel(eventName = "update") {
+    if (!isIPadLikeDebugTarget()) {
+        document.getElementById("viewportDebugPanel")?.remove();
         return;
     }
 
-    const viewportMeta = document.querySelector(
-        'meta[name="viewport"]'
-    );
-
-    if (!viewportMeta) {
-        return;
+    let panel = document.getElementById("viewportDebugPanel");
+    if (!panel) {
+        panel = document.createElement("pre");
+        panel.id = "viewportDebugPanel";
+        panel.setAttribute("aria-live", "polite");
+        document.body.appendChild(panel);
     }
 
-    const scrollX = window.scrollX;
-    const scrollY = window.scrollY;
+    const vv = window.visualViewport;
+    const orientation = window.matchMedia("(orientation: landscape)").matches
+        ? "landscape"
+        : "portrait";
 
-    window.clearTimeout(orientationViewportResetTimer);
+    panel.textContent = [
+        `event: ${eventName}`,
+        `orientation: ${orientation}`,
+        `inner: ${window.innerWidth} x ${window.innerHeight}`,
+        `client: ${document.documentElement.clientWidth} x ${document.documentElement.clientHeight}`,
+        `screen: ${window.screen.width} x ${window.screen.height}`,
+        `visual: ${vv ? `${Math.round(vv.width)} x ${Math.round(vv.height)}` : "n/a"}`,
+        `scale: ${vv ? vv.scale.toFixed(3) : "n/a"}`,
+        `dpr: ${window.devicePixelRatio}`,
+        `scrollY: ${Math.round(window.scrollY)}`
+    ].join("\n");
+}
 
-    /*
-     * 一時的に倍率を1へ固定して、回転後のレイアウト幅で
-     * ブラウザに viewport を作り直させる。
-     */
-    viewportMeta.setAttribute(
-        "content",
-        "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"
-    );
-
-    requestAnimationFrame(() => {
-        window.scrollTo(scrollX, scrollY);
-    });
-
-    orientationViewportResetTimer = window.setTimeout(
-        () => {
-            /* 通常のピンチズームを再び許可する。 */
-            viewportMeta.setAttribute(
-                "content",
-                DEFAULT_VIEWPORT_CONTENT
-            );
-
-            requestAnimationFrame(() => {
-                window.scrollTo(scrollX, scrollY);
-                updateMemberIconFadeState();
-
-                if (
-                    searchDatePicker &&
-                    !searchDatePicker.hidden
-                ) {
-                    positionSearchDatePickerForViewport();
-                    updateSearchMonthPickerArrow();
-                }
-            });
-        },
-        350
+function scheduleViewportDebugUpdate(eventName) {
+    updateViewportDebugPanel(eventName);
+    window.clearTimeout(viewportDebugTimer);
+    viewportDebugTimer = window.setTimeout(
+        () => updateViewportDebugPanel(`${eventName} +500ms`),
+        500
     );
 }
 
 window.addEventListener(
     "orientationchange",
-    resetTabletViewportAfterOrientationChange,
+    () => scheduleViewportDebugUpdate("orientationchange"),
+    { passive: true }
+);
+window.addEventListener(
+    "resize",
+    () => scheduleViewportDebugUpdate("resize"),
+    { passive: true }
+);
+window.visualViewport?.addEventListener(
+    "resize",
+    () => scheduleViewportDebugUpdate("visualViewport.resize"),
+    { passive: true }
+);
+window.visualViewport?.addEventListener(
+    "scroll",
+    () => scheduleViewportDebugUpdate("visualViewport.scroll"),
     { passive: true }
 );
 
-if (window.screen?.orientation) {
-    window.screen.orientation.addEventListener(
-        "change",
-        resetTabletViewportAfterOrientationChange
-    );
-}
+requestAnimationFrame(() => updateViewportDebugPanel("load"));
+

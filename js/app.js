@@ -3460,6 +3460,11 @@ const closeSearchDatePickerButton =
         "closeSearchDatePickerButton"
     );
 
+const searchDateFirstMonth =
+    document.getElementById(
+        "searchDateFirstMonth"
+    );
+
 const searchDatePrevMonth =
     document.getElementById(
         "searchDatePrevMonth"
@@ -3470,9 +3475,39 @@ const searchDateNextMonth =
         "searchDateNextMonth"
     );
 
+const searchDateLastMonth =
+    document.getElementById(
+        "searchDateLastMonth"
+    );
+
 const searchDateMonthTitle =
     document.getElementById(
         "searchDateMonthTitle"
+    );
+
+const searchDateMonthPicker =
+    document.getElementById(
+        "searchDateMonthPicker"
+    );
+
+const searchDateMonthPickerPrevYear =
+    document.getElementById(
+        "searchDateMonthPickerPrevYear"
+    );
+
+const searchDateMonthPickerNextYear =
+    document.getElementById(
+        "searchDateMonthPickerNextYear"
+    );
+
+const searchDateMonthPickerYear =
+    document.getElementById(
+        "searchDateMonthPickerYear"
+    );
+
+const searchDateMonthPickerGrid =
+    document.getElementById(
+        "searchDateMonthPickerGrid"
     );
 
 const searchDateGrid =
@@ -3497,6 +3532,8 @@ let searchDateTarget = null;
 let searchDateDraft = null;
 let searchPickerYear = null;
 let searchPickerMonth = null;
+let searchMonthPickerYear = null;
+let isSearchMonthPickerOpen = false;
 
 
 function formatSearchDate(
@@ -3693,6 +3730,9 @@ function setSearchDatePickerOpen(
             baseDate.getFullYear();
         searchPickerMonth =
             baseDate.getMonth();
+        searchMonthPickerYear =
+            searchPickerYear;
+        isSearchMonthPickerOpen = false;
 
         searchDatePickerTitle.textContent =
             target === "end"
@@ -3718,6 +3758,16 @@ function setSearchDatePickerOpen(
         return;
     }
 
+    isSearchMonthPickerOpen = false;
+    searchDateMonthPicker?.setAttribute(
+        "hidden",
+        ""
+    );
+    searchDateMonthTitle?.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
     searchDatePicker.classList.remove(
         "is-open"
     );
@@ -3735,6 +3785,220 @@ function setSearchDatePickerOpen(
 }
 
 
+function getSearchPostMonths() {
+    const months = new Set();
+
+    getPostDates().forEach(
+        (dateKey) => {
+            if (/^\d{8}$/.test(dateKey)) {
+                months.add(
+                    dateKey.substring(0, 6)
+                );
+            }
+        }
+    );
+
+    return Array.from(months).sort();
+}
+
+
+function getSearchPostYears() {
+    return [
+        ...new Set(
+            getSearchPostMonths().map(
+                (monthKey) =>
+                    Number(
+                        monthKey.substring(0, 4)
+                    )
+            )
+        )
+    ].sort((a, b) => a - b);
+}
+
+
+function getSearchCurrentMonthKey() {
+    return (
+        String(searchPickerYear) +
+        String(searchPickerMonth + 1).padStart(2, "0")
+    );
+}
+
+
+function moveSearchPickerToMonthKey(monthKey) {
+    if (!monthKey) {
+        return;
+    }
+
+    searchPickerYear =
+        Number(monthKey.substring(0, 4));
+    searchPickerMonth =
+        Number(monthKey.substring(4, 6)) - 1;
+    searchMonthPickerYear =
+        searchPickerYear;
+    isSearchMonthPickerOpen = false;
+
+    renderSearchDatePicker();
+}
+
+
+function jumpSearchPickerToEdge(position) {
+    const months = getSearchPostMonths();
+
+    if (months.length === 0) {
+        return;
+    }
+
+    moveSearchPickerToMonthKey(
+        position === "first"
+            ? months[0]
+            : months[months.length - 1]
+    );
+}
+
+
+function changeSearchPickerPostMonth(amount) {
+    const months = getSearchPostMonths();
+    const index = months.indexOf(
+        getSearchCurrentMonthKey()
+    );
+
+    if (index === -1) {
+        return;
+    }
+
+    const nextIndex = index + amount;
+
+    if (
+        nextIndex < 0 ||
+        nextIndex >= months.length
+    ) {
+        return;
+    }
+
+    moveSearchPickerToMonthKey(
+        months[nextIndex]
+    );
+}
+
+
+function toggleSearchMonthPicker() {
+    isSearchMonthPickerOpen =
+        !isSearchMonthPickerOpen;
+
+    if (isSearchMonthPickerOpen) {
+        searchMonthPickerYear =
+            searchPickerYear;
+    }
+
+    renderSearchDatePicker();
+}
+
+
+function changeSearchMonthPickerYear(direction) {
+    const years = getSearchPostYears();
+    const index = years.indexOf(
+        searchMonthPickerYear
+    );
+
+    if (index === -1) {
+        return;
+    }
+
+    const nextIndex = index + direction;
+
+    if (
+        nextIndex < 0 ||
+        nextIndex >= years.length
+    ) {
+        return;
+    }
+
+    searchMonthPickerYear =
+        years[nextIndex];
+    renderSearchMonthPicker();
+}
+
+
+function renderSearchMonthPicker() {
+    if (
+        !searchDateMonthPicker ||
+        !searchDateMonthPickerGrid ||
+        !searchDateMonthPickerYear
+    ) {
+        return;
+    }
+
+    searchDateMonthPicker.hidden =
+        !isSearchMonthPickerOpen;
+    searchDateMonthTitle?.setAttribute(
+        "aria-expanded",
+        String(isSearchMonthPickerOpen)
+    );
+
+    if (!isSearchMonthPickerOpen) {
+        return;
+    }
+
+    const months = getSearchPostMonths();
+    const years = getSearchPostYears();
+
+    searchDateMonthPickerYear.textContent =
+        `${searchMonthPickerYear}年`;
+    searchDateMonthPickerGrid.innerHTML = "";
+
+    const yearIndex = years.indexOf(
+        searchMonthPickerYear
+    );
+
+    if (searchDateMonthPickerPrevYear) {
+        searchDateMonthPickerPrevYear.disabled =
+            yearIndex <= 0;
+    }
+
+    if (searchDateMonthPickerNextYear) {
+        searchDateMonthPickerNextYear.disabled =
+            yearIndex === -1 ||
+            yearIndex >= years.length - 1;
+    }
+
+    for (let month = 1; month <= 12; month += 1) {
+        const monthKey =
+            String(searchMonthPickerYear) +
+            String(month).padStart(2, "0");
+        const button =
+            document.createElement("button");
+
+        button.type = "button";
+        button.className =
+            "search-date-month-picker-month";
+        button.textContent =
+            `${month}月`;
+
+        if (!months.includes(monthKey)) {
+            button.disabled = true;
+            button.classList.add("unavailable");
+        }
+
+        if (monthKey === getSearchCurrentMonthKey()) {
+            button.classList.add("current");
+        }
+
+        button.addEventListener(
+            "click",
+            () => {
+                moveSearchPickerToMonthKey(
+                    monthKey
+                );
+            }
+        );
+
+        searchDateMonthPickerGrid.appendChild(
+            button
+        );
+    }
+}
+
+
 function renderSearchDatePicker() {
     if (
         !searchDateGrid ||
@@ -3746,6 +4010,34 @@ function renderSearchDatePicker() {
 
     searchDateMonthTitle.textContent =
         `${searchPickerYear}年${searchPickerMonth + 1}月`;
+
+    const searchPostMonths =
+        getSearchPostMonths();
+    const currentMonthIndex =
+        searchPostMonths.indexOf(
+            getSearchCurrentMonthKey()
+        );
+
+    if (searchDateFirstMonth) {
+        searchDateFirstMonth.disabled =
+            currentMonthIndex <= 0;
+    }
+    if (searchDatePrevMonth) {
+        searchDatePrevMonth.disabled =
+            currentMonthIndex <= 0;
+    }
+    if (searchDateNextMonth) {
+        searchDateNextMonth.disabled =
+            currentMonthIndex === -1 ||
+            currentMonthIndex >= searchPostMonths.length - 1;
+    }
+    if (searchDateLastMonth) {
+        searchDateLastMonth.disabled =
+            currentMonthIndex === -1 ||
+            currentMonthIndex >= searchPostMonths.length - 1;
+    }
+
+    renderSearchMonthPicker();
 
     searchDateGrid.innerHTML = "";
 
@@ -3827,19 +4119,7 @@ function renderSearchDatePicker() {
 function changeSearchPickerMonth(
     amount
 ) {
-    const date =
-        new Date(
-            searchPickerYear,
-            searchPickerMonth + amount,
-            1
-        );
-
-    searchPickerYear =
-        date.getFullYear();
-    searchPickerMonth =
-        date.getMonth();
-
-    renderSearchDatePicker();
+    changeSearchPickerPostMonth(amount);
 }
 
 
@@ -3931,6 +4211,13 @@ searchDatePickerBackdrop?.addEventListener(
     }
 );
 
+searchDateFirstMonth?.addEventListener(
+    "click",
+    () => {
+        jumpSearchPickerToEdge("first");
+    }
+);
+
 searchDatePrevMonth?.addEventListener(
     "click",
     () => {
@@ -3938,10 +4225,36 @@ searchDatePrevMonth?.addEventListener(
     }
 );
 
+searchDateMonthTitle?.addEventListener(
+    "click",
+    toggleSearchMonthPicker
+);
+
 searchDateNextMonth?.addEventListener(
     "click",
     () => {
         changeSearchPickerMonth(1);
+    }
+);
+
+searchDateLastMonth?.addEventListener(
+    "click",
+    () => {
+        jumpSearchPickerToEdge("last");
+    }
+);
+
+searchDateMonthPickerPrevYear?.addEventListener(
+    "click",
+    () => {
+        changeSearchMonthPickerYear(-1);
+    }
+);
+
+searchDateMonthPickerNextYear?.addEventListener(
+    "click",
+    () => {
+        changeSearchMonthPickerYear(1);
     }
 );
 

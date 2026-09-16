@@ -3712,6 +3712,91 @@ function setSearchFilterSheetOpen(
 }
 
 
+function positionSearchDatePickerForViewport() {
+    if (!searchDatePicker) {
+        return;
+    }
+
+    const isDesktopLayout =
+        window.matchMedia("(min-width: 1024px)").matches;
+
+    searchDatePicker.classList.toggle(
+        "is-desktop-calendar-overlay",
+        isDesktopLayout
+    );
+
+    if (!isDesktopLayout) {
+        searchDatePicker.style.removeProperty(
+            "--search-date-picker-left"
+        );
+        searchDatePicker.style.removeProperty(
+            "--search-date-picker-top"
+        );
+        searchDatePicker.style.removeProperty(
+            "--search-date-picker-width"
+        );
+        return;
+    }
+
+    const mainCalendar =
+        document.getElementById("calendar");
+
+    if (!mainCalendar) {
+        return;
+    }
+
+    const rect =
+        mainCalendar.getBoundingClientRect();
+
+    searchDatePicker.style.setProperty(
+        "--search-date-picker-left",
+        `${Math.round(rect.left)}px`
+    );
+    searchDatePicker.style.setProperty(
+        "--search-date-picker-top",
+        `${Math.round(rect.top)}px`
+    );
+    searchDatePicker.style.setProperty(
+        "--search-date-picker-width",
+        `${Math.round(rect.width)}px`
+    );
+}
+
+
+function updateSearchMonthPickerArrow() {
+    if (
+        !searchDatePicker ||
+        !searchDateMonthPicker ||
+        !searchDateMonthTitle ||
+        searchDateMonthPicker.hidden
+    ) {
+        return;
+    }
+
+    requestAnimationFrame(
+        () => {
+            if (searchDateMonthPicker.hidden) {
+                return;
+            }
+
+            const pickerRect =
+                searchDateMonthPicker.getBoundingClientRect();
+            const titleRect =
+                searchDateMonthTitle.getBoundingClientRect();
+            const titleCenter =
+                titleRect.left + titleRect.width / 2;
+            const arrowLeft =
+                titleCenter - pickerRect.left;
+
+            searchDateMonthPicker.style.setProperty(
+                "--search-month-arrow-left",
+                `${arrowLeft}px`
+            );
+        }
+    );
+}
+
+
 function setSearchDatePickerOpen(
     open,
     target = null
@@ -3760,6 +3845,7 @@ function setSearchDatePickerOpen(
                 : "開始日を選択";
 
         renderSearchDatePicker();
+        positionSearchDatePickerForViewport();
 
         searchDatePicker.hidden = false;
         searchDatePickerBackdrop.hidden = false;
@@ -3936,6 +4022,7 @@ function changeSearchMonthPickerYear(direction) {
     searchMonthPickerYear =
         years[nextIndex];
     renderSearchMonthPicker();
+    updateSearchMonthPickerArrow();
 }
 
 
@@ -4301,6 +4388,19 @@ searchDatePrevMonth?.addEventListener(
 searchDateMonthTitle?.addEventListener(
     "click",
     toggleSearchMonthPicker
+);
+
+window.addEventListener(
+    "resize",
+    () => {
+        if (
+            searchDatePicker &&
+            !searchDatePicker.hidden
+        ) {
+            positionSearchDatePickerForViewport();
+            updateSearchMonthPickerArrow();
+        }
+    }
 );
 
 searchDateNextMonth?.addEventListener(

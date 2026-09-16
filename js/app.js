@@ -3810,8 +3810,19 @@ function updateSearchMonthPickerArrow() {
             // 年月ボタンの直下を指す高さにする。
             // 固定 top 値ではなく実際の年月ボタン位置から算出するため、
             // スマホ / タブレット / PC で同じ位置関係になる。
+            const monthNav =
+                searchDateMonthTitle.closest(
+                    ".search-date-picker-month-nav"
+                );
+            const monthNavRect = monthNav
+                ? monthNav.getBoundingClientRect()
+                : titleRect;
+
+            // 年月ジャンプの吹き出しは、年月ナビ行の直下に置く。
+            // 三角の先端が「YYYY年M月」ボタンの高さを指すよう、
+            // タイトル単体ではなくナビ行全体の下端を基準にする。
             const pickerTop =
-                titleRect.bottom - datePickerRect.top + 9;
+                monthNavRect.bottom - datePickerRect.top + 8;
 
             searchDateMonthPicker.style.setProperty(
                 "--search-month-arrow-left",

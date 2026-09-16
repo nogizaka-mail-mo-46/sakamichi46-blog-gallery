@@ -3821,6 +3821,8 @@ function updateSearchMonthPickerArrow() {
             // 年月ジャンプの吹き出しは、年月ナビ行の直下に置く。
             // 三角の先端が「YYYY年M月」ボタンの高さを指すよう、
             // タイトル単体ではなくナビ行全体の下端を基準にする。
+            // 本体カレンダーと同じく、年月ナビのすぐ下に
+            // パネル上端を置く。::before の先端が年月ボタン下端を指す。
             const pickerTop =
                 monthNavRect.bottom - datePickerRect.top + 8;
 

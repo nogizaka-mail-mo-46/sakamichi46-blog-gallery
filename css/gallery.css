@@ -1094,3 +1094,19 @@
         border-radius: 13px;
     }
 }
+
+/* ========================================
+ * タブレット縦向き 一覧前後の余白
+ * カレンダー→見出し と 見出し→1件目 を 14px に統一
+ * ======================================== */
+@media (
+    min-width: 768px
+) and (
+    max-width: 1023px
+) and (
+    orientation: portrait
+) {
+    .gallery {
+        padding-top: 14px;
+    }
+}

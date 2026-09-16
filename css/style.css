@@ -1765,3 +1765,4 @@ body {
         transform: translateX(-50%) !important;
     }
 }
+\n\n/* ========================================\n * タブレット横: 固定左列の縦方向をスクロール可能にする\n * カレンダー + 検索条件が画面高を超える場合のみスクロールが発生する。\n * ======================================== */\n@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {\n    .gallery-calendar-column {\n        max-height: calc(100dvh - 184px);\n        overflow-y: auto;\n        overscroll-behavior: contain;\n        scrollbar-gutter: stable;\n        -webkit-overflow-scrolling: touch;\n    }\n}\n

@@ -1590,6 +1590,16 @@ body {
         grid-template-columns: repeat(7, 1fr);
     }
 
+    /*
+     * 月によって5週/6週になっても検索カレンダー全体の高さを変えない。
+     * ナビゲーション（≪ ＜ 年月 ＞ ≫）の位置が上下しないよう、
+     * 日付グリッドは常に6週分の高さを確保する。
+     */
+    .search-date-grid {
+        grid-template-rows: repeat(6, minmax(0, 1fr));
+        min-height: 252px;
+    }
+
     .search-date-weekdays span {
         padding: 6px 0;
         color: #777;
@@ -1664,5 +1674,15 @@ body {
     .search-date-month-button .ui-icon,
     .search-date-month-picker-year-nav .ui-icon {
         pointer-events: none;
+    }
+
+    /*
+     * 月移動などを連続タップした際のダブルタップズームを抑止。
+     * ページ全体のピンチズームは無効化しない。
+     */
+    .search-date-picker button,
+    .search-date-picker-month-nav,
+    .search-date-month-picker {
+        touch-action: manipulation;
     }
 }

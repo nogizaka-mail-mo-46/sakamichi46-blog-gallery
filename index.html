@@ -272,18 +272,27 @@
                     <div class="blog-search-panel blog-search-panel-desktop">
                         <div class="blog-search-title">ブログを検索</div>
 
-                        <div class="blog-search-input-wrap">
-                            <input
-                                type="search"
-                                class="blog-search-input"
-                                placeholder="キーワードを入力"
-                                aria-label="ブログ検索キーワード"
-                            >
+                        <div class="desktop-search-member">
+                            <span class="desktop-search-label">メンバー</span>
+                            <strong id="desktopSearchMemberValue">ALL</strong>
                         </div>
 
-                        <button type="button" class="blog-search-button">
-                            検索する
-                        </button>
+                        <div class="desktop-search-label">期間</div>
+                        <div class="desktop-search-period">
+                            <button type="button" id="desktopSearchStartDateButton" class="desktop-search-date-button">
+                                <span>開始日</span><strong id="desktopSearchStartDateValue">未選択</strong>
+                            </button>
+                            <span class="desktop-search-period-separator">～</span>
+                            <button type="button" id="desktopSearchEndDateButton" class="desktop-search-date-button">
+                                <span>終了日</span><strong id="desktopSearchEndDateValue">未選択</strong>
+                            </button>
+                        </div>
+
+                        <label class="desktop-search-label" for="desktopSearchKeywordInput">キーワード</label>
+                        <input id="desktopSearchKeywordInput" type="search" class="blog-search-input" placeholder="キーワードを入力" aria-label="ブログ検索キーワード">
+
+                        <button type="button" id="desktopExecuteSearchButton" class="blog-search-button">検索する</button>
+                        <button type="button" id="desktopClearSearchButton" class="desktop-search-clear-button">条件をクリア</button>
                     </div>
 
 

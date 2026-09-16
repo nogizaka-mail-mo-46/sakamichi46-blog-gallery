@@ -60,6 +60,13 @@ export const hinatazakaMembers = {
         blogDataFolderId: "13DqduBrK69Lcs-WJuRT8coIKwdOStlAq",
         blogIndexFileId: "1INWo6M967-7dqRJgRbGG4JG6X1GJsgAW"
     },
+    kirari_takeuchi: {
+        name: "竹内 希来里",
+        group: "hinatazaka46",
+        generation: 4,
+        blogDataFolderId: "1yQIEEqdhyZT8BjnxYuANiCNeQvScYu-j",
+        blogIndexFileId: "1OIA4ap-FUZA2x1mcjJ5f35Q-G-zlJU_8"
+    },
     honoka_hirao: {
         name: "平尾 帆夏",
         group: "hinatazaka46",
@@ -113,6 +120,12 @@ export const hinatazakaMembers = {
         blogDataFolderId: "1mucuCkgnf3ljfIhoeZquMEgHCwm4DGH8",
         blogIndexFileId: "1WQh_2xUUv8NmMyOUURubfB_l2FrJYxn_"
     },
+    nina_sakai: {
+        name: "坂井 新奈",
+        group: "hinatazaka46",
+        generation: 5,
+        blogDataFolderId: "1YVdyH5mB0ADdgMljilQ-3HigCfBaSIYV"
+    },
     hinano_kuramori: {
         name: "蔵盛 妃那乃",
         group: "hinatazaka46",
@@ -126,6 +139,12 @@ export const hinatazakaMembers = {
         generation: 5,
         blogDataFolderId: "1FsFYu7aC11Emtd9cDYntVPdGJumCh2v9",
         blogIndexFileId: "1KqPust73laNzhS5TK03k-JVBY0E0GNs3"
+    },
+    rika_takai: {
+        name: "高井 俐香",
+        group: "hinatazaka46",
+        generation: 5,
+        blogDataFolderId: "1Ox07pRPa0r5tPUzK9JlduWy-RoioKLuy"
     },
     sakura_matsuo: {
         name: "松尾 桜",

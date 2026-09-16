@@ -3748,9 +3748,25 @@ function positionSearchDatePickerForViewport() {
     const rect =
         mainCalendar.getBoundingClientRect();
 
+    // PC / タブレット横では、検索用カレンダーを
+    // 左列の本体カレンダーの上に重ねて表示する。
+    // 幅は日付操作に必要な広さを確保しつつ、
+    // 本体カレンダーの中央を基準に配置する。
+    const overlayWidth = Math.min(
+        380,
+        Math.max(320, window.innerWidth - 32)
+    );
+    const calendarCenter =
+        rect.left + rect.width / 2;
+    const halfWidth = overlayWidth / 2;
+    const overlayCenter = Math.min(
+        window.innerWidth - halfWidth - 16,
+        Math.max(halfWidth + 16, calendarCenter)
+    );
+
     searchDatePicker.style.setProperty(
         "--search-date-picker-left",
-        `${Math.round(rect.left)}px`
+        `${Math.round(overlayCenter)}px`
     );
     searchDatePicker.style.setProperty(
         "--search-date-picker-top",
@@ -3758,7 +3774,7 @@ function positionSearchDatePickerForViewport() {
     );
     searchDatePicker.style.setProperty(
         "--search-date-picker-width",
-        `${Math.round(rect.width)}px`
+        `${Math.round(overlayWidth)}px`
     );
 }
 
@@ -3783,14 +3799,27 @@ function updateSearchMonthPickerArrow() {
                 searchDateMonthPicker.getBoundingClientRect();
             const titleRect =
                 searchDateMonthTitle.getBoundingClientRect();
+            const datePickerRect =
+                searchDatePicker.getBoundingClientRect();
             const titleCenter =
                 titleRect.left + titleRect.width / 2;
             const arrowLeft =
                 titleCenter - pickerRect.left;
 
+            // 本体カレンダーと同じく、吹き出しの先端が
+            // 年月ボタンの直下を指す高さにする。
+            // 固定 top 値ではなく実際の年月ボタン位置から算出するため、
+            // スマホ / タブレット / PC で同じ位置関係になる。
+            const pickerTop =
+                titleRect.bottom - datePickerRect.top + 9;
+
             searchDateMonthPicker.style.setProperty(
                 "--search-month-arrow-left",
                 `${arrowLeft}px`
+            );
+            searchDateMonthPicker.style.setProperty(
+                "--search-month-picker-top",
+                `${Math.round(pickerTop)}px`
             );
         }
     );

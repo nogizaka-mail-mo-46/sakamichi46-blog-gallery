@@ -76,6 +76,13 @@ export const sakurazakaMembers = {
         blogDataFolderId: "1xA8Lq9GC9Ybt0psI_Ib9N4s16DZ8b0CA",
         blogIndexFileId: "1vVujKO-_tjRoWDZn8fUEc3AFzmyIEKnA"
     },
+    riko_endo: {
+        name: "遠藤 理子",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "13FcMR5UtEYaMXEYHaQtmSUQov0N_XBcT",
+        blogIndexFileId: "1a_tZ6SXGuasg0kTx7P1h9xq--bLP7st8"
+    },
     reina_odakura: {
         name: "小田倉 麗奈",
         group: "sakurazaka46",
@@ -96,6 +103,13 @@ export const sakurazakaMembers = {
         generation: 3,
         blogDataFolderId: "18p1tD5ASUDYxzQTK7JuqJ0EacGv0rU0C",
         blogIndexFileId: "1UbX7sIVOwR7w7ldK2qU77u4cGfzCaHY-"
+    },
+    mio_matono: {
+        name: "的野 美青",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "1XKCBPFNykF8RQ1di-AyrxBw-05t2MKk9",
+        blogIndexFileId: "1lRqa7MIPvrKgoXQmcfHRT72loKBumPi-"
     },
     itoha_mukai: {
         name: "向井 純葉",
@@ -122,11 +136,39 @@ export const sakurazakaMembers = {
         blogDataFolderId: "1TI7b0vIKkzpPjNav_Kp-_0jtmVMTOvP6",
         blogIndexFileId: "181yj751ogk0ri8Ax-EdEIPcmZenS7Olc"
     },
+    neo_sato: {
+        name: "佐藤 愛桜",
+        group: "sakurazaka46",
+        generation: 4,
+        blogDataFolderId: "1sF2UCENOqcWLGSwDmQg1Mi4axZW6trFN",
+        blogIndexFileId: "1u3aL0ADjxUnAyeq83Vo20hWYZrUCsFLw"
+    },
+    hiiro_meguro: {
+        name: "目黒 陽色",
+        group: "sakurazaka46",
+        generation: 4,
+        blogDataFolderId: "1qYAHJWYu6UT1UbucwC0eyboryukF-Ia6",
+        blogIndexFileId: "1yaOStkJRkqa8zR0JvPtXPPW-GY-zBoaz"
+    },
     wako_matsumoto: {
         name: "松本 和子",
         group: "sakurazaka46",
         generation: 4,
         blogDataFolderId: "1Tk7NQ5fBRL1yn6OhX-Cwd0zAp5epXyHo",
         blogIndexFileId: "1Mo8QKN7-UfgYvzxmN6h3iHuh-xGNZN0v"
+    },
+    ui_yamakawa: {
+        name: "山川 宇衣",
+        group: "sakurazaka46",
+        generation: 4,
+        blogDataFolderId: "17qMnpjhmC5q4xjk_RoFwlPiTwuYWKsNY",
+        blogIndexFileId: "1ZhzG9vi9zsuzAYrFlzIdf5XEJQnl0Tuz"
+    },
+    momomi_yamada: {
+        name: "山田 桃実",
+        group: "sakurazaka46",
+        generation: 4,
+        blogDataFolderId: "1YpPupw5Bd9rUgVbv552vYOxU9XU1arVa",
+        blogIndexFileId: "17pyVvF1Q_iIwpALRNWWmmXKtqgeV_yKm"
     }
 };

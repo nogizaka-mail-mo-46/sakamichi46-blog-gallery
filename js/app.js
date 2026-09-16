@@ -4113,6 +4113,28 @@ function renderSearchDatePicker() {
             button
         );
     }
+
+    /*
+     * どの月も6週（42マス）固定にする。
+     * 5週で収まる月にも空マスを補い、検索カレンダーの高さと
+     * 月移動ナビの表示位置が月ごとに動かないようにする。
+     */
+    const renderedCellCount =
+        firstDay + daysInMonth;
+
+    for (
+        let i = renderedCellCount;
+        i < 42;
+        i += 1
+    ) {
+        const spacer =
+            document.createElement("span");
+        spacer.className =
+            "search-date-day is-disabled";
+        searchDateGrid.appendChild(
+            spacer
+        );
+    }
 }
 
 

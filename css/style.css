@@ -1765,4 +1765,67 @@ body {
         transform: translateX(-50%) !important;
     }
 }
-\n\n/* ========================================\n * タブレット横: 固定左列の縦方向をスクロール可能にする\n * カレンダー + 検索条件が画面高を超える場合のみスクロールが発生する。\n * ======================================== */\n@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {\n    .gallery-calendar-column {\n        max-height: calc(100dvh - 184px);\n        overflow-y: auto;\n        overscroll-behavior: contain;\n        scrollbar-gutter: stable;\n        -webkit-overflow-scrolling: touch;\n    }\n}\n
+\n\n
+
+/* ========================================
+ * 2026-09-17 検索カレンダー / タブレット横 最終補正
+ * ======================================== */
+
+/*
+ * タブレット横では左列を独立スクロールさせない。
+ * sticky を解除し、ブログ一覧と同じページスクロールで自然に上へ流す。
+ */
+@media (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) {
+    .gallery-calendar-column {
+        position: static;
+        top: auto;
+        max-height: none;
+        overflow: visible;
+        overscroll-behavior: auto;
+        scrollbar-gutter: auto;
+    }
+}
+
+/*
+ * タブレットにもスマホと同じ「上へ戻る」ボタンを表示。
+ * JS側の表示条件（600px以上スクロール）はそのまま共用する。
+ * 横向きのPCレイアウト幅では、タッチ端末だけを対象にする。
+ */
+@media (min-width: 768px) and (max-width: 1023px),
+       (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
+    .scroll-top-button {
+        position: fixed;
+        right: max(14px, env(safe-area-inset-right));
+        bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
+        z-index: 80;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 46px;
+        height: 46px;
+        padding: 0;
+        border: 1px solid rgba(255, 255, 255, 0.88);
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.94);
+        color: #555;
+        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.14);
+        cursor: pointer;
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        pointer-events: none;
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .scroll-top-button.visible {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
+
+    .scroll-top-button:active {
+        transform: scale(0.94);
+    }
+}

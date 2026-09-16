@@ -4664,8 +4664,10 @@ function updateViewportDebugPanel(eventName = "update") {
         `screen: ${window.screen.width} x ${window.screen.height}`,
         `visual: ${vv ? `${Math.round(vv.width)} x ${Math.round(vv.height)}` : "n/a"}`,
         `scale: ${vv ? vv.scale.toFixed(3) : "n/a"}`,
+        `vv offset: ${vv ? `${Math.round(vv.offsetLeft)}, ${Math.round(vv.offsetTop)}` : "n/a"}`,
+        `vv page: ${vv ? `${Math.round(vv.pageLeft)}, ${Math.round(vv.pageTop)}` : "n/a"}`,
         `dpr: ${window.devicePixelRatio}`,
-        `scrollY: ${Math.round(window.scrollY)}`
+        `scroll: ${Math.round(window.scrollX)}, ${Math.round(window.scrollY)}`
     ].join("\n");
 }
 

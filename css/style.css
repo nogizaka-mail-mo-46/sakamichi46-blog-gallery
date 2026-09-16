@@ -1961,8 +1961,10 @@ body {
  * ======================================== */
 #viewportDebugPanel {
     position: fixed !important;
-    right: max(8px, env(safe-area-inset-right)) !important;
-    bottom: max(76px, calc(env(safe-area-inset-bottom) + 70px)) !important;
+    left: max(8px, env(safe-area-inset-left)) !important;
+    top: max(8px, env(safe-area-inset-top)) !important;
+    right: auto !important;
+    bottom: auto !important;
     z-index: 2147483647 !important;
     display: block !important;
     box-sizing: border-box !important;
@@ -1975,7 +1977,7 @@ body {
     background: rgba(0,0,0,.82) !important;
     color: #fff !important;
     box-shadow: 0 4px 16px rgba(0,0,0,.28) !important;
-    font: 11px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+    font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
     white-space: pre !important;
     text-align: left !important;
     pointer-events: none !important;

@@ -3390,6 +3390,15 @@ const searchStartDateButton =
         "searchStartDateButton"
     );
 
+const desktopSearchStartDateButton = document.getElementById("desktopSearchStartDateButton");
+const desktopSearchEndDateButton = document.getElementById("desktopSearchEndDateButton");
+const desktopSearchStartDateValue = document.getElementById("desktopSearchStartDateValue");
+const desktopSearchEndDateValue = document.getElementById("desktopSearchEndDateValue");
+const desktopSearchMemberValue = document.getElementById("desktopSearchMemberValue");
+const desktopSearchKeywordInput = document.getElementById("desktopSearchKeywordInput");
+const desktopExecuteSearchButton = document.getElementById("desktopExecuteSearchButton");
+const desktopClearSearchButton = document.getElementById("desktopClearSearchButton");
+
 const searchEndDateButton =
     document.getElementById(
         "searchEndDateButton"
@@ -3617,6 +3626,17 @@ function updateSearchFilterUi() {
     ) {
         searchMemberValue.textContent =
             getCurrentSearchMemberLabel();
+    }
+
+    const memberLabel = getCurrentSearchMemberLabel();
+    if (desktopSearchMemberValue) desktopSearchMemberValue.textContent = memberLabel;
+    if (desktopSearchStartDateValue) {
+        desktopSearchStartDateValue.textContent = formatSearchDate(searchStartDate);
+        desktopSearchStartDateValue.classList.toggle("is-set", Boolean(searchStartDate));
+    }
+    if (desktopSearchEndDateValue) {
+        desktopSearchEndDateValue.textContent = formatSearchDate(searchEndDate);
+        desktopSearchEndDateValue.classList.toggle("is-set", Boolean(searchEndDate));
     }
 
     if (
@@ -4237,6 +4257,9 @@ searchStartDateButton?.addEventListener(
     }
 );
 
+desktopSearchStartDateButton?.addEventListener("click", () => setSearchDatePickerOpen(true, "start"));
+desktopSearchEndDateButton?.addEventListener("click", () => setSearchDatePickerOpen(true, "end"));
+
 searchEndDateButton?.addEventListener(
     "click",
     () => {
@@ -4402,6 +4425,24 @@ clearSearchFiltersButton?.addEventListener(
         updateSearchFilterUi();
     }
 );
+
+desktopSearchKeywordInput?.addEventListener("input", () => {
+    if (searchKeywordInput) searchKeywordInput.value = desktopSearchKeywordInput.value;
+    updateSearchFilterUi();
+});
+
+desktopClearSearchButton?.addEventListener("click", () => {
+    searchStartDate = null;
+    searchEndDate = null;
+    if (desktopSearchKeywordInput) desktopSearchKeywordInput.value = "";
+    if (searchKeywordInput) searchKeywordInput.value = "";
+    updateSearchFilterUi();
+});
+
+desktopExecuteSearchButton?.addEventListener("click", () => {
+    if (searchKeywordInput && desktopSearchKeywordInput) searchKeywordInput.value = desktopSearchKeywordInput.value;
+    updateSearchFilterUi();
+});
 
 executeSearchButton?.addEventListener(
     "click",

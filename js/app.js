@@ -4619,3 +4619,96 @@ memberIconTrack?.addEventListener(
         );
     }
 );
+
+
+/*
+ * ========================================
+ * タブレット 画面回転時の表示倍率リセット
+ * ========================================
+ *
+ * 縦向き/横向きの切り替え時に、一部のモバイルブラウザが
+ * 旧レイアウト幅を基準に拡大表示を残すことがある。
+ * 回転した瞬間だけ viewport の scale=1 を明示して再計算させ、
+ * 直後に通常の viewport へ戻すことで、通常時のピンチズームは残す。
+ */
+
+const DEFAULT_VIEWPORT_CONTENT =
+    "width=device-width, initial-scale=1.0";
+
+function isTabletViewport() {
+    return (
+        window.matchMedia("(pointer: coarse)").matches &&
+        Math.max(window.screen.width, window.screen.height) >= 768
+    );
+}
+
+let orientationViewportResetTimer = null;
+
+function resetTabletViewportAfterOrientationChange() {
+    if (!isTabletViewport()) {
+        return;
+    }
+
+    const viewportMeta = document.querySelector(
+        'meta[name="viewport"]'
+    );
+
+    if (!viewportMeta) {
+        return;
+    }
+
+    const scrollX = window.scrollX;
+    const scrollY = window.scrollY;
+
+    window.clearTimeout(orientationViewportResetTimer);
+
+    /*
+     * 一時的に倍率を1へ固定して、回転後のレイアウト幅で
+     * ブラウザに viewport を作り直させる。
+     */
+    viewportMeta.setAttribute(
+        "content",
+        "width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"
+    );
+
+    requestAnimationFrame(() => {
+        window.scrollTo(scrollX, scrollY);
+    });
+
+    orientationViewportResetTimer = window.setTimeout(
+        () => {
+            /* 通常のピンチズームを再び許可する。 */
+            viewportMeta.setAttribute(
+                "content",
+                DEFAULT_VIEWPORT_CONTENT
+            );
+
+            requestAnimationFrame(() => {
+                window.scrollTo(scrollX, scrollY);
+                updateMemberIconFadeState();
+
+                if (
+                    searchDatePicker &&
+                    !searchDatePicker.hidden
+                ) {
+                    positionSearchDatePickerForViewport();
+                    updateSearchMonthPickerArrow();
+                }
+            });
+        },
+        350
+    );
+}
+
+window.addEventListener(
+    "orientationchange",
+    resetTabletViewportAfterOrientationChange,
+    { passive: true }
+);
+
+if (window.screen?.orientation) {
+    window.screen.orientation.addEventListener(
+        "change",
+        resetTabletViewportAfterOrientationChange
+    );
+}

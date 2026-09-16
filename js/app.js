@@ -3354,3 +3354,715 @@ window.addEventListener(
         );
     }
 );
+
+
+/*
+ * ========================================
+ * スマホ / タブレット縦 検索条件UI
+ *
+ * UIと条件保持のみ。
+ * 実際のブログ検索処理は次工程で実装する。
+ * ========================================
+ */
+
+const openSearchFiltersButton =
+    document.getElementById(
+        "openSearchFiltersButton"
+    );
+
+const searchFilterBackdrop =
+    document.getElementById(
+        "searchFilterBackdrop"
+    );
+
+const searchFilterSheet =
+    document.getElementById(
+        "searchFilterSheet"
+    );
+
+const closeSearchFiltersButton =
+    document.getElementById(
+        "closeSearchFiltersButton"
+    );
+
+const searchStartDateButton =
+    document.getElementById(
+        "searchStartDateButton"
+    );
+
+const searchEndDateButton =
+    document.getElementById(
+        "searchEndDateButton"
+    );
+
+const searchStartDateValue =
+    document.getElementById(
+        "searchStartDateValue"
+    );
+
+const searchEndDateValue =
+    document.getElementById(
+        "searchEndDateValue"
+    );
+
+const searchMemberValue =
+    document.getElementById(
+        "searchMemberValue"
+    );
+
+const searchKeywordToggleButton =
+    document.getElementById(
+        "searchKeywordToggleButton"
+    );
+
+const searchKeywordArea =
+    document.getElementById(
+        "searchKeywordArea"
+    );
+
+const searchKeywordInput =
+    document.getElementById(
+        "searchKeywordInput"
+    );
+
+const searchKeywordValue =
+    document.getElementById(
+        "searchKeywordValue"
+    );
+
+const clearSearchFiltersButton =
+    document.getElementById(
+        "clearSearchFiltersButton"
+    );
+
+const executeSearchButton =
+    document.getElementById(
+        "executeSearchButton"
+    );
+
+const searchDatePickerBackdrop =
+    document.getElementById(
+        "searchDatePickerBackdrop"
+    );
+
+const searchDatePicker =
+    document.getElementById(
+        "searchDatePicker"
+    );
+
+const searchDatePickerTitle =
+    document.getElementById(
+        "searchDatePickerTitle"
+    );
+
+const closeSearchDatePickerButton =
+    document.getElementById(
+        "closeSearchDatePickerButton"
+    );
+
+const searchDatePrevMonth =
+    document.getElementById(
+        "searchDatePrevMonth"
+    );
+
+const searchDateNextMonth =
+    document.getElementById(
+        "searchDateNextMonth"
+    );
+
+const searchDateMonthTitle =
+    document.getElementById(
+        "searchDateMonthTitle"
+    );
+
+const searchDateGrid =
+    document.getElementById(
+        "searchDateGrid"
+    );
+
+const unsetSearchDateButton =
+    document.getElementById(
+        "unsetSearchDateButton"
+    );
+
+const confirmSearchDateButton =
+    document.getElementById(
+        "confirmSearchDateButton"
+    );
+
+
+let searchStartDate = null;
+let searchEndDate = null;
+let searchDateTarget = null;
+let searchDateDraft = null;
+let searchPickerYear = null;
+let searchPickerMonth = null;
+
+
+function formatSearchDate(
+    date
+) {
+    if (!date) {
+        return "未選択";
+    }
+
+    const year =
+        date.getFullYear();
+
+    const month =
+        String(
+            date.getMonth() + 1
+        ).padStart(2, "0");
+
+    const day =
+        String(
+            date.getDate()
+        ).padStart(2, "0");
+
+    return `${year}/${month}/${day}`;
+}
+
+
+function getCurrentSearchMemberLabel() {
+    if (
+        selectedGeneration !== null
+    ) {
+        return `${selectedGeneration}期生`;
+    }
+
+    if (
+        memberSelect.value
+    ) {
+        const option =
+            memberSelect.options[
+                memberSelect.selectedIndex
+            ];
+
+        return option?.textContent?.trim() ||
+            memberSelect.value;
+    }
+
+    return "ALL";
+}
+
+
+function updateSearchFilterUi() {
+    if (
+        searchStartDateValue
+    ) {
+        searchStartDateValue.textContent =
+            formatSearchDate(
+                searchStartDate
+            );
+
+        searchStartDateValue.classList.toggle(
+            "is-set",
+            Boolean(searchStartDate)
+        );
+    }
+
+    if (
+        searchEndDateValue
+    ) {
+        searchEndDateValue.textContent =
+            formatSearchDate(
+                searchEndDate
+            );
+
+        searchEndDateValue.classList.toggle(
+            "is-set",
+            Boolean(searchEndDate)
+        );
+    }
+
+    if (
+        searchMemberValue
+    ) {
+        searchMemberValue.textContent =
+            getCurrentSearchMemberLabel();
+    }
+
+    if (
+        searchKeywordValue &&
+        searchKeywordInput
+    ) {
+        const keyword =
+            searchKeywordInput.value.trim();
+
+        searchKeywordValue.textContent =
+            keyword || "未設定";
+
+        searchKeywordValue.classList.toggle(
+            "is-set",
+            Boolean(keyword)
+        );
+    }
+}
+
+
+function setSearchFilterSheetOpen(
+    open
+) {
+    if (
+        !searchFilterSheet ||
+        !searchFilterBackdrop
+    ) {
+        return;
+    }
+
+    if (
+        open
+    ) {
+        updateSearchFilterUi();
+
+        searchFilterSheet.hidden = false;
+        searchFilterBackdrop.hidden = false;
+        document.body.classList.add(
+            "search-filter-lock"
+        );
+
+        requestAnimationFrame(
+            () => {
+                searchFilterSheet.classList.add(
+                    "is-open"
+                );
+                searchFilterBackdrop.classList.add(
+                    "is-open"
+                );
+            }
+        );
+
+        return;
+    }
+
+    searchFilterSheet.classList.remove(
+        "is-open"
+    );
+    searchFilterBackdrop.classList.remove(
+        "is-open"
+    );
+
+    window.setTimeout(
+        () => {
+            searchFilterSheet.hidden = true;
+            searchFilterBackdrop.hidden = true;
+            document.body.classList.remove(
+                "search-filter-lock"
+            );
+        },
+        240
+    );
+}
+
+
+function setSearchDatePickerOpen(
+    open,
+    target = null
+) {
+    if (
+        !searchDatePicker ||
+        !searchDatePickerBackdrop
+    ) {
+        return;
+    }
+
+    if (
+        open
+    ) {
+        searchDateTarget = target;
+
+        const currentValue =
+            target === "end"
+                ? searchEndDate
+                : searchStartDate;
+
+        const baseDate =
+            currentValue ||
+            new Date();
+
+        searchDateDraft =
+            currentValue
+                ? new Date(
+                    currentValue.getFullYear(),
+                    currentValue.getMonth(),
+                    currentValue.getDate()
+                )
+                : null;
+
+        searchPickerYear =
+            baseDate.getFullYear();
+        searchPickerMonth =
+            baseDate.getMonth();
+
+        searchDatePickerTitle.textContent =
+            target === "end"
+                ? "終了日を選択"
+                : "開始日を選択";
+
+        renderSearchDatePicker();
+
+        searchDatePicker.hidden = false;
+        searchDatePickerBackdrop.hidden = false;
+
+        requestAnimationFrame(
+            () => {
+                searchDatePicker.classList.add(
+                    "is-open"
+                );
+                searchDatePickerBackdrop.classList.add(
+                    "is-open"
+                );
+            }
+        );
+
+        return;
+    }
+
+    searchDatePicker.classList.remove(
+        "is-open"
+    );
+    searchDatePickerBackdrop.classList.remove(
+        "is-open"
+    );
+
+    window.setTimeout(
+        () => {
+            searchDatePicker.hidden = true;
+            searchDatePickerBackdrop.hidden = true;
+        },
+        180
+    );
+}
+
+
+function renderSearchDatePicker() {
+    if (
+        !searchDateGrid ||
+        searchPickerYear === null ||
+        searchPickerMonth === null
+    ) {
+        return;
+    }
+
+    searchDateMonthTitle.textContent =
+        `${searchPickerYear}年${searchPickerMonth + 1}月`;
+
+    searchDateGrid.innerHTML = "";
+
+    const firstDay =
+        new Date(
+            searchPickerYear,
+            searchPickerMonth,
+            1
+        ).getDay();
+
+    const daysInMonth =
+        new Date(
+            searchPickerYear,
+            searchPickerMonth + 1,
+            0
+        ).getDate();
+
+    for (
+        let i = 0;
+        i < firstDay;
+        i += 1
+    ) {
+        const spacer =
+            document.createElement("span");
+        spacer.className =
+            "search-date-day is-disabled";
+        searchDateGrid.appendChild(
+            spacer
+        );
+    }
+
+    for (
+        let day = 1;
+        day <= daysInMonth;
+        day += 1
+    ) {
+        const button =
+            document.createElement("button");
+
+        button.type = "button";
+        button.className =
+            "search-date-day";
+        button.textContent =
+            String(day);
+
+        const date =
+            new Date(
+                searchPickerYear,
+                searchPickerMonth,
+                day
+            );
+
+        if (
+            searchDateDraft &&
+            date.getFullYear() === searchDateDraft.getFullYear() &&
+            date.getMonth() === searchDateDraft.getMonth() &&
+            date.getDate() === searchDateDraft.getDate()
+        ) {
+            button.classList.add(
+                "is-selected"
+            );
+        }
+
+        button.addEventListener(
+            "click",
+            () => {
+                searchDateDraft = date;
+                renderSearchDatePicker();
+            }
+        );
+
+        searchDateGrid.appendChild(
+            button
+        );
+    }
+}
+
+
+function changeSearchPickerMonth(
+    amount
+) {
+    const date =
+        new Date(
+            searchPickerYear,
+            searchPickerMonth + amount,
+            1
+        );
+
+    searchPickerYear =
+        date.getFullYear();
+    searchPickerMonth =
+        date.getMonth();
+
+    renderSearchDatePicker();
+}
+
+
+function installSearchFilterIcons() {
+    document.querySelectorAll(
+        '[data-search-icon="calendar"]'
+    ).forEach(
+        (element) => {
+            element.replaceChildren(
+                createUiIcon(
+                    "calendar",
+                    { size: 20 }
+                )
+            );
+        }
+    );
+
+    document.querySelectorAll(
+        '[data-search-icon="users"]'
+    ).forEach(
+        (element) => {
+            element.replaceChildren(
+                createUiIcon(
+                    "users",
+                    { size: 20 }
+                )
+            );
+        }
+    );
+}
+
+
+installSearchFilterIcons();
+updateSearchFilterUi();
+
+
+openSearchFiltersButton?.addEventListener(
+    "click",
+    () => {
+        setSearchFilterSheetOpen(true);
+    }
+);
+
+closeSearchFiltersButton?.addEventListener(
+    "click",
+    () => {
+        setSearchFilterSheetOpen(false);
+    }
+);
+
+searchFilterBackdrop?.addEventListener(
+    "click",
+    () => {
+        setSearchFilterSheetOpen(false);
+    }
+);
+
+searchStartDateButton?.addEventListener(
+    "click",
+    () => {
+        setSearchDatePickerOpen(
+            true,
+            "start"
+        );
+    }
+);
+
+searchEndDateButton?.addEventListener(
+    "click",
+    () => {
+        setSearchDatePickerOpen(
+            true,
+            "end"
+        );
+    }
+);
+
+closeSearchDatePickerButton?.addEventListener(
+    "click",
+    () => {
+        setSearchDatePickerOpen(false);
+    }
+);
+
+searchDatePickerBackdrop?.addEventListener(
+    "click",
+    () => {
+        setSearchDatePickerOpen(false);
+    }
+);
+
+searchDatePrevMonth?.addEventListener(
+    "click",
+    () => {
+        changeSearchPickerMonth(-1);
+    }
+);
+
+searchDateNextMonth?.addEventListener(
+    "click",
+    () => {
+        changeSearchPickerMonth(1);
+    }
+);
+
+unsetSearchDateButton?.addEventListener(
+    "click",
+    () => {
+        searchDateDraft = null;
+
+        if (
+            searchDateTarget === "end"
+        ) {
+            searchEndDate = null;
+        } else {
+            searchStartDate = null;
+        }
+
+        updateSearchFilterUi();
+        setSearchDatePickerOpen(false);
+    }
+);
+
+confirmSearchDateButton?.addEventListener(
+    "click",
+    () => {
+        if (
+            searchDateTarget === "end"
+        ) {
+            searchEndDate =
+                searchDateDraft;
+        } else {
+            searchStartDate =
+                searchDateDraft;
+        }
+
+        updateSearchFilterUi();
+        setSearchDatePickerOpen(false);
+    }
+);
+
+searchKeywordToggleButton?.addEventListener(
+    "click",
+    () => {
+        const willOpen =
+            searchKeywordArea.hidden;
+
+        searchKeywordArea.hidden =
+            !willOpen;
+
+        searchKeywordToggleButton.setAttribute(
+            "aria-expanded",
+            String(willOpen)
+        );
+
+        if (
+            willOpen
+        ) {
+            window.setTimeout(
+                () => {
+                    searchKeywordInput?.focus();
+                },
+                0
+            );
+        }
+    }
+);
+
+searchKeywordInput?.addEventListener(
+    "input",
+    updateSearchFilterUi
+);
+
+clearSearchFiltersButton?.addEventListener(
+    "click",
+    () => {
+        searchStartDate = null;
+        searchEndDate = null;
+
+        if (
+            searchKeywordInput
+        ) {
+            searchKeywordInput.value = "";
+        }
+
+        if (
+            searchKeywordArea
+        ) {
+            searchKeywordArea.hidden = true;
+        }
+
+        searchKeywordToggleButton?.setAttribute(
+            "aria-expanded",
+            "false"
+        );
+
+        updateSearchFilterUi();
+    }
+);
+
+executeSearchButton?.addEventListener(
+    "click",
+    () => {
+        /*
+         * UI確認段階のため検索処理はまだ行わない。
+         */
+        updateSearchFilterUi();
+    }
+);
+
+/*
+ * メンバー選択が変わった後に検索条件表示も追従させる。
+ */
+memberSelect.addEventListener(
+    "change",
+    updateSearchFilterUi
+);
+
+memberIconTrack?.addEventListener(
+    "click",
+    () => {
+        requestAnimationFrame(
+            updateSearchFilterUi
+        );
+    }
+);

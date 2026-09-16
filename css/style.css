@@ -1647,3 +1647,22 @@ body {
         overflow: hidden;
     }
 }
+
+/* ========================================
+ * 検索条件カレンダー ナビアイコン
+ * 本体カレンダーと同じ UIIcons を使用
+ * ======================================== */
+@media (max-width: 1023px) {
+    .search-date-month-button,
+    .search-date-month-picker-year-nav {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        line-height: 0;
+    }
+
+    .search-date-month-button .ui-icon,
+    .search-date-month-picker-year-nav .ui-icon {
+        pointer-events: none;
+    }
+}

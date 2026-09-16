@@ -1111,3 +1111,427 @@ body {
         cursor: pointer;
     }
 }
+
+/* ========================================
+ * スマホ / タブレット縦 検索条件UI
+ * 1023px以下で表示。検索ロジックは未実装。
+ * ======================================== */
+
+.blog-list-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex: 0 0 auto;
+}
+
+.mobile-search-filter-button,
+.search-filter-sheet,
+.search-filter-backdrop,
+.search-date-picker,
+.search-date-picker-backdrop {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .blog-search-panel-desktop {
+        display: none;
+    }
+
+    .blog-list-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 8px;
+        flex: 0 0 auto;
+    }
+
+    .mobile-search-filter-button {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        margin: 0;
+        padding: 0;
+        border: 1px solid var(--ui-border);
+        border-radius: 8px;
+        background: var(--ui-bg);
+        color: var(--member-icon-color);
+        cursor: pointer;
+        -webkit-tap-highlight-color: transparent;
+        transition:
+            border-color 0.2s ease,
+            background 0.2s ease,
+            transform 0.2s ease;
+    }
+
+    .mobile-search-filter-button:active {
+        transform: scale(0.96);
+    }
+
+    .mobile-search-filter-icon,
+    .search-filter-search-icon {
+        position: relative;
+        width: 18px;
+        height: 18px;
+        flex: 0 0 18px;
+    }
+
+    .mobile-search-filter-icon::before,
+    .search-filter-search-icon::before {
+        content: "";
+        position: absolute;
+        left: 2px;
+        top: 2px;
+        width: 9px;
+        height: 9px;
+        border: 2px solid currentColor;
+        border-radius: 50%;
+    }
+
+    .mobile-search-filter-icon::after,
+    .search-filter-search-icon::after {
+        content: "";
+        position: absolute;
+        width: 7px;
+        height: 2px;
+        right: 0;
+        bottom: 2px;
+        border-radius: 2px;
+        background: currentColor;
+        transform: rotate(45deg);
+        transform-origin: right center;
+    }
+
+    .search-filter-backdrop,
+    .search-date-picker-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: block;
+        background: rgba(0, 0, 0, 0.42);
+        opacity: 0;
+        transition: opacity 0.2s ease;
+    }
+
+    .search-filter-backdrop.is-open,
+    .search-date-picker-backdrop.is-open {
+        opacity: 1;
+    }
+
+    .search-filter-sheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 210;
+        display: block;
+        max-height: min(82vh, 680px);
+        padding: 8px 16px max(16px, env(safe-area-inset-bottom));
+        overflow-y: auto;
+        background: var(--ui-bg);
+        border-radius: 20px 20px 0 0;
+        box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.16);
+        transform: translateY(105%);
+        transition: transform 0.24s ease;
+    }
+
+    .search-filter-sheet.is-open {
+        transform: translateY(0);
+    }
+
+    .search-filter-sheet-handle {
+        width: 42px;
+        height: 4px;
+        margin: 0 auto 6px;
+        border-radius: 999px;
+        background: #d7d7d7;
+    }
+
+    .search-filter-sheet-header,
+    .search-date-picker-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .search-filter-sheet-header {
+        padding: 8px 2px 12px;
+    }
+
+    .search-filter-sheet-header h2,
+    .search-date-picker-header h2 {
+        margin: 0;
+        font-size: 17px;
+        line-height: 1.4;
+    }
+
+    .search-filter-close-button {
+        appearance: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #444;
+        font: inherit;
+        font-size: 25px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .search-filter-sheet-body {
+        overflow: hidden;
+        border: 1px solid #e8e8e8;
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .search-filter-row {
+        appearance: none;
+        display: grid;
+        grid-template-columns: 24px auto minmax(0, 1fr) 18px;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 54px;
+        padding: 10px 13px;
+        border: 0;
+        border-bottom: 1px solid #ededed;
+        background: #fff;
+        color: var(--ui-text);
+        font: inherit;
+        text-align: left;
+    }
+
+    button.search-filter-row {
+        cursor: pointer;
+    }
+
+    .search-filter-member-row {
+        grid-template-columns: 24px auto minmax(0, 1fr) 18px;
+    }
+
+    .search-filter-member-row::after {
+        content: "";
+        width: 18px;
+    }
+
+    .search-filter-row-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 22px;
+        height: 22px;
+        color: #333;
+    }
+
+    .search-filter-row-icon .ui-icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .search-filter-row-label {
+        font-size: 14px;
+        font-weight: 650;
+        white-space: nowrap;
+    }
+
+    .search-filter-row-value {
+        min-width: 0;
+        overflow: hidden;
+        color: var(--ui-text-muted);
+        font-size: 13px;
+        text-align: right;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .search-filter-row-value.is-set {
+        color: var(--member-icon-color);
+        font-weight: 650;
+    }
+
+    .search-filter-row-chevron {
+        color: #999;
+        font-size: 24px;
+        line-height: 1;
+        text-align: right;
+    }
+
+    .search-filter-keyword-area {
+        padding: 12px 13px 14px 47px;
+        background: #fafafa;
+    }
+
+    .search-filter-keyword-input {
+        width: 100%;
+        height: 42px;
+        padding: 0 12px;
+        border: 1px solid var(--ui-border);
+        border-radius: 9px;
+        background: #fff;
+        color: var(--ui-text);
+        font: inherit;
+        font-size: 14px;
+        outline: none;
+    }
+
+    .search-filter-keyword-input:focus {
+        border-color: var(--member-icon-color);
+        box-shadow: 0 0 0 3px color-mix(in srgb, var(--member-icon-color) 12%, transparent);
+    }
+
+    .search-filter-sheet-footer {
+        padding-top: 14px;
+    }
+
+    .search-filter-execute-button,
+    .search-date-confirm-button {
+        appearance: none;
+        width: 100%;
+        min-height: 46px;
+        border: 0;
+        border-radius: 11px;
+        background: var(--member-icon-color);
+        color: #fff;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .search-filter-clear-button {
+        appearance: none;
+        width: 100%;
+        min-height: 40px;
+        margin-top: 5px;
+        border: 0;
+        background: transparent;
+        color: var(--member-icon-color);
+        font: inherit;
+        font-size: 13px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    .search-date-picker-backdrop {
+        z-index: 220;
+    }
+
+    .search-date-picker {
+        position: fixed;
+        left: 50%;
+        bottom: max(12px, env(safe-area-inset-bottom));
+        z-index: 230;
+        display: block;
+        width: min(calc(100% - 24px), 440px);
+        padding: 16px;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.22);
+        opacity: 0;
+        transform: translate(-50%, 18px) scale(0.98);
+        transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    .search-date-picker.is-open {
+        opacity: 1;
+        transform: translate(-50%, 0) scale(1);
+    }
+
+    .search-date-picker-header {
+        padding-bottom: 8px;
+    }
+
+    .search-date-picker-month-nav {
+        display: grid;
+        grid-template-columns: 42px 1fr 42px;
+        align-items: center;
+        margin: 4px 0 10px;
+        text-align: center;
+    }
+
+    .search-date-month-button {
+        appearance: none;
+        width: 38px;
+        height: 38px;
+        border: 0;
+        border-radius: 10px;
+        background: transparent;
+        color: #444;
+        font: inherit;
+        font-size: 27px;
+        cursor: pointer;
+    }
+
+    .search-date-weekdays,
+    .search-date-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+    }
+
+    .search-date-weekdays span {
+        padding: 6px 0;
+        color: #777;
+        font-size: 12px;
+        font-weight: 650;
+        text-align: center;
+    }
+
+    .search-date-day {
+        appearance: none;
+        aspect-ratio: 1;
+        margin: 2px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: #333;
+        font: inherit;
+        font-size: 13px;
+        cursor: pointer;
+    }
+
+    .search-date-day.is-selected {
+        background: var(--member-icon-color);
+        color: #fff;
+        font-weight: 700;
+    }
+
+    .search-date-day.is-disabled {
+        color: #c5c5c5;
+        cursor: default;
+    }
+
+    .search-date-picker-footer {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-top: 14px;
+    }
+
+    .search-date-unset-button {
+        appearance: none;
+        min-height: 46px;
+        border: 0;
+        border-radius: 11px;
+        background: #f1eef5;
+        color: #444;
+        font: inherit;
+        font-size: 14px;
+        font-weight: 650;
+        cursor: pointer;
+    }
+
+    body.search-filter-lock {
+        overflow: hidden;
+    }
+}

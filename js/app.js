@@ -4123,6 +4123,33 @@ function changeSearchPickerMonth(
 }
 
 
+function installSearchDatePickerNavIcons() {
+    const iconTargets = [
+        [searchDateFirstMonth, "chevronsLeft", 18],
+        [searchDatePrevMonth, "chevronLeft", 20],
+        [searchDateNextMonth, "chevronRight", 20],
+        [searchDateLastMonth, "chevronsRight", 18],
+        [searchDateMonthPickerPrevYear, "chevronLeft", 20],
+        [searchDateMonthPickerNextYear, "chevronRight", 20]
+    ];
+
+    iconTargets.forEach(
+        ([button, iconName, size]) => {
+            if (!button) {
+                return;
+            }
+
+            button.replaceChildren(
+                createUiIcon(
+                    iconName,
+                    { size }
+                )
+            );
+        }
+    );
+}
+
+
 function installSearchFilterIcons() {
     document.querySelectorAll(
         '[data-search-icon="calendar"]'
@@ -4153,6 +4180,7 @@ function installSearchFilterIcons() {
 
 
 installSearchFilterIcons();
+installSearchDatePickerNavIcons();
 updateSearchFilterUi();
 
 

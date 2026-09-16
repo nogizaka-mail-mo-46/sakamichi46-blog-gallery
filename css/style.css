@@ -1913,3 +1913,13 @@ body {
         transform: scale(0.94);
     }
 }
+
+
+/*
+ * タブレット回転時の文字自動拡大を抑止する。
+ * ページ自体のピンチズームは無効化しない。
+ */
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}

@@ -505,9 +505,20 @@
     </div>
 
     <div class="search-date-picker-month-nav">
-        <button type="button" id="searchDatePrevMonth" class="search-date-month-button" aria-label="前の月">‹</button>
-        <strong id="searchDateMonthTitle"></strong>
-        <button type="button" id="searchDateNextMonth" class="search-date-month-button" aria-label="次の月">›</button>
+        <button type="button" id="searchDateFirstMonth" class="search-date-month-button search-date-month-edge" aria-label="一番古い投稿月へ" title="一番古い投稿月へ">≪</button>
+        <button type="button" id="searchDatePrevMonth" class="search-date-month-button" aria-label="前の投稿月へ" title="前の投稿月へ">‹</button>
+        <button type="button" id="searchDateMonthTitle" class="search-date-month-title-button" aria-label="年月を選択" aria-expanded="false"></button>
+        <button type="button" id="searchDateNextMonth" class="search-date-month-button" aria-label="次の投稿月へ" title="次の投稿月へ">›</button>
+        <button type="button" id="searchDateLastMonth" class="search-date-month-button search-date-month-edge" aria-label="一番新しい投稿月へ" title="一番新しい投稿月へ">≫</button>
+    </div>
+
+    <div id="searchDateMonthPicker" class="search-date-month-picker" hidden>
+        <div class="search-date-month-picker-header">
+            <button type="button" id="searchDateMonthPickerPrevYear" class="search-date-month-picker-year-nav" aria-label="前の投稿年">‹</button>
+            <strong id="searchDateMonthPickerYear"></strong>
+            <button type="button" id="searchDateMonthPickerNextYear" class="search-date-month-picker-year-nav" aria-label="次の投稿年">›</button>
+        </div>
+        <div id="searchDateMonthPickerGrid" class="search-date-month-picker-grid"></div>
     </div>
 
     <div class="search-date-weekdays" aria-hidden="true">

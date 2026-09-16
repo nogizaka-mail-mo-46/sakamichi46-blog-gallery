@@ -264,40 +264,28 @@
 
 
                     <!-- =========================
-                         PC: ブログ検索
+                         ブログ検索
+                         PC: 従来パネル
+                         1023px以下: 検索条件ボタン
                     ========================= -->
 
-                    <div
-                        class="blog-search-panel"
-                    >
+                    <div class="blog-search-panel blog-search-panel-desktop">
+                        <div class="blog-search-title">ブログを検索</div>
 
-                        <div
-                            class="blog-search-title"
-                        >
-                            ブログを検索
-                        </div>
-
-                        <div
-                            class="blog-search-input-wrap"
-                        >
-
+                        <div class="blog-search-input-wrap">
                             <input
                                 type="search"
                                 class="blog-search-input"
                                 placeholder="キーワードを入力"
                                 aria-label="ブログ検索キーワード"
                             >
-
                         </div>
 
-                        <button
-                            type="button"
-                            class="blog-search-button"
-                        >
+                        <button type="button" class="blog-search-button">
                             検索する
                         </button>
-
                     </div>
+
 
                 </aside>
 
@@ -329,25 +317,29 @@
 
 
                         <!-- =========================
-                             並び順
+                             検索条件 / 並び順
                         ========================= -->
 
-                        <select
-                            id="sortSelect"
-                            aria-label="並び順を選択"
-                        >
-                            <option
-                                value="desc"
+                        <div class="blog-list-actions">
+                            <button
+                                type="button"
+                                id="openSearchFiltersButton"
+                                class="mobile-search-filter-button"
+                                aria-label="検索条件を指定する"
+                                aria-haspopup="dialog"
+                                aria-controls="searchFilterSheet"
                             >
-                                新しい順
-                            </option>
+                                <span class="mobile-search-filter-icon" aria-hidden="true"></span>
+                            </button>
 
-                            <option
-                                value="asc"
+                            <select
+                                id="sortSelect"
+                                aria-label="並び順を選択"
                             >
-                                古い順
-                            </option>
-                        </select>
+                                <option value="desc">新しい順</option>
+                                <option value="asc">古い順</option>
+                            </select>
+                        </div>
 
                     </div>
 
@@ -425,6 +417,110 @@
 
 </main>
 
+
+<!-- =========================
+     スマホ / タブレット縦: 検索条件シート
+     ※ UIのみ。検索処理は未実装。
+========================= -->
+
+<div id="searchFilterBackdrop" class="search-filter-backdrop" hidden></div>
+
+<section
+    id="searchFilterSheet"
+    class="search-filter-sheet"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="searchFilterSheetTitle"
+    hidden
+>
+    <div class="search-filter-sheet-handle" aria-hidden="true"></div>
+
+    <div class="search-filter-sheet-header">
+        <h2 id="searchFilterSheetTitle">検索条件を指定する</h2>
+        <button type="button" id="closeSearchFiltersButton" class="search-filter-close-button" aria-label="閉じる">×</button>
+    </div>
+
+    <div class="search-filter-sheet-body">
+        <button type="button" id="searchStartDateButton" class="search-filter-row">
+            <span class="search-filter-row-icon" data-search-icon="calendar"></span>
+            <span class="search-filter-row-label">開始日</span>
+            <span id="searchStartDateValue" class="search-filter-row-value">未選択</span>
+            <span class="search-filter-row-chevron">›</span>
+        </button>
+
+        <button type="button" id="searchEndDateButton" class="search-filter-row">
+            <span class="search-filter-row-icon" data-search-icon="calendar"></span>
+            <span class="search-filter-row-label">終了日</span>
+            <span id="searchEndDateValue" class="search-filter-row-value">未選択</span>
+            <span class="search-filter-row-chevron">›</span>
+        </button>
+
+        <div class="search-filter-row search-filter-member-row">
+            <span class="search-filter-row-icon" data-search-icon="users"></span>
+            <span class="search-filter-row-label">メンバー</span>
+            <span id="searchMemberValue" class="search-filter-row-value">ALL</span>
+        </div>
+
+        <button type="button" id="searchKeywordToggleButton" class="search-filter-row" aria-expanded="false">
+            <span class="search-filter-row-icon search-filter-search-icon" aria-hidden="true"></span>
+            <span class="search-filter-row-label">キーワード</span>
+            <span id="searchKeywordValue" class="search-filter-row-value">未設定</span>
+            <span class="search-filter-row-chevron">›</span>
+        </button>
+
+        <div id="searchKeywordArea" class="search-filter-keyword-area" hidden>
+            <input
+                type="search"
+                id="searchKeywordInput"
+                class="search-filter-keyword-input"
+                placeholder="キーワードを入力"
+                aria-label="検索キーワード"
+            >
+        </div>
+    </div>
+
+    <div class="search-filter-sheet-footer">
+        <button type="button" id="executeSearchButton" class="search-filter-execute-button">この条件で検索</button>
+        <button type="button" id="clearSearchFiltersButton" class="search-filter-clear-button">条件をクリア</button>
+    </div>
+</section>
+
+<!-- =========================
+     開始日 / 終了日 選択カレンダー
+========================= -->
+
+<div id="searchDatePickerBackdrop" class="search-date-picker-backdrop" hidden></div>
+
+<section
+    id="searchDatePicker"
+    class="search-date-picker"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="searchDatePickerTitle"
+    hidden
+>
+    <div class="search-date-picker-header">
+        <h2 id="searchDatePickerTitle">開始日を選択</h2>
+        <button type="button" id="closeSearchDatePickerButton" class="search-filter-close-button" aria-label="閉じる">×</button>
+    </div>
+
+    <div class="search-date-picker-month-nav">
+        <button type="button" id="searchDatePrevMonth" class="search-date-month-button" aria-label="前の月">‹</button>
+        <strong id="searchDateMonthTitle"></strong>
+        <button type="button" id="searchDateNextMonth" class="search-date-month-button" aria-label="次の月">›</button>
+    </div>
+
+    <div class="search-date-weekdays" aria-hidden="true">
+        <span>日</span><span>月</span><span>火</span><span>水</span><span>木</span><span>金</span><span>土</span>
+    </div>
+
+    <div id="searchDateGrid" class="search-date-grid"></div>
+
+    <div class="search-date-picker-footer">
+        <button type="button" id="unsetSearchDateButton" class="search-date-unset-button">未選択にする</button>
+        <button type="button" id="confirmSearchDateButton" class="search-date-confirm-button">決定</button>
+    </div>
+</section>
 
 <!-- =========================
      拡大表示

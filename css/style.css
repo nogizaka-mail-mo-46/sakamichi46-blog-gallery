@@ -1133,6 +1133,19 @@ body {
     display: none;
 }
 
+/*
+ * hidden 属性を持つ検索UIは必ず非表示にする。
+ * media query 内の display:block より優先し、
+ * 透明な backdrop が画面全体のクリックを塞ぐのを防ぐ。
+ */
+.search-filter-sheet[hidden],
+.search-filter-backdrop[hidden],
+.search-date-picker[hidden],
+.search-date-picker-backdrop[hidden],
+.search-filter-keyword-area[hidden] {
+    display: none !important;
+}
+
 @media (max-width: 1023px) {
     .blog-search-panel-desktop {
         display: none;

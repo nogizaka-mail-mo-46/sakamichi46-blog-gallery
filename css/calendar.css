@@ -1333,8 +1333,11 @@
         padding-bottom: 14px;
     }
 
+    /*
+     * 折りたたみ時と展開時で年月バーの高さを統一する。
+     * コンパクト化した折りたたみ時の高さを基準にする。
+     */
     .gallery-main-layout
-    .calendar.mobile-collapsed
     .calendar-header {
         grid-template-columns:
             36px
@@ -1348,24 +1351,20 @@
     }
 
     .gallery-main-layout
-    .calendar.mobile-collapsed
     .calendar-nav,
     .gallery-main-layout
-    .calendar.mobile-collapsed
     .calendar-mobile-toggle {
         width: 36px;
         height: 36px;
     }
 
     .gallery-main-layout
-    .calendar.mobile-collapsed
     .calendar-title-button {
         padding-top: 4px;
         padding-bottom: 4px;
     }
 
     .gallery-main-layout
-    .calendar.mobile-collapsed
     .calendar-month-picker {
         top: 50px;
     }

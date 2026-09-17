@@ -90,6 +90,13 @@ export const sakurazakaMembers = {
         blogDataFolderId: "1uJKLTaWqwGHeJNBx8tShOxOfnWA8kSJf",
         blogIndexFileId: "1aWYCfb8z03_70qz9p4aOX_QzU-fAAefO"
     },
+    nagisa_kojima: {
+        name: "小島 凪紗",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "1dmUygs3lgM2mveoj_jScnGW5YuLTqD74",
+        blogIndexFileId: "1U5O49XB_dEvZlpx755avibB4kU4MkQtY"
+    },
     airi_taniguchi: {
         name: "谷口 愛季",
         group: "sakurazaka46",
@@ -118,6 +125,20 @@ export const sakurazakaMembers = {
         blogDataFolderId: "1ZKIooKsnCnGdj5bmMoCQBYc21-YmO9L1",
         blogIndexFileId: "1tWFjotaJVUDrgbRjnBAcCuSJ-JjIoMng"
     },
+    yu_murai: {
+        name: "村井 優",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "1tHQM2lDA9DEUS5rndb3deQIoDK0tgrNV",
+        blogIndexFileId: "1o6R9ckyn1a5vhfJcrW5ybuntgOToLUXZ"
+    },
+    miu_murayama: {
+        name: "村山 美羽",
+        group: "sakurazaka46",
+        generation: 3,
+        blogDataFolderId: "1WDK_mrYbpnjnOmpDt5g4X1WtZDrPqR95",
+        blogIndexFileId: "1PPX79GzjbiM40RTGxA76MCQwpPKB4C8m"
+    },
     shizuki_yamashita: {
         name: "山下 瞳月",
         group: "sakurazaka46",
@@ -129,6 +150,20 @@ export const sakurazakaMembers = {
     /*
      * 櫻坂46（4期生）
      */
+    konomi_asai: {
+        name: "浅井 恋乃未",
+        group: "sakurazaka46",
+        generation: 4,
+        blogDataFolderId: "17delzGmDctKp8mGRMAzpfQk61db4Fkyf",
+        blogIndexFileId: "1blBX7m9GpA53xl90ZPuU4HnyAjKbAKOQ"
+    },
+    hina_inaguma: {
+        name: "稲熊 ひな",
+        group: "sakurazaka46",
+        generation: 4,
+        blogDataFolderId: "17FqZvrnp-W_LnDuxvE_GQjmPlbg_60jW",
+        blogIndexFileId: "1WhTV9qFrXtzIYysyT3M-vfW1QQfVyuMh"
+    },
     haru_katsumata: {
         name: "勝又 春",
         group: "sakurazaka46",
@@ -143,12 +178,12 @@ export const sakurazakaMembers = {
         blogDataFolderId: "1sF2UCENOqcWLGSwDmQg1Mi4axZW6trFN",
         blogIndexFileId: "1u3aL0ADjxUnAyeq83Vo20hWYZrUCsFLw"
     },
-    hiiro_meguro: {
-        name: "目黒 陽色",
+    chihiro_nakagawa: {
+        name: "中川 智尋",
         group: "sakurazaka46",
         generation: 4,
-        blogDataFolderId: "1qYAHJWYu6UT1UbucwC0eyboryukF-Ia6",
-        blogIndexFileId: "1yaOStkJRkqa8zR0JvPtXPPW-GY-zBoaz"
+        blogDataFolderId: "1_NtZoRVTtBDJe2D9UdGbrY22Dl-bRc-V",
+        blogIndexFileId: "1T2-nGTb2o2Vq47EXmmwWjaAWI32R9Uw6"
     },
     wako_matsumoto: {
         name: "松本 和子",
@@ -156,6 +191,13 @@ export const sakurazakaMembers = {
         generation: 4,
         blogDataFolderId: "1Tk7NQ5fBRL1yn6OhX-Cwd0zAp5epXyHo",
         blogIndexFileId: "1Mo8QKN7-UfgYvzxmN6h3iHuh-xGNZN0v"
+    },
+    hiiro_meguro: {
+        name: "目黒 陽色",
+        group: "sakurazaka46",
+        generation: 4,
+        blogDataFolderId: "1qYAHJWYu6UT1UbucwC0eyboryukF-Ia6",
+        blogIndexFileId: "1yaOStkJRkqa8zR0JvPtXPPW-GY-zBoaz"
     },
     ui_yamakawa: {
         name: "山川 宇衣",

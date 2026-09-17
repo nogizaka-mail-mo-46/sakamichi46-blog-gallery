@@ -1328,8 +1328,15 @@
 ) and (
     orientation: portrait
 ) {
-    .gallery-main-layout .calendar.mobile-collapsed {
+    /*
+     * 開閉で年月バーの縦位置が動かないよう、
+     * 展開時も上余白を折りたたみ時と同じ 14px に固定する。
+     */
+    .gallery-main-layout .calendar {
         padding-top: 14px;
+    }
+
+    .gallery-main-layout .calendar.mobile-collapsed {
         padding-bottom: 14px;
     }
 

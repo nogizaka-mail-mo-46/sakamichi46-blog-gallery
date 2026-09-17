@@ -6,6 +6,8 @@ export const nogizakaMembers = {
         name: "伊藤 理々杏",
         group: "nogizaka46",
         generation: 3,
+        memberId: "36749",
+        searchIndexFolderId: "1ioTTDWiVdOLSPmELV1XJpF-XcXA7nvJa",
         blogDataFolderId: "1-bVgL8_OKGGq6UnCYItn_o4KwTfLO_kl",
         blogIndexFileId: "1U0CLchMz8_ldP8Bb2kaxnwLojaiX14eR"
     },

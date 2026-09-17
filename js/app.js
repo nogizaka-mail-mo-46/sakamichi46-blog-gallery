@@ -12,7 +12,8 @@ import {
 
 import {
     fetchMembers,
-    fetchBlogs
+    fetchBlogs,
+    fetchBlogSearch
 } from "./api.js";
 
 import {
@@ -4588,18 +4589,111 @@ desktopClearSearchButton?.addEventListener("click", () => {
     updateSearchFilterUi();
 });
 
-desktopExecuteSearchButton?.addEventListener("click", () => {
-    if (searchKeywordInput && desktopSearchKeywordInput) searchKeywordInput.value = desktopSearchKeywordInput.value;
+function createSearchApiDate(date) {
+    if (!date) {
+        return null;
+    }
+
+    return (
+        String(date.getFullYear()) +
+        String(date.getMonth() + 1).padStart(2, "0") +
+        String(date.getDate()).padStart(2, "0")
+    );
+}
+
+
+async function executeBlogSearch({
+    keywordSource = "mobile"
+} = {}) {
+    const requestGroup = currentGroup;
+    const requestMember = memberSelect.value || null;
+
+    /*
+     * 現段階の /api/search は個人メンバー検索のみ対応。
+     * ALL / 期別は全メンバーの検索index作成後に接続する。
+     */
+    if (!requestMember || selectedGeneration !== null) {
+        galleryElement.textContent =
+            "現在の検索テストは個人メンバーを選択した場合のみ利用できます。";
+        return;
+    }
+
+    if (
+        searchStartDate &&
+        searchEndDate &&
+        searchStartDate.getTime() > searchEndDate.getTime()
+    ) {
+        galleryElement.textContent =
+            "開始日は終了日以前の日付を指定してください。";
+        return;
+    }
+
+    let keyword = "";
+
+    if (keywordSource === "desktop") {
+        keyword = desktopSearchKeywordInput?.value.trim() || "";
+        if (searchKeywordInput) {
+            searchKeywordInput.value = keyword;
+        }
+    } else {
+        keyword = searchKeywordInput?.value.trim() || "";
+        if (desktopSearchKeywordInput) {
+            desktopSearchKeywordInput.value = keyword;
+        }
+    }
+
     updateSearchFilterUi();
+    galleryElement.textContent = "検索中...";
+
+    try {
+        const data = await fetchBlogSearch({
+            group: requestGroup,
+            member: requestMember,
+            startDate: createSearchApiDate(searchStartDate),
+            endDate: createSearchApiDate(searchEndDate),
+            keyword: keyword || null,
+            sort: sortSelect.value
+        });
+
+        if (
+            currentGroup !== requestGroup ||
+            (memberSelect.value || null) !== requestMember
+        ) {
+            return;
+        }
+
+        blogs = Array.isArray(data.blogs) ? data.blogs : [];
+        selectedDate = null;
+        updateBlogs();
+
+        if (blogs.length === 0) {
+            galleryElement.textContent = "検索条件に一致するブログはありません。";
+            lightbox.setImages([]);
+        }
+
+        setSearchFilterSheetOpen(false);
+    } catch (error) {
+        console.error(error);
+        blogs = [];
+        lightbox.setImages([]);
+        galleryElement.textContent =
+            error?.message || "ブログ検索に失敗しました。";
+    }
+}
+
+
+desktopExecuteSearchButton?.addEventListener("click", async () => {
+    await executeBlogSearch({
+        keywordSource: "desktop"
+    });
 });
 
 executeSearchButton?.addEventListener(
     "click",
-    () => {
-        /*
-         * UI確認段階のため検索処理はまだ行わない。
-         */
-        updateSearchFilterUi();
+    async () => {
+        await executeBlogSearch({
+            keywordSource: "mobile"
+        });
     }
 );
 

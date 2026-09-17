@@ -925,11 +925,11 @@ body {
 }
 
 /* ========================================
- * スマホ / ページ上部へ戻るボタン
+ * スマホ / タブレット / ページ上部へ戻るボタン
  *
  * 【仕様】
  * - 600px以上スクロールすると表示
- * - スマホのみ表示
+ * - スマホ / タブレットで表示
  * - 右下固定
  * ========================================
  */
@@ -939,7 +939,8 @@ body {
 }
 
 
-@media (max-width: 767px) {
+@media (max-width: 1023px),
+       (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
 
     .scroll-top-button {
         position: fixed;
@@ -1825,7 +1826,6 @@ body {
 
 /* ========================================
  * 検索条件カレンダー 配置補正
- * 2026-09-17
  * ======================================== */
 
 /*
@@ -1852,7 +1852,7 @@ body {
 
 
 /* ========================================
- * 2026-09-17 検索カレンダー / タブレット横 最終補正
+ * 検索カレンダー / タブレット横 レイアウト
  * ======================================== */
 
 /*
@@ -1868,120 +1868,4 @@ body {
         overscroll-behavior: auto;
         scrollbar-gutter: auto;
     }
-}
-
-/*
- * タブレットにもスマホと同じ「上へ戻る」ボタンを表示。
- * JS側の表示条件（600px以上スクロール）はそのまま共用する。
- * 横向きのPCレイアウト幅では、タッチ端末だけを対象にする。
- */
-@media (min-width: 768px) and (max-width: 1023px),
-       (min-width: 1024px) and (max-width: 1366px) and (orientation: landscape) and (hover: none) and (pointer: coarse) {
-    .scroll-top-button {
-        position: fixed;
-        right: max(14px, env(safe-area-inset-right));
-        bottom: max(18px, calc(env(safe-area-inset-bottom) + 12px));
-        z-index: 80;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 46px;
-        height: 46px;
-        padding: 0;
-        border: 1px solid rgba(255, 255, 255, 0.88);
-        border-radius: 50%;
-        background: rgba(255, 255, 255, 0.94);
-        color: #555;
-        box-shadow: 0 5px 18px rgba(0, 0, 0, 0.14);
-        cursor: pointer;
-        opacity: 0;
-        visibility: hidden;
-        transform: translateY(10px);
-        pointer-events: none;
-        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
-        -webkit-tap-highlight-color: transparent;
-    }
-
-    .scroll-top-button.visible {
-        opacity: 1;
-        visibility: visible;
-        transform: translateY(0);
-        pointer-events: auto;
-    }
-
-    .scroll-top-button:active {
-        transform: scale(0.94);
-    }
-}
-
-/* ========================================
- * iPad / WebKit 回転時の表示倍率安定化
- * 2026-09-17
- * ======================================== */
-
-/*
- * iPadOS の Safari / Chrome は同じ WebKit 系のため、
- * 縦横回転時に文字サイズの自動補正や、16px未満のフォーム部品に
- * 起因するフォーカス拡大が残ることがある。
- * viewport の拡大禁止は行わず、通常のピンチズームは維持する。
- */
-html {
-    -webkit-text-size-adjust: 100%;
-    text-size-adjust: 100%;
-    width: 100%;
-    overflow-x: hidden;
-}
-
-body {
-    width: 100%;
-    min-width: 0;
-    overflow-x: hidden;
-}
-
-/*
- * iPad / タブレット相当のタッチ端末だけ、入力系を16px以上にする。
- * iOS WebKit の入力フォーカス時自動ズームを防ぎ、
- * その倍率が画面回転後に残る現象を避ける。
- */
-@media (min-width: 768px) and (max-width: 1366px) and (hover: none) and (pointer: coarse) {
-    input,
-    select,
-    textarea,
-    .blog-search-input,
-    .search-filter-keyword-input,
-    #memberSelect,
-    #sortSelect {
-        font-size: 16px !important;
-    }
-}
-
-/* ========================================
- * iPad 回転時デバッグパネル（一時）
- * 原因特定後に削除する。
- * ======================================== */
-#viewportDebugPanel {
-    position: fixed !important;
-    left: max(8px, env(safe-area-inset-left)) !important;
-    top: max(8px, env(safe-area-inset-top)) !important;
-    right: auto !important;
-    bottom: auto !important;
-    z-index: 2147483647 !important;
-    display: block !important;
-    box-sizing: border-box !important;
-    width: auto !important;
-    max-width: min(330px, calc(100vw - 16px)) !important;
-    margin: 0 !important;
-    padding: 8px 10px !important;
-    border: 1px solid rgba(255,255,255,.35) !important;
-    border-radius: 8px !important;
-    background: rgba(0,0,0,.82) !important;
-    color: #fff !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,.28) !important;
-    font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
-    white-space: pre !important;
-    text-align: left !important;
-    pointer-events: none !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-    transform: none !important;
 }

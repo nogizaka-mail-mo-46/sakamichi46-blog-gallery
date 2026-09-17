@@ -150,3 +150,76 @@ export async function fetchBlogDetail({
         "ブログ詳細の取得に失敗しました。"
     );
 }
+
+/*
+ * ========================================
+ * ブログ検索
+ *
+ * 【対応パラメータ】
+ * - group
+ * - member
+ * - startDate
+ * - endDate
+ * - keyword
+ * - sort
+ * ========================================
+ */
+
+export async function fetchBlogSearch({
+    group,
+    member,
+    startDate = null,
+    endDate = null,
+    keyword = null,
+    sort = null
+}) {
+    const params =
+        new URLSearchParams({
+            group:
+                group,
+            member:
+                member
+        });
+
+    if (
+        startDate
+    ) {
+        params.set(
+            "startDate",
+            startDate
+        );
+    }
+
+    if (
+        endDate
+    ) {
+        params.set(
+            "endDate",
+            endDate
+        );
+    }
+
+    if (
+        keyword
+    ) {
+        params.set(
+            "keyword",
+            keyword
+        );
+    }
+
+    if (
+        sort
+    ) {
+        params.set(
+            "sort",
+            sort
+        );
+    }
+
+    return await fetchJson(
+        `/api/search?${params.toString()}`,
+        "ブログ検索に失敗しました。"
+    );
+}
+

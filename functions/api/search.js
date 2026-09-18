@@ -197,13 +197,18 @@ async function getDriveFileText(
 
 /*
  * ========================================
- * 検索インデックスファイルID取得
+ * 検索インデックス一覧取得
  *
- * ファイル名：{memberId}.json
+ * 検索インデックスは全員分を同一フォルダに保存。
+ * ALL検索時も、通常ブログindexはここでは取得しない。
+ *
+ * これにより1回のFunction内で
+ * 「検索index + ブログindex」を全員分取得して
+ * サブリクエスト数が増えすぎるのを防ぐ。
  * ========================================
  */
 
-async function getSearchIndexFileMap(
+async function getSearchIndexFiles(
     accessToken
 ) {
     const queryParts = [
@@ -211,8 +216,8 @@ async function getSearchIndexFileMap(
         "trashed = false"
     ];
 
-    const fileMap =
-        new Map();
+    const files =
+        [];
 
     let pageToken =
         null;
@@ -276,22 +281,17 @@ async function getSearchIndexFileMap(
                 data.files
             )
         ) {
-            data.files.forEach(
-                file => {
-                    if (
-                        file?.name &&
-                        file?.id
-                    ) {
-                        fileMap.set(
+            files.push(
+                ...data.files.filter(
+                    file =>
+                        file?.id &&
+                        /^\d+\.json$/.test(
                             String(
-                                file.name
-                            ),
-                            String(
-                                file.id
+                                file.name ||
+                                ""
                             )
-                        );
-                    }
-                }
+                        )
+                )
             );
         }
 
@@ -303,7 +303,7 @@ async function getSearchIndexFileMap(
         pageToken
     );
 
-    return fileMap;
+    return files;
 }
 
 
@@ -364,211 +364,59 @@ function createDateKey(
 
 /*
  * ========================================
- * 一覧表示用ブログデータ生成
+ * 検索対象判定用メンバー情報
+ *
+ * 検索index内の member.name / generation を使って
+ * 個人・期別・ALLの対象を判定する。
+ *
+ * そのため、各メンバー設定へmemberIdを追加しなくても
+ * 全員分の検索indexを利用できる。
  * ========================================
  */
 
-function createBlogSummary(
-    blog,
-    memberKey,
-    member,
-    indexData
+function createTargetMemberConditions(
+    targetMembers
 ) {
-    const images =
-        Array.isArray(
-            blog.images
-        )
-            ? blog.images
-                .filter(
-                    image =>
-                        image &&
-                        image.fileId
-                )
-                .map(
-                    image => ({
-                        imageIndex:
-                            Number(
-                                image.imageIndex
-                            ) ||
-                            0,
-
-                        fileId:
-                            String(
-                                image.fileId
-                            ),
-
-                        fileName:
-                            image.fileName
-                                ? String(
-                                    image.fileName
-                                )
-                                : ""
-                    })
-                )
-                .sort(
-                    (
-                        a,
-                        b
-                    ) =>
-                        a.imageIndex -
-                        b.imageIndex
-                )
-            : [];
-
-    return {
-        articleId:
-            String(
-                blog.articleId ||
-                ""
-            ),
-
-        title:
-            String(
-                blog.title ||
-                ""
-            ),
-
-        timestamp:
-            String(
-                blog.timestamp ||
-                ""
-            ),
-
-        date:
-            String(
-                blog.date ||
-                ""
-            ),
-
-        member: {
-            key:
+    return targetMembers.map(
+        ([
+            memberKey,
+            member
+        ]) => ({
+            memberKey:
                 memberKey,
 
-            id:
-                indexData.member?.id
-                    ? String(
-                        indexData.member.id
-                    )
-                    : "",
-
             name:
-                indexData.member?.name ||
-                member.name ||
-                ""
-        },
+                String(
+                    member.name ||
+                    ""
+                ),
 
-        group: {
-            id:
-                indexData.group?.id ||
-                member.group ||
-                "",
-
-            name:
-                indexData.group?.name ||
-                ""
-        },
-
-        imageCount:
-            images.length,
-
-        images:
-            images,
-
-        previewText:
-            typeof blog.previewText ===
-                "string"
-                ? blog.previewText
-                : ""
-    };
+            generation:
+                member.generation
+        })
+    );
 }
 
 
 /*
  * ========================================
- * 1メンバー分の検索
+ * 1検索インデックス分の検索
  *
- * 1. 通常ブログindexを取得
- * 2. member.idを取得
- * 3. {member.id}.json を検索
- * 4. 日付・キーワードで絞り込み
- * 5. 通常ブログindexと突き合わせ
- *
- * 本文全文はレスポンスへ返さない
+ * ここでは一致した記事IDだけを返す。
+ * 本文全文や一覧表示データは返さない。
  * ========================================
  */
 
-async function searchMemberBlogs(
+async function searchIndexFile(
     accessToken,
-    memberKey,
-    member,
-    conditions,
-    searchIndexFileMap
+    file,
+    targetMemberConditions,
+    conditions
 ) {
-    if (
-        !member.blogIndexFileId
-    ) {
-        throw new Error(
-            `ブログindexが未設定です: ${memberKey}`
-        );
-    }
-
-    const blogIndexText =
-        await getDriveFileText(
-            accessToken,
-            member.blogIndexFileId
-        );
-
-    const blogIndexData =
-        JSON.parse(
-            blogIndexText
-        );
-
-    if (
-        !Array.isArray(
-            blogIndexData.blogs
-        )
-    ) {
-        throw new Error(
-            `ブログindexのblogsが不正です: ${memberKey}`
-        );
-    }
-
-    const memberId =
-        blogIndexData.member?.id
-            ? String(
-                blogIndexData.member.id
-            )
-            : String(
-                member.memberId ||
-                ""
-            );
-
-    if (
-        !memberId
-    ) {
-        throw new Error(
-            `memberIdを取得できません: ${memberKey}`
-        );
-    }
-
-    const searchIndexFileId =
-        searchIndexFileMap.get(
-            `${memberId}.json`
-        ) ||
-        null;
-
-    if (
-        !searchIndexFileId
-    ) {
-        throw new Error(
-            `検索インデックスが見つかりません: ${memberKey}`
-        );
-    }
-
     const searchIndexText =
         await getDriveFileText(
             accessToken,
-            searchIndexFileId
+            file.id
         );
 
     const searchIndexData =
@@ -582,12 +430,52 @@ async function searchMemberBlogs(
         )
     ) {
         throw new Error(
-            `検索インデックスのarticlesが不正です: ${memberKey}`
+            `検索インデックスのarticlesが不正です: ${file.name}`
         );
     }
 
-    const matchedArticleIds =
-        new Set();
+    const indexMemberName =
+        String(
+            searchIndexData.member?.name ||
+            ""
+        );
+
+    const indexGeneration =
+        Number(
+            searchIndexData.member?.generation
+        );
+
+    const targetMember =
+        targetMemberConditions.find(
+            target =>
+                target.name ===
+                    indexMemberName &&
+                target.generation ===
+                    indexGeneration
+        );
+
+    if (
+        !targetMember
+    ) {
+        return [];
+    }
+
+    const memberId =
+        String(
+            searchIndexData.member?.id ||
+            ""
+        );
+
+    if (
+        !memberId
+    ) {
+        throw new Error(
+            `検索インデックスのmember.idが不正です: ${file.name}`
+        );
+    }
+
+    const matches =
+        [];
 
     searchIndexData.articles.forEach(
         article => {
@@ -642,34 +530,22 @@ async function searchMemberBlogs(
                 }
             }
 
-            matchedArticleIds.add(
-                String(
-                    article.articleId
-                )
-            );
+            matches.push({
+                articleId:
+                    String(
+                        article.articleId
+                    ),
+
+                memberId:
+                    memberId,
+
+                memberKey:
+                    targetMember.memberKey
+            });
         }
     );
 
-    return blogIndexData.blogs
-        .filter(
-            blog =>
-                blog &&
-                matchedArticleIds.has(
-                    String(
-                        blog.articleId ||
-                        ""
-                    )
-                )
-        )
-        .map(
-            blog =>
-                createBlogSummary(
-                    blog,
-                    memberKey,
-                    member,
-                    blogIndexData
-                )
-        );
+    return matches;
 }
 
 
@@ -681,6 +557,14 @@ async function searchMemberBlogs(
  * - 個人メンバー
  * - 期別
  * - ALL
+ *
+ * 【重要】
+ * このAPIは検索一致IDだけを返す。
+ * 一覧表示用データは /api/blogs から別取得し、
+ * ブラウザ側で一致IDと突き合わせる。
+ *
+ * これによりALL検索でも、1回のFunction内で
+ * 全員分の検索indexとブログindexを二重取得しない。
  *
  * 現在は乃木坂46のみ対応
  * ========================================
@@ -737,12 +621,6 @@ export async function onRequestGet(
             "keyword"
         ) ||
         "";
-
-    const sort =
-        url.searchParams.get(
-            "sort"
-        ) ||
-        "desc";
 
 
     /*
@@ -872,24 +750,6 @@ export async function onRequestGet(
         );
     }
 
-    if (
-        sort !==
-            "asc" &&
-        sort !==
-            "desc"
-    ) {
-        return Response.json(
-            {
-                error:
-                    "sortはascまたはdescを指定してください。"
-            },
-            {
-                status:
-                    400
-            }
-        );
-    }
-
 
     /*
      * ========================================
@@ -933,14 +793,14 @@ export async function onRequestGet(
                 env
             );
 
-        /*
-         * ALL検索ではメンバーごとにDrive検索すると
-         * サブリクエスト数が大きくなるため、
-         * 検索インデックスフォルダを最初に1回だけ取得する。
-         */
-        const searchIndexFileMap =
-            await getSearchIndexFileMap(
+        const searchIndexFiles =
+            await getSearchIndexFiles(
                 accessToken
+            );
+
+        const targetMemberConditions =
+            createTargetMemberConditions(
+                targetMembers
             );
 
         const conditions = {
@@ -956,48 +816,21 @@ export async function onRequestGet(
                 )
         };
 
-        const memberResults =
+        const searchResults =
             await processInBatches(
-                targetMembers,
+                searchIndexFiles,
                 SEARCH_BATCH_SIZE,
-                ([
-                    targetMemberKey,
-                    targetMember
-                ]) =>
-                    searchMemberBlogs(
+                file =>
+                    searchIndexFile(
                         accessToken,
-                        targetMemberKey,
-                        targetMember,
-                        conditions,
-                        searchIndexFileMap
+                        file,
+                        targetMemberConditions,
+                        conditions
                     )
             );
 
-        const blogs =
-            memberResults
-                .flat()
-                .sort(
-                    (
-                        a,
-                        b
-                    ) => {
-                        const comparison =
-                            String(
-                                a.timestamp ||
-                                a.date
-                            ).localeCompare(
-                                String(
-                                    b.timestamp ||
-                                    b.date
-                                )
-                            );
-
-                        return sort ===
-                            "asc"
-                            ? comparison
-                            : -comparison;
-                    }
-                );
+        const matches =
+            searchResults.flat();
 
         return Response.json({
             group:
@@ -1018,14 +851,11 @@ export async function onRequestGet(
             keyword:
                 keyword,
 
-            sort:
-                sort,
+            matchCount:
+                matches.length,
 
-            blogCount:
-                blogs.length,
-
-            blogs:
-                blogs
+            matches:
+                matches
         });
 
     } catch (

@@ -4608,16 +4608,6 @@ async function executeBlogSearch({
     const requestGroup = currentGroup;
     const requestMember = memberSelect.value || null;
 
-    /*
-     * 現段階の /api/search は個人メンバー検索のみ対応。
-     * ALL / 期別は全メンバーの検索index作成後に接続する。
-     */
-    if (!requestMember || selectedGeneration !== null) {
-        galleryElement.textContent =
-            "現在の検索テストは個人メンバーを選択した場合のみ利用できます。";
-        return;
-    }
-
     if (
         searchStartDate &&
         searchEndDate &&
@@ -4649,6 +4639,7 @@ async function executeBlogSearch({
         const data = await fetchBlogSearch({
             group: requestGroup,
             member: requestMember,
+            generation: selectedGeneration,
             startDate: createSearchApiDate(searchStartDate),
             endDate: createSearchApiDate(searchEndDate),
             keyword: keyword || null,

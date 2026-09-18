@@ -4673,7 +4673,7 @@ async function executeBlogSearch({
          * 元の年月 / 日付見出しへ戻る。
          */
         selectedDateTitle.textContent =
-            "検索結果";
+            `検索結果 ${blogs.length}件`;
 
         selectedDateTitle.classList.add(
             "visible"

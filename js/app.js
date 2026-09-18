@@ -3545,6 +3545,13 @@ let searchPickerMonth = null;
 let searchMonthPickerYear = null;
 let isSearchMonthPickerOpen = false;
 
+/*
+ * 検索実行前の通常一覧状態。
+ * 「条件をクリア」で検索前の一覧へ戻すために保持する。
+ */
+let isBlogSearchActive = false;
+let searchRestoreSelectedDate = null;
+
 
 function formatSearchDate(
     date
@@ -4551,28 +4558,10 @@ searchKeywordInput?.addEventListener(
 
 clearSearchFiltersButton?.addEventListener(
     "click",
-    () => {
-        searchStartDate = null;
-        searchEndDate = null;
-
-        if (
-            searchKeywordInput
-        ) {
-            searchKeywordInput.value = "";
-        }
-
-        if (
-            searchKeywordArea
-        ) {
-            searchKeywordArea.hidden = true;
-        }
-
-        searchKeywordToggleButton?.setAttribute(
-            "aria-expanded",
-            "false"
-        );
-
-        updateSearchFilterUi();
+    async () => {
+        await clearBlogSearch({
+            closeMobileSheet: true
+        });
     }
 );
 
@@ -4581,13 +4570,73 @@ desktopSearchKeywordInput?.addEventListener("input", () => {
     updateSearchFilterUi();
 });
 
-desktopClearSearchButton?.addEventListener("click", () => {
+desktopClearSearchButton?.addEventListener("click", async () => {
+    await clearBlogSearch();
+});
+
+/*
+ * ========================================
+ * 検索条件クリア / 通常一覧へ復帰
+ * ========================================
+ */
+
+async function clearBlogSearch({
+    closeMobileSheet = false
+} = {}) {
     searchStartDate = null;
     searchEndDate = null;
-    if (desktopSearchKeywordInput) desktopSearchKeywordInput.value = "";
-    if (searchKeywordInput) searchKeywordInput.value = "";
+
+    if (desktopSearchKeywordInput) {
+        desktopSearchKeywordInput.value = "";
+    }
+
+    if (searchKeywordInput) {
+        searchKeywordInput.value = "";
+    }
+
+    if (searchKeywordArea) {
+        searchKeywordArea.hidden = true;
+    }
+
+    searchKeywordToggleButton?.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
     updateSearchFilterUi();
-});
+
+    if (closeMobileSheet) {
+        setSearchFilterSheetOpen(false);
+    }
+
+    if (!isBlogSearchActive) {
+        return;
+    }
+
+    const requestVersion =
+        createDataRequestVersion();
+
+    selectedDate =
+        searchRestoreSelectedDate;
+
+    isBlogSearchActive = false;
+    searchRestoreSelectedDate = null;
+
+    calendar.updateSelectedDateTitle();
+    calendar.render();
+
+    if (selectedDate) {
+        await loadBlogsByDate(
+            selectedDate,
+            requestVersion
+        );
+    } else {
+        await loadCurrentMonthBlogs(
+            requestVersion
+        );
+    }
+}
+
 
 function createSearchApiDate(date) {
     if (!date) {
@@ -4607,6 +4656,10 @@ async function executeBlogSearch({
 } = {}) {
     const requestGroup = currentGroup;
     const requestMember = memberSelect.value || null;
+
+    if (!isBlogSearchActive) {
+        searchRestoreSelectedDate = selectedDate;
+    }
 
     if (
         searchStartDate &&
@@ -4662,6 +4715,8 @@ async function executeBlogSearch({
         ) {
             return;
         }
+
+        isBlogSearchActive = true;
 
         blogs = Array.isArray(data.blogs) ? data.blogs : [];
         selectedDate = null;

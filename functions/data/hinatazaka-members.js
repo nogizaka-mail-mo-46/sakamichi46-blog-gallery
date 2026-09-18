@@ -53,6 +53,13 @@ export const hinatazakaMembers = {
     /*
      * 日向坂46（4期生）
      */
+    tamaki_ishizuka: {
+        name: "石塚 瑶季",
+        group: "hinatazaka46",
+        generation: 4,
+        blogDataFolderId: "19QODTxUKhW4t_MalujiFVjq-66_9Kurd",
+        blogIndexFileId: "1HDyJaK9_70F6afhCILi9Y4DZbfEbzbX6"
+    },
     nanami_konishi: {
         name: "小西 夏菜実",
         group: "hinatazaka46",

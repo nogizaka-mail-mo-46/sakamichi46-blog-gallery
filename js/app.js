@@ -4665,6 +4665,20 @@ async function executeBlogSearch({
 
         blogs = Array.isArray(data.blogs) ? data.blogs : [];
         selectedDate = null;
+
+        /*
+         * 検索結果表示中は、通常一覧の「YYYY年M月のブログ」ではなく
+         * 検索中であることが分かる見出しへ切り替える。
+         * 通常一覧へ戻った場合は calendar.updateSelectedDateTitle() により
+         * 元の年月 / 日付見出しへ戻る。
+         */
+        selectedDateTitle.textContent =
+            "検索結果";
+
+        selectedDateTitle.classList.add(
+            "visible"
+        );
+
         updateBlogs();
 
         if (blogs.length === 0) {

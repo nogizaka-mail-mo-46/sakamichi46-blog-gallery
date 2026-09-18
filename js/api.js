@@ -158,6 +158,7 @@ export async function fetchBlogDetail({
  * 【対応パラメータ】
  * - group
  * - member
+ * - generation
  * - startDate
  * - endDate
  * - keyword
@@ -167,7 +168,8 @@ export async function fetchBlogDetail({
 
 export async function fetchBlogSearch({
     group,
-    member,
+    member = null,
+    generation = null,
     startDate = null,
     endDate = null,
     keyword = null,
@@ -176,10 +178,27 @@ export async function fetchBlogSearch({
     const params =
         new URLSearchParams({
             group:
-                group,
-            member:
-                member
+                group
         });
+
+    if (
+        member
+    ) {
+        params.set(
+            "member",
+            member
+        );
+    }
+
+    if (
+        generation !==
+            null
+    ) {
+        params.set(
+            "generation",
+            generation
+        );
+    }
 
     if (
         startDate
@@ -222,4 +241,3 @@ export async function fetchBlogSearch({
         "ブログ検索に失敗しました。"
     );
 }
-

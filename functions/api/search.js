@@ -203,74 +203,107 @@ async function getDriveFileText(
  * ========================================
  */
 
-async function getSearchIndexFileId(
-    accessToken,
-    memberId
+async function getSearchIndexFileMap(
+    accessToken
 ) {
-    const fileName =
-        `${memberId}.json`;
-
     const queryParts = [
         `'${escapeDriveQueryValue(NOGIZAKA_SEARCH_INDEX_FOLDER_ID)}' in parents`,
-        `name = '${escapeDriveQueryValue(fileName)}'`,
         "trashed = false"
     ];
 
-    const params =
-        new URLSearchParams({
-            q:
-                queryParts.join(
-                    " and "
-                ),
+    const fileMap =
+        new Map();
 
-            pageSize:
-                "1",
+    let pageToken =
+        null;
 
-            fields:
-                "files(id,name)"
-        });
+    do {
+        const params =
+            new URLSearchParams({
+                q:
+                    queryParts.join(
+                        " and "
+                    ),
 
-    const response =
-        await fetch(
-            `https://www.googleapis.com/drive/v3/files?${params.toString()}`,
-            {
-                headers: {
-                    Authorization:
-                        `Bearer ${accessToken}`
+                pageSize:
+                    "1000",
+
+                fields:
+                    "nextPageToken,files(id,name)"
+            });
+
+        if (
+            pageToken
+        ) {
+            params.set(
+                "pageToken",
+                pageToken
+            );
+        }
+
+        const response =
+            await fetch(
+                `https://www.googleapis.com/drive/v3/files?${params.toString()}`,
+                {
+                    headers: {
+                        Authorization:
+                            `Bearer ${accessToken}`
+                    }
                 }
-            }
-        );
+            );
 
-    if (
-        !response.ok
-    ) {
-        const errorText =
-            await response.text();
+        if (
+            !response.ok
+        ) {
+            const errorText =
+                await response.text();
 
-        console.error(
-            "Google Drive search error:",
-            errorText
-        );
+            console.error(
+                "Google Drive search index list error:",
+                errorText
+            );
 
-        throw new Error(
-            "検索インデックスの検索に失敗しました。"
-        );
-    }
+            throw new Error(
+                "検索インデックス一覧の取得に失敗しました。"
+            );
+        }
 
-    const data =
-        await response.json();
+        const data =
+            await response.json();
 
-    if (
-        !Array.isArray(
-            data.files
-        ) ||
-        data.files.length ===
-            0
-    ) {
-        return null;
-    }
+        if (
+            Array.isArray(
+                data.files
+            )
+        ) {
+            data.files.forEach(
+                file => {
+                    if (
+                        file?.name &&
+                        file?.id
+                    ) {
+                        fileMap.set(
+                            String(
+                                file.name
+                            ),
+                            String(
+                                file.id
+                            )
+                        );
+                    }
+                }
+            );
+        }
 
-    return data.files[0].id;
+        pageToken =
+            data.nextPageToken ||
+            null;
+
+    } while (
+        pageToken
+    );
+
+    return fileMap;
 }
 
 
@@ -468,7 +501,8 @@ async function searchMemberBlogs(
     accessToken,
     memberKey,
     member,
-    conditions
+    conditions,
+    searchIndexFileMap
 ) {
     if (
         !member.blogIndexFileId
@@ -518,10 +552,10 @@ async function searchMemberBlogs(
     }
 
     const searchIndexFileId =
-        await getSearchIndexFileId(
-            accessToken,
-            memberId
-        );
+        searchIndexFileMap.get(
+            `${memberId}.json`
+        ) ||
+        null;
 
     if (
         !searchIndexFileId
@@ -899,6 +933,16 @@ export async function onRequestGet(
                 env
             );
 
+        /*
+         * ALL検索ではメンバーごとにDrive検索すると
+         * サブリクエスト数が大きくなるため、
+         * 検索インデックスフォルダを最初に1回だけ取得する。
+         */
+        const searchIndexFileMap =
+            await getSearchIndexFileMap(
+                accessToken
+            );
+
         const conditions = {
             startDate:
                 startDate,
@@ -924,7 +968,8 @@ export async function onRequestGet(
                         accessToken,
                         targetMemberKey,
                         targetMember,
-                        conditions
+                        conditions,
+                        searchIndexFileMap
                     )
             );
 

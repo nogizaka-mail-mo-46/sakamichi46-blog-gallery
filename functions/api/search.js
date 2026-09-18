@@ -9,6 +9,152 @@ import {
 
 /*
  * ========================================
+ * 検索設定
+ * ========================================
+ */
+
+const NOGIZAKA_SEARCH_INDEX_FOLDER_ID =
+    "1ioTTDWiVdOLSPmELV1XJpF-XcXA7nvJa";
+
+const SEARCH_BATCH_SIZE =
+    5;
+
+
+/*
+ * ========================================
+ * 一定件数ずつ並列処理
+ * ========================================
+ */
+
+async function processInBatches(
+    items,
+    batchSize,
+    processor
+) {
+    const results =
+        [];
+
+    for (
+        let i = 0;
+        i < items.length;
+        i += batchSize
+    ) {
+        const batch =
+            items.slice(
+                i,
+                i + batchSize
+            );
+
+        const batchResults =
+            await Promise.all(
+                batch.map(
+                    processor
+                )
+            );
+
+        results.push(
+            ...batchResults
+        );
+    }
+
+    return results;
+}
+
+
+/*
+ * ========================================
+ * 対象メンバー取得
+ *
+ * member指定       : 個人
+ * generation指定   : 指定期
+ * どちらも未指定   : グループ全員
+ * ========================================
+ */
+
+function getTargetMembers(
+    group,
+    memberKey = null,
+    generation = null
+) {
+    if (
+        memberKey
+    ) {
+        const member =
+            members[
+                memberKey
+            ];
+
+        if (
+            !member ||
+            member.group !==
+                group
+        ) {
+            return [];
+        }
+
+        return [
+            [
+                memberKey,
+                member
+            ]
+        ];
+    }
+
+    return Object.entries(
+        members
+    ).filter(
+        ([
+            key,
+            member
+        ]) => {
+            if (
+                member.group !==
+                    group
+            ) {
+                return false;
+            }
+
+            if (
+                generation !==
+                    null
+            ) {
+                return (
+                    member.generation ===
+                    generation
+                );
+            }
+
+            return true;
+        }
+    );
+}
+
+
+/*
+ * ========================================
+ * Drive検索用文字列のエスケープ
+ * ========================================
+ */
+
+function escapeDriveQueryValue(
+    value
+) {
+    return String(
+        value
+    )
+        .replace(
+            /\\/g,
+            "\\\\"
+        )
+        .replace(
+            /'/g,
+            "\\'"
+        );
+}
+
+
+/*
+ * ========================================
  * Google Driveファイル本文取得
  * ========================================
  */
@@ -51,43 +197,21 @@ async function getDriveFileText(
 
 /*
  * ========================================
- * Drive検索用文字列のエスケープ
- * ========================================
- */
-
-function escapeDriveQueryValue(
-    value
-) {
-    return String(
-        value
-    )
-        .replace(
-            /\\/g,
-            "\\\\"
-        )
-        .replace(
-            /'/g,
-            "\\'"
-        );
-}
-
-
-/*
- * ========================================
  * 検索インデックスファイルID取得
+ *
+ * ファイル名：{memberId}.json
  * ========================================
  */
 
 async function getSearchIndexFileId(
     accessToken,
-    folderId,
     memberId
 ) {
     const fileName =
         `${memberId}.json`;
 
     const queryParts = [
-        `'${escapeDriveQueryValue(folderId)}' in parents`,
+        `'${escapeDriveQueryValue(NOGIZAKA_SEARCH_INDEX_FOLDER_ID)}' in parents`,
         `name = '${escapeDriveQueryValue(fileName)}'`,
         "trashed = false"
     ];
@@ -98,8 +222,10 @@ async function getSearchIndexFileId(
                 queryParts.join(
                     " and "
                 ),
+
             pageSize:
                 "1",
+
             fields:
                 "files(id,name)"
         });
@@ -177,7 +303,9 @@ function normalizeSearchText(
  * ========================================
  * 日付キー生成
  *
- * 2025-01-28 -> 20250128
+ * 2025-01-28
+ * ↓
+ * 20250128
  * ========================================
  */
 
@@ -228,11 +356,14 @@ function createBlogSummary(
                         imageIndex:
                             Number(
                                 image.imageIndex
-                            ) || 0,
+                            ) ||
+                            0,
+
                         fileId:
                             String(
                                 image.fileId
                             ),
+
                         fileName:
                             image.fileName
                                 ? String(
@@ -242,7 +373,10 @@ function createBlogSummary(
                     })
                 )
                 .sort(
-                    (a, b) =>
+                    (
+                        a,
+                        b
+                    ) =>
                         a.imageIndex -
                         b.imageIndex
                 )
@@ -254,51 +388,59 @@ function createBlogSummary(
                 blog.articleId ||
                 ""
             ),
+
         title:
             String(
                 blog.title ||
                 ""
             ),
+
         timestamp:
             String(
                 blog.timestamp ||
                 ""
             ),
+
         date:
             String(
                 blog.date ||
                 ""
             ),
+
         member: {
             key:
                 memberKey,
+
             id:
                 indexData.member?.id
                     ? String(
                         indexData.member.id
                     )
-                    : String(
-                        member.memberId ||
-                        ""
-                    ),
+                    : "",
+
             name:
                 indexData.member?.name ||
                 member.name ||
                 ""
         },
+
         group: {
             id:
                 indexData.group?.id ||
                 member.group ||
                 "",
+
             name:
                 indexData.group?.name ||
                 ""
         },
+
         imageCount:
             images.length,
+
         images:
             images,
+
         previewText:
             typeof blog.previewText ===
                 "string"
@@ -310,9 +452,203 @@ function createBlogSummary(
 
 /*
  * ========================================
+ * 1メンバー分の検索
+ *
+ * 1. 通常ブログindexを取得
+ * 2. member.idを取得
+ * 3. {member.id}.json を検索
+ * 4. 日付・キーワードで絞り込み
+ * 5. 通常ブログindexと突き合わせ
+ *
+ * 本文全文はレスポンスへ返さない
+ * ========================================
+ */
+
+async function searchMemberBlogs(
+    accessToken,
+    memberKey,
+    member,
+    conditions
+) {
+    if (
+        !member.blogIndexFileId
+    ) {
+        throw new Error(
+            `ブログindexが未設定です: ${memberKey}`
+        );
+    }
+
+    const blogIndexText =
+        await getDriveFileText(
+            accessToken,
+            member.blogIndexFileId
+        );
+
+    const blogIndexData =
+        JSON.parse(
+            blogIndexText
+        );
+
+    if (
+        !Array.isArray(
+            blogIndexData.blogs
+        )
+    ) {
+        throw new Error(
+            `ブログindexのblogsが不正です: ${memberKey}`
+        );
+    }
+
+    const memberId =
+        blogIndexData.member?.id
+            ? String(
+                blogIndexData.member.id
+            )
+            : String(
+                member.memberId ||
+                ""
+            );
+
+    if (
+        !memberId
+    ) {
+        throw new Error(
+            `memberIdを取得できません: ${memberKey}`
+        );
+    }
+
+    const searchIndexFileId =
+        await getSearchIndexFileId(
+            accessToken,
+            memberId
+        );
+
+    if (
+        !searchIndexFileId
+    ) {
+        throw new Error(
+            `検索インデックスが見つかりません: ${memberKey}`
+        );
+    }
+
+    const searchIndexText =
+        await getDriveFileText(
+            accessToken,
+            searchIndexFileId
+        );
+
+    const searchIndexData =
+        JSON.parse(
+            searchIndexText
+        );
+
+    if (
+        !Array.isArray(
+            searchIndexData.articles
+        )
+    ) {
+        throw new Error(
+            `検索インデックスのarticlesが不正です: ${memberKey}`
+        );
+    }
+
+    const matchedArticleIds =
+        new Set();
+
+    searchIndexData.articles.forEach(
+        article => {
+            if (
+                !article ||
+                !article.articleId
+            ) {
+                return;
+            }
+
+            const dateKey =
+                createDateKey(
+                    article.date
+                );
+
+            if (
+                !dateKey
+            ) {
+                return;
+            }
+
+            if (
+                conditions.startDate &&
+                dateKey <
+                    conditions.startDate
+            ) {
+                return;
+            }
+
+            if (
+                conditions.endDate &&
+                dateKey >
+                    conditions.endDate
+            ) {
+                return;
+            }
+
+            if (
+                conditions.normalizedKeyword
+            ) {
+                const searchableText =
+                    normalizeSearchText(
+                        `${article.title || ""}\n${article.text || ""}`
+                    );
+
+                if (
+                    !searchableText.includes(
+                        conditions.normalizedKeyword
+                    )
+                ) {
+                    return;
+                }
+            }
+
+            matchedArticleIds.add(
+                String(
+                    article.articleId
+                )
+            );
+        }
+    );
+
+    return blogIndexData.blogs
+        .filter(
+            blog =>
+                blog &&
+                matchedArticleIds.has(
+                    String(
+                        blog.articleId ||
+                        ""
+                    )
+                )
+        )
+        .map(
+            blog =>
+                createBlogSummary(
+                    blog,
+                    memberKey,
+                    member,
+                    blogIndexData
+                )
+        );
+}
+
+
+/*
+ * ========================================
  * API
  *
- * 第1段階：乃木坂46・個人メンバー検索
+ * 【検索対象】
+ * - 個人メンバー
+ * - 期別
+ * - ALL
+ *
+ * 現在は乃木坂46のみ対応
  * ========================================
  */
 
@@ -338,6 +674,19 @@ export async function onRequestGet(
         url.searchParams.get(
             "member"
         );
+
+    const generationParam =
+        url.searchParams.get(
+            "generation"
+        );
+
+    const generation =
+        generationParam !==
+            null
+            ? Number(
+                generationParam
+            )
+            : null;
 
     const startDate =
         url.searchParams.get(
@@ -369,13 +718,12 @@ export async function onRequestGet(
      */
 
     if (
-        !group ||
-        !memberKey
+        !group
     ) {
         return Response.json(
             {
                 error:
-                    "groupとmemberは必須です。"
+                    "groupは必須です。"
             },
             {
                 status:
@@ -392,6 +740,42 @@ export async function onRequestGet(
             {
                 error:
                     "現在の検索APIは乃木坂46のみ対応しています。"
+            },
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+    if (
+        generationParam !==
+            null &&
+        !Number.isInteger(
+            generation
+        )
+    ) {
+        return Response.json(
+            {
+                error:
+                    "generationの形式が正しくありません。"
+            },
+            {
+                status:
+                    400
+            }
+        );
+    }
+
+    if (
+        memberKey &&
+        generation !==
+            null
+    ) {
+        return Response.json(
+            {
+                error:
+                    "memberとgenerationは同時に指定できません。"
             },
             {
                 status:
@@ -475,24 +859,25 @@ export async function onRequestGet(
 
     /*
      * ========================================
-     * メンバー確認
+     * 対象メンバー確認
      * ========================================
      */
 
-    const member =
-        members[
-            memberKey
-        ];
+    const targetMembers =
+        getTargetMembers(
+            group,
+            memberKey,
+            generation
+        );
 
     if (
-        !member ||
-        member.group !==
-            group
+        targetMembers.length ===
+            0
     ) {
         return Response.json(
             {
                 error:
-                    "指定されたグループにそのメンバーは存在しません。"
+                    "検索対象のメンバーが見つかりません。"
             },
             {
                 status:
@@ -501,41 +886,10 @@ export async function onRequestGet(
         );
     }
 
-    if (
-        !member.memberId ||
-        !member.searchIndexFolderId
-    ) {
-        return Response.json(
-            {
-                error:
-                    "このメンバーの検索インデックスは未設定です。"
-            },
-            {
-                status:
-                    400
-            }
-        );
-    }
-
-    if (
-        !member.blogIndexFileId
-    ) {
-        return Response.json(
-            {
-                error:
-                    "このメンバーのブログindexが未設定です。"
-            },
-            {
-                status:
-                    500
-            }
-        );
-    }
-
 
     /*
      * ========================================
-     * Driveから検索インデックス取得
+     * 検索実行
      * ========================================
      */
 
@@ -545,183 +899,43 @@ export async function onRequestGet(
                 env
             );
 
-        const searchIndexFileId =
-            await getSearchIndexFileId(
-                accessToken,
-                member.searchIndexFolderId,
-                member.memberId
-            );
+        const conditions = {
+            startDate:
+                startDate,
 
-        if (
-            !searchIndexFileId
-        ) {
-            return Response.json(
-                {
-                    error:
-                        "検索インデックスが見つかりません。"
-                },
-                {
-                    status:
-                        404
-                }
-            );
-        }
+            endDate:
+                endDate,
 
-        const [
-            searchIndexText,
-            blogIndexText
-        ] =
-            await Promise.all([
-                getDriveFileText(
-                    accessToken,
-                    searchIndexFileId
-                ),
-                getDriveFileText(
-                    accessToken,
-                    member.blogIndexFileId
+            normalizedKeyword:
+                normalizeSearchText(
+                    keyword.trim()
                 )
-            ]);
+        };
 
-        const searchIndexData =
-            JSON.parse(
-                searchIndexText
-            );
-
-        const blogIndexData =
-            JSON.parse(
-                blogIndexText
-            );
-
-        if (
-            !Array.isArray(
-                searchIndexData.articles
-            )
-        ) {
-            throw new Error(
-                "検索インデックスのarticlesが不正です。"
-            );
-        }
-
-        if (
-            !Array.isArray(
-                blogIndexData.blogs
-            )
-        ) {
-            throw new Error(
-                "ブログindexのblogsが不正です。"
-            );
-        }
-
-
-        /*
-         * ========================================
-         * 日付 + キーワード検索
-         *
-         * キーワードはタイトルと本文を対象
-         * ========================================
-         */
-
-        const normalizedKeyword =
-            normalizeSearchText(
-                keyword.trim()
-            );
-
-        const matchedArticleIds =
-            new Set();
-
-        searchIndexData.articles.forEach(
-            article => {
-                if (
-                    !article ||
-                    !article.articleId
-                ) {
-                    return;
-                }
-
-                const dateKey =
-                    createDateKey(
-                        article.date
-                    );
-
-                if (
-                    !dateKey
-                ) {
-                    return;
-                }
-
-                if (
-                    startDate &&
-                    dateKey <
-                        startDate
-                ) {
-                    return;
-                }
-
-                if (
-                    endDate &&
-                    dateKey >
-                        endDate
-                ) {
-                    return;
-                }
-
-                if (
-                    normalizedKeyword
-                ) {
-                    const searchableText =
-                        normalizeSearchText(
-                            `${article.title || ""}\n${article.text || ""}`
-                        );
-
-                    if (
-                        !searchableText.includes(
-                            normalizedKeyword
-                        )
-                    ) {
-                        return;
-                    }
-                }
-
-                matchedArticleIds.add(
-                    String(
-                        article.articleId
+        const memberResults =
+            await processInBatches(
+                targetMembers,
+                SEARCH_BATCH_SIZE,
+                ([
+                    targetMemberKey,
+                    targetMember
+                ]) =>
+                    searchMemberBlogs(
+                        accessToken,
+                        targetMemberKey,
+                        targetMember,
+                        conditions
                     )
-                );
-            }
-        );
-
-
-        /*
-         * ========================================
-         * 通常ブログindexと突き合わせ
-         *
-         * 本文全文はレスポンスへ返さない
-         * ========================================
-         */
+            );
 
         const blogs =
-            blogIndexData.blogs
-                .filter(
-                    blog =>
-                        blog &&
-                        matchedArticleIds.has(
-                            String(
-                                blog.articleId ||
-                                ""
-                            )
-                        )
-                )
-                .map(
-                    blog =>
-                        createBlogSummary(
-                            blog,
-                            memberKey,
-                            member,
-                            blogIndexData
-                        )
-                )
+            memberResults
+                .flat()
                 .sort(
-                    (a, b) => {
+                    (
+                        a,
+                        b
+                    ) => {
                         const comparison =
                             String(
                                 a.timestamp ||
@@ -743,18 +957,28 @@ export async function onRequestGet(
         return Response.json({
             group:
                 group,
+
             member:
                 memberKey,
+
+            generation:
+                generation,
+
             startDate:
                 startDate,
+
             endDate:
                 endDate,
+
             keyword:
                 keyword,
+
             sort:
                 sort,
+
             blogCount:
                 blogs.length,
+
             blogs:
                 blogs
         });
@@ -763,14 +987,15 @@ export async function onRequestGet(
         error
     ) {
         console.error(
-            "検索APIエラー:",
+            "Blog search error:",
             error
         );
 
         return Response.json(
             {
                 error:
-                    "ブログ検索中にエラーが発生しました。"
+                    error?.message ||
+                    "ブログ検索に失敗しました。"
             },
             {
                 status:

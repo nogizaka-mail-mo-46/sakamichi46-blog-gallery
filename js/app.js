@@ -4633,6 +4633,16 @@ async function executeBlogSearch({
     }
 
     updateSearchFilterUi();
+
+    /*
+     * スマホ／タブレット縦向きでは、検索実行と同時に
+     * 検索条件シートを閉じて検索結果の一覧へ戻す。
+     * PCの検索条件欄には影響させない。
+     */
+    if (keywordSource === "mobile") {
+        setSearchFilterSheetOpen(false);
+    }
+
     galleryElement.textContent = "検索中...";
 
     try {
@@ -4662,7 +4672,6 @@ async function executeBlogSearch({
             lightbox.setImages([]);
         }
 
-        setSearchFilterSheetOpen(false);
     } catch (error) {
         console.error(error);
         blogs = [];

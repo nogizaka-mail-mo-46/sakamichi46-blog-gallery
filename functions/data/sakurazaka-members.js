@@ -2,12 +2,26 @@ export const sakurazakaMembers = {
     /*
      * 櫻坂46（2期生）
      */
+    hikari_endo: {
+        name: "遠藤 光莉",
+        group: "sakurazaka46",
+        generation: 2,
+        blogDataFolderId: "130bZxFjCpltwyMf-gXARs0sm_iaZvxrr",
+        blogIndexFileId: "1VNnrF9zU40F1AahZLmzyIvcldiBxHGp3"
+    },
     rei_ozono: {
         name: "大園 玲",
         group: "sakurazaka46",
         generation: 2,
         blogDataFolderId: "1A7G6PCt00jdxJVgbfBfbPfKXN5lNNwHe",
         blogIndexFileId: "1vZHfh1nkaRL0aStvODU2odQDzOM7wf0q"
+    },
+    akiho_onuma: {
+        name: "大沼 晶保",
+        group: "sakurazaka46",
+        generation: 2,
+        blogDataFolderId: "1HBMHxxPloaAgjXaMRaR5gNdZ5o52kWPp",
+        blogIndexFileId: "1mBAcJT1pVgB_2K1D5XByO76rG1jBFD1k"
     },
     marino_kousaka: {
         name: "幸阪 茉里乃",

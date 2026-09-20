@@ -18,7 +18,10 @@ const SEARCH_INDEX_FOLDER_IDS = {
         "1ioTTDWiVdOLSPmELV1XJpF-XcXA7nvJa",
 
     sakurazaka46:
-        "1YUBfz5NDBsyDbzRe8q309fZy2GQUX446"
+        "1YUBfz5NDBsyDbzRe8q309fZy2GQUX446",
+
+    hinatazaka46:
+        "1fZQoYoVNV5oIbZBOOw10_tjaUIYg7Ybx"
 };
 
 const SEARCH_BATCH_SIZE =
@@ -585,7 +588,7 @@ async function searchIndexFile(
  * これによりALL検索でも、1回のFunction内で
  * 全員分の検索indexとブログindexを二重取得しない。
  *
- * 現在は乃木坂46・櫻坂46に対応
+ * 現在は乃木坂46・櫻坂46・日向坂46に対応
  * ========================================
  */
 

@@ -13,8 +13,13 @@ import {
  * ========================================
  */
 
-const NOGIZAKA_SEARCH_INDEX_FOLDER_ID =
-    "1ioTTDWiVdOLSPmELV1XJpF-XcXA7nvJa";
+const SEARCH_INDEX_FOLDER_IDS = {
+    nogizaka46:
+        "1ioTTDWiVdOLSPmELV1XJpF-XcXA7nvJa",
+
+    sakurazaka46:
+        "1YUBfz5NDBsyDbzRe8q309fZy2GQUX446"
+};
 
 const SEARCH_BATCH_SIZE =
     5;
@@ -209,10 +214,24 @@ async function getDriveFileText(
  */
 
 async function getSearchIndexFiles(
-    accessToken
+    accessToken,
+    group
 ) {
+    const searchIndexFolderId =
+        SEARCH_INDEX_FOLDER_IDS[
+            group
+        ];
+
+    if (
+        !searchIndexFolderId
+    ) {
+        throw new Error(
+            `検索インデックス保存フォルダが未設定です: ${group}`
+        );
+    }
+
     const queryParts = [
-        `'${escapeDriveQueryValue(NOGIZAKA_SEARCH_INDEX_FOLDER_ID)}' in parents`,
+        `'${escapeDriveQueryValue(searchIndexFolderId)}' in parents`,
         "trashed = false"
     ];
 
@@ -566,7 +585,7 @@ async function searchIndexFile(
  * これによりALL検索でも、1回のFunction内で
  * 全員分の検索indexとブログindexを二重取得しない。
  *
- * 現在は乃木坂46のみ対応
+ * 現在は乃木坂46・櫻坂46に対応
  * ========================================
  */
 
@@ -645,13 +664,14 @@ export async function onRequestGet(
     }
 
     if (
-        group !==
-            "nogizaka46"
+        !SEARCH_INDEX_FOLDER_IDS[
+            group
+        ]
     ) {
         return Response.json(
             {
                 error:
-                    "現在の検索APIは乃木坂46のみ対応しています。"
+                    "現在の検索APIは指定されたグループに対応していません。"
             },
             {
                 status:
@@ -795,7 +815,8 @@ export async function onRequestGet(
 
         const searchIndexFiles =
             await getSearchIndexFiles(
-                accessToken
+                accessToken,
+                group
             );
 
         const targetMemberConditions =

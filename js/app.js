@@ -243,8 +243,49 @@ const heroGroupButtons =
  * ========================================
  */
 
+const LAST_GROUP_STORAGE_KEY =
+    "sakamichi46-last-group";
+
+
+function getSavedGroup() {
+
+    try {
+        const savedGroup =
+            localStorage.getItem(
+                LAST_GROUP_STORAGE_KEY
+            );
+
+        if (
+            savedGroup &&
+            heroGroupData[savedGroup]
+        ) {
+            return savedGroup;
+        }
+    } catch (error) {
+        // localStorage が利用できない環境では既定値を使う
+    }
+
+    return "nogizaka46";
+}
+
+
+function saveCurrentGroup(
+    group
+) {
+
+    try {
+        localStorage.setItem(
+            LAST_GROUP_STORAGE_KEY,
+            group
+        );
+    } catch (error) {
+        // 保存できない環境でもグループ切替自体は継続する
+    }
+}
+
+
 let currentGroup =
-    "nogizaka46";
+    getSavedGroup();
 
 let members =
     [];
@@ -1944,6 +1985,14 @@ async function changeGroup(
         group;
 
 
+    saveCurrentGroup(
+        currentGroup
+    );
+
+
+    resetBlogSearchForGroupChange();
+
+
     updateHero(
         currentGroup
     );
@@ -3551,6 +3600,43 @@ let isSearchMonthPickerOpen = false;
  */
 let isBlogSearchActive = false;
 let searchRestoreSelectedDate = null;
+
+
+function resetBlogSearchForGroupChange() {
+
+    searchStartDate = null;
+    searchEndDate = null;
+    searchDateTarget = null;
+    searchDateDraft = null;
+    searchPickerYear = null;
+    searchPickerMonth = null;
+    searchMonthPickerYear = null;
+    isSearchMonthPickerOpen = false;
+
+    isBlogSearchActive = false;
+    searchRestoreSelectedDate = null;
+
+    if (desktopSearchKeywordInput) {
+        desktopSearchKeywordInput.value = "";
+    }
+
+    if (searchKeywordInput) {
+        searchKeywordInput.value = "";
+    }
+
+    if (searchKeywordArea) {
+        searchKeywordArea.hidden = true;
+    }
+
+    searchKeywordToggleButton?.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
+    setSearchFilterSheetOpen(false);
+    setSearchDatePickerOpen(false);
+    updateSearchFilterUi();
+}
 
 
 function formatSearchDate(

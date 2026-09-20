@@ -256,8 +256,9 @@ function getSavedGroup() {
             );
 
         if (
-            savedGroup &&
-            heroGroupData[savedGroup]
+            savedGroup === "nogizaka46" ||
+            savedGroup === "sakurazaka46" ||
+            savedGroup === "hinatazaka46"
         ) {
             return savedGroup;
         }

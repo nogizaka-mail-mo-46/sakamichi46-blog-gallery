@@ -27,6 +27,12 @@ const SEARCH_INDEX_FOLDER_IDS = {
 const SEARCH_BATCH_SIZE =
     5;
 
+// 検索indexの「ファイル名 ↔ メンバー情報」対応表を
+// Cloudflare Cache APIへ保持する時間。
+// 新メンバー追加時は、対象が見つからなければ自動で再構築する。
+const SEARCH_INDEX_MANIFEST_CACHE_SECONDS =
+    86400;
+
 
 /*
  * ========================================
@@ -326,6 +332,180 @@ async function getSearchIndexFiles(
     );
 
     return files;
+}
+
+
+/*
+ * ========================================
+ * 検索indexメタ情報キャッシュ
+ *
+ * 個人・期別検索のたびに全員分の検索index本文を
+ * Driveから取得しないため、ファイルID / メンバー名 /
+ * 期 / memberId の対応だけをCache APIへ保存する。
+ *
+ * キャッシュがない最初の1回だけ全indexを確認する。
+ * 以降は対象メンバー分のindexだけを取得する。
+ * ========================================
+ */
+
+function createSearchManifestCacheRequest(
+    origin,
+    group
+) {
+    return new Request(
+        `${origin}/__search-index-manifest/${encodeURIComponent(group)}`,
+        {
+            method:
+                "GET"
+        }
+    );
+}
+
+
+async function buildSearchIndexManifest(
+    accessToken,
+    group
+) {
+    const files =
+        await getSearchIndexFiles(
+            accessToken,
+            group
+        );
+
+    const rows =
+        await processInBatches(
+            files,
+            SEARCH_BATCH_SIZE,
+            async file => {
+                const text =
+                    await getDriveFileText(
+                        accessToken,
+                        file.id
+                    );
+
+                const data =
+                    JSON.parse(
+                        text
+                    );
+
+                return {
+                    id:
+                        file.id,
+
+                    name:
+                        file.name,
+
+                    memberId:
+                        String(
+                            data.member?.id ||
+                            ""
+                        ),
+
+                    memberName:
+                        String(
+                            data.member?.name ||
+                            ""
+                        ),
+
+                    generation:
+                        Number(
+                            data.member?.generation
+                        )
+                };
+            }
+        );
+
+    return rows.filter(
+        row =>
+            row.id &&
+            row.memberId &&
+            row.memberName &&
+            Number.isInteger(
+                row.generation
+            )
+    );
+}
+
+
+async function getSearchIndexManifest(
+    accessToken,
+    group,
+    origin,
+    forceRefresh = false
+) {
+    const cache =
+        caches.default;
+
+    const cacheRequest =
+        createSearchManifestCacheRequest(
+            origin,
+            group
+        );
+
+    if (
+        !forceRefresh
+    ) {
+        const cachedResponse =
+            await cache.match(
+                cacheRequest
+            );
+
+        if (
+            cachedResponse
+        ) {
+            const cachedData =
+                await cachedResponse.json();
+
+            if (
+                Array.isArray(
+                    cachedData
+                )
+            ) {
+                return cachedData;
+            }
+        }
+    }
+
+    const manifest =
+        await buildSearchIndexManifest(
+            accessToken,
+            group
+        );
+
+    const response =
+        Response.json(
+            manifest,
+            {
+                headers: {
+                    "Cache-Control":
+                        `public, max-age=${SEARCH_INDEX_MANIFEST_CACHE_SECONDS}`
+                }
+            }
+        );
+
+    await cache.put(
+        cacheRequest,
+        response.clone()
+    );
+
+    return manifest;
+}
+
+
+function filterSearchIndexFiles(
+    manifest,
+    targetMemberConditions
+) {
+    return manifest.filter(
+        file =>
+            targetMemberConditions.some(
+                target =>
+                    target.name ===
+                        file.memberName &&
+                    target.generation ===
+                        file.generation
+            )
+    );
 }
 
 
@@ -816,16 +996,53 @@ export async function onRequestGet(
                 env
             );
 
-        const searchIndexFiles =
-            await getSearchIndexFiles(
-                accessToken,
-                group
-            );
-
         const targetMemberConditions =
             createTargetMemberConditions(
                 targetMembers
             );
+
+        let searchIndexManifest =
+            await getSearchIndexManifest(
+                accessToken,
+                group,
+                url.origin
+            );
+
+        let searchIndexFiles =
+            filterSearchIndexFiles(
+                searchIndexManifest,
+                targetMemberConditions
+            );
+
+        // 新メンバー追加直後など、キャッシュ上に対象がいない場合だけ
+        // manifestを作り直して再判定する。
+        if (
+            searchIndexFiles.length <
+                targetMembers.length
+        ) {
+            searchIndexManifest =
+                await getSearchIndexManifest(
+                    accessToken,
+                    group,
+                    url.origin,
+                    true
+                );
+
+            searchIndexFiles =
+                filterSearchIndexFiles(
+                    searchIndexManifest,
+                    targetMemberConditions
+                );
+        }
+
+        if (
+            searchIndexFiles.length ===
+                0
+        ) {
+            throw new Error(
+                "検索対象メンバーの検索インデックスが見つかりません。"
+            );
+        }
 
         const conditions = {
             startDate:

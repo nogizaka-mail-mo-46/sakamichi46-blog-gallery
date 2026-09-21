@@ -453,6 +453,62 @@ export async function onRequestGet(
 
         /*
          * ========================================
+         * Cloudflareキャッシュ確認
+         *
+         * member-icons JSON は更新頻度が低いため、
+         * Google Driveへ毎回問い合わせず
+         * グループ単位で完成済みレスポンスをキャッシュする。
+         * ========================================
+         */
+
+        const cache =
+            caches.default;
+
+        const cacheUrl =
+            new URL(
+                url.origin +
+                url.pathname
+            );
+
+        cacheUrl.searchParams.set(
+            "group",
+            group
+        );
+
+        const cacheKey =
+            new Request(
+                cacheUrl.toString(),
+                {
+                    method:
+                        "GET"
+                }
+            );
+
+        const cachedResponse =
+            await cache.match(
+                cacheKey
+            );
+
+        if (
+            cachedResponse
+        ) {
+            const response =
+                new Response(
+                    cachedResponse.body,
+                    cachedResponse
+                );
+
+            response.headers.set(
+                "Cache-Control",
+                "private, max-age=3600"
+            );
+
+            return response;
+        }
+
+
+        /*
+         * ========================================
          * Google Access Token
          * ========================================
          */
@@ -497,21 +553,45 @@ export async function onRequestGet(
          * ========================================
          */
 
-        return Response.json(
-            data,
-            {
-                headers: {
-
-                    /*
-                     * GASでJSONを更新したあとも
-                     * 比較的早く反映されるようにする
-                     */
-
-                    "Cache-Control":
-                        "private, max-age=60"
+        const response =
+            Response.json(
+                data,
+                {
+                    headers: {
+                        "Cache-Control":
+                            "private, max-age=3600"
+                    }
                 }
-            }
+            );
+
+
+        /*
+         * ========================================
+         * Cloudflareキャッシュ保存
+         *
+         * Edge側は1時間保持。
+         * 次回以降はAccess Token取得・Drive検索・
+         * JSON本体取得をすべて省略できる。
+         * ========================================
+         */
+
+        const cacheResponse =
+            response.clone();
+
+        cacheResponse.headers.set(
+            "Cache-Control",
+            "public, max-age=3600"
         );
+
+        context.waitUntil(
+            cache.put(
+                cacheKey,
+                cacheResponse
+            )
+        );
+
+
+        return response;
 
 
     } catch (

@@ -4643,6 +4643,32 @@ searchKeywordInput?.addEventListener(
     updateSearchFilterUi
 );
 
+/*
+ * ========================================
+ * キーワード入力欄 Enter / 決定で検索実行
+ *
+ * 日本語IMEの変換確定Enterでは検索しない。
+ * ========================================
+ */
+searchKeywordInput?.addEventListener(
+    "keydown",
+    async event => {
+        if (
+            event.key !== "Enter" ||
+            event.isComposing ||
+            event.keyCode === 229
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+
+        await executeBlogSearch({
+            keywordSource: "mobile"
+        });
+    }
+);
+
 clearSearchFiltersButton?.addEventListener(
     "click",
     async () => {
@@ -4656,6 +4682,25 @@ desktopSearchKeywordInput?.addEventListener("input", () => {
     if (searchKeywordInput) searchKeywordInput.value = desktopSearchKeywordInput.value;
     updateSearchFilterUi();
 });
+
+desktopSearchKeywordInput?.addEventListener(
+    "keydown",
+    async event => {
+        if (
+            event.key !== "Enter" ||
+            event.isComposing ||
+            event.keyCode === 229
+        ) {
+            return;
+        }
+
+        event.preventDefault();
+
+        await executeBlogSearch({
+            keywordSource: "desktop"
+        });
+    }
+);
 
 desktopClearSearchButton?.addEventListener("click", async () => {
     await clearBlogSearch();

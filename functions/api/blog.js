@@ -6,7 +6,7 @@ import {
     getGoogleAccessToken
 } from "../lib/google.js";
 
- 
+
 /*
  * ========================================
  * Google Drive query用文字列エスケープ

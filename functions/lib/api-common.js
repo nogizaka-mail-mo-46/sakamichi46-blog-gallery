@@ -1,12 +1,25 @@
+import {
+    members
+} from "../data/member-data.js";
+
+
 /**
  * ============================================
- * ★ API 共通ユーティリティ
+ * ★ API共通ユーティリティ
+ * ★ api-common.js
  *
- * blogs.js / search.js で共通利用する処理。
+ * blogs.js / search.js で同じ挙動の処理のみ共通化
  * ============================================
  */
 
-function escapeDriveQueryValue(
+
+/*
+ * ========================================
+ * Drive検索用文字列のエスケープ
+ * ========================================
+ */
+
+export function escapeDriveQueryValue(
     value
 ) {
     return String(
@@ -23,7 +36,13 @@ function escapeDriveQueryValue(
 }
 
 
-async function processInBatches(
+/*
+ * ========================================
+ * 一定件数ずつ並列処理
+ * ========================================
+ */
+
+export async function processInBatches(
     items,
     batchSize,
     processor
@@ -58,7 +77,13 @@ async function processInBatches(
 }
 
 
-function getTargetMembers(
+/*
+ * ========================================
+ * 対象メンバー取得
+ * ========================================
+ */
+
+export function getTargetMembers(
     group,
     memberKey = null,
     generation = null
@@ -121,71 +146,3 @@ function getTargetMembers(
         }
     );
 }
-
-
-async function getDriveFileText(
-    accessToken,
-    fileId
-) {
-    const response =
-        await fetch(
-            `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`,
-            {
-                headers: {
-                    Authorization:
-                        `Bearer ${accessToken}`
-                }
-            }
-        );
-
-    if (
-        !response.ok
-    ) {
-        const errorText =
-            await response.text();
-
-        console.error(
-            "Google Drive file error:",
-            fileId,
-            errorText
-        );
-
-        throw new Error(
-            "index.jsonの取得に失敗しました。"
-        );
-    }
-
-    return await response.text();
-}
-
-
-function createDateKey(
-    date
-) {
-    if (
-        typeof date !==
-            "string"
-    ) {
-        return "";
-    }
-
-    const dateKey =
-        date.replace(
-            /-/g,
-            ""
-        );
-
-    return /^\d{8}$/.test(
-        dateKey
-    )
-        ? dateKey
-        : "";
-}
-
-export {
-    escapeDriveQueryValue,
-    processInBatches,
-    getTargetMembers,
-    getDriveFileText,
-    createDateKey
-};

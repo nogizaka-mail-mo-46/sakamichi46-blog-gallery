@@ -658,7 +658,7 @@ export function createBlogSearch({
     function getSearchPostMonths() {
         const postMonths = Array.from(
             new Set(
-                getPostDates()
+                Array.from(getPostDates())
                     .filter((dateKey) => /^\d{8}$/.test(dateKey))
                     .map((dateKey) => dateKey.substring(0, 6))
             )

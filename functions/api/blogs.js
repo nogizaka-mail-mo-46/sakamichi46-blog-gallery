@@ -734,6 +734,72 @@ function sortBlogs(
 
 /*
  * ========================================
+ * APIレスポンスキャッシュ
+ *
+ * 同じ検索条件の再表示時は、
+ * グループ全体キャッシュのJSON解析・
+ * メンバー/日付絞り込み・並び替えを省略する。
+ *
+ * 元データ側が1時間キャッシュのため、
+ * ここでは短めの10分キャッシュとする。
+ * ========================================
+ */
+
+const BLOGS_RESPONSE_CACHE_SECONDS =
+    600;
+
+
+function createBlogsResponseCacheRequest(
+    url
+) {
+    const cacheUrl =
+        new URL(
+            `${url.origin}/__cache/blogs-response`
+        );
+
+    const sortedParams =
+        Array.from(
+            url.searchParams.entries()
+        ).sort(
+            ([aKey, aValue], [bKey, bValue]) => {
+                const keyComparison =
+                    aKey.localeCompare(
+                        bKey
+                    );
+
+                if (
+                    keyComparison !== 0
+                ) {
+                    return keyComparison;
+                }
+
+                return aValue.localeCompare(
+                    bValue
+                );
+            }
+        );
+
+    sortedParams.forEach(
+        ([key, value]) => {
+            cacheUrl.searchParams.append(
+                key,
+                value
+            );
+        }
+    );
+
+    return new Request(
+        cacheUrl.toString(),
+        {
+            method:
+                "GET"
+        }
+    );
+}
+
+
+/*
+ * ========================================
  * API
  * ========================================
  */
@@ -925,6 +991,45 @@ export async function onRequestGet(
 
     /*
      * ========================================
+     * 完成済みレスポンスキャッシュ確認
+     *
+     * パラメータ検証後に確認することで、
+     * 不正なリクエストは従来どおり
+     * 400を返す。
+     * ========================================
+     */
+
+    const responseCache =
+        caches.default;
+
+    const responseCacheRequest =
+        createBlogsResponseCacheRequest(
+            url
+        );
+
+    try {
+        const cachedResponse =
+            await responseCache.match(
+                responseCacheRequest
+            );
+
+        if (
+            cachedResponse
+        ) {
+            return cachedResponse;
+        }
+    } catch (
+        error
+    ) {
+        console.warn(
+            "ブログ一覧レスポンスキャッシュ取得失敗:",
+            error
+        );
+    }
+
+
+    /*
+     * ========================================
      * 対象メンバー
      * ========================================
      */
@@ -1044,34 +1149,71 @@ export async function onRequestGet(
          * ========================================
          */
 
-        return Response.json({
-            group:
-                group,
+        const response =
+            Response.json(
+                {
+                    group:
+                        group,
 
-            member:
-                memberKey,
+                    member:
+                        memberKey,
 
-            generation:
-                generation,
+                    generation:
+                        generation,
 
-            date:
-                date,
+                    date:
+                        date,
 
-            month:
-                month,
+                    month:
+                        month,
 
-            sort:
-                sort,
+                    sort:
+                        sort,
 
-            postDates:
-                postDates,
+                    postDates:
+                        postDates,
 
-            blogCount:
-                blogs.length,
+                    blogCount:
+                        blogs.length,
 
-            blogs:
-                blogs
-        });
+                    blogs:
+                        blogs
+                },
+                {
+                    headers: {
+                        "Cache-Control":
+                            `public, max-age=${BLOGS_RESPONSE_CACHE_SECONDS}`
+                    }
+                }
+            );
+
+        try {
+            const cacheWrite =
+                responseCache.put(
+                    responseCacheRequest,
+                    response.clone()
+                );
+
+            if (
+                typeof context.waitUntil ===
+                    "function"
+            ) {
+                context.waitUntil(
+                    cacheWrite
+                );
+            } else {
+                await cacheWrite;
+            }
+        } catch (
+            error
+        ) {
+            console.warn(
+                "ブログ一覧レスポンスキャッシュ保存失敗:",
+                error
+            );
+        }
+
+        return response;
 
     } catch (
         error

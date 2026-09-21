@@ -627,6 +627,14 @@ const calendar =
                 month
             ) => {
 
+                /*
+                 * 通常カレンダーで表示年月を移動したら、
+                 * グループ切替時と同様に検索条件をリセットする。
+                 * 検索条件内のカレンダー操作ではこの処理は呼ばれない。
+                 */
+                blogSearch.resetForGroupChange();
+
+
                 const requestVersion =
                     createDataRequestVersion();
 

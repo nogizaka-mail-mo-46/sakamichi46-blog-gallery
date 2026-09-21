@@ -125,13 +125,80 @@ export function createMemberSelector({
                 error
             );
 
-            memberIconMaps.set(
-                group,
-                iconMap
-            );
+            /*
+             * 一時的な通信失敗で空Mapを固定しない。
+             * 次回表示時には再取得できるようにする。
+             */
         }
 
         return iconMap;
+    }
+
+    /*
+     * ========================================
+     * 他グループのアイコン一覧をアイドル時に先読み
+     * ========================================
+     *
+     * 実画像は先読みしないため通信量を大きく増やさず、
+     * グループ切替時の /api/member-icons 待ちだけを省く。
+     */
+
+    let iconMapWarmupScheduled =
+        false;
+
+    function scheduleMemberIconMapWarmup(
+        currentGroup
+    ) {
+        if (
+            iconMapWarmupScheduled
+        ) {
+            return;
+        }
+
+        iconMapWarmupScheduled =
+            true;
+
+        const groups = [
+            "nogizaka46",
+            "sakurazaka46",
+            "hinatazaka46"
+        ].filter(
+            group =>
+                group !== currentGroup
+        );
+
+        const warmup =
+            () => {
+                groups.forEach(
+                    group => {
+                        loadMemberIconMap(
+                            group
+                        ).catch(
+                            error => {
+                                console.error(
+                                    error
+                                );
+                            }
+                        );
+                    }
+                );
+            };
+
+        if (
+            "requestIdleCallback" in window
+        ) {
+            window.requestIdleCallback(
+                warmup,
+                {
+                    timeout: 2000
+                }
+            );
+        } else {
+            window.setTimeout(
+                warmup,
+                500
+            );
+        }
     }
 
     function updateSelection() {
@@ -584,6 +651,10 @@ export function createMemberSelector({
         updateSelection();
         requestAnimationFrame(
             updateFadeState
+        );
+
+        scheduleMemberIconMapWarmup(
+            requestGroup
         );
     }
 

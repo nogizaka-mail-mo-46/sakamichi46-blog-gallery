@@ -241,7 +241,8 @@ export function createMemberSelector({
         memberName,
         fileId = null,
         isAll = false,
-        generation = null
+        generation = null,
+        imagePriority = false
     }) {
         const button =
             document.createElement(
@@ -318,7 +319,23 @@ export function createMemberSelector({
                     fileId
                 );
             image.alt = "";
-            image.loading = "lazy";
+            /*
+             * 画面内に並ぶ先頭メンバーは遅延読み込みにせず、
+             * アイコン一覧表示と同時に取得を開始する。
+             * 横スクロール先のメンバーは従来どおりlazyにする。
+             */
+            image.loading =
+                imagePriority
+                    ? "eager"
+                    : "lazy";
+
+            if (
+                imagePriority
+            ) {
+                image.fetchPriority =
+                    "high";
+            }
+
             image.decoding = "async";
 
             image.addEventListener(
@@ -512,6 +529,9 @@ export function createMemberSelector({
         let previousGeneration =
             null;
 
+        let memberImageIndex =
+            0;
+
         getMembers().forEach(
             member => {
                 const generation =
@@ -551,9 +571,13 @@ export function createMemberSelector({
                             member.name,
                         fileId:
                             iconData?.fileId ||
-                            null
+                            null,
+                        imagePriority:
+                            memberImageIndex < 10
                     })
                 );
+
+                memberImageIndex += 1;
             }
         );
 

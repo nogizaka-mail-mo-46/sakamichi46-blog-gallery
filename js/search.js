@@ -580,6 +580,8 @@ export function createBlogSearch({
                     ? searchEndDate
                     : searchStartDate;
 
+            // 日付未選択時は現在月を表示する。
+            // 投稿がない月でも検索期間として指定できる。
             const baseDate =
                 currentValue ||
                 new Date();
@@ -654,19 +656,57 @@ export function createBlogSearch({
 
 
     function getSearchPostMonths() {
-        const months = new Set();
+        const postMonths = Array.from(
+            new Set(
+                getPostDates()
+                    .filter((dateKey) => /^\d{8}$/.test(dateKey))
+                    .map((dateKey) => dateKey.substring(0, 6))
+            )
+        ).sort();
 
-        getPostDates().forEach(
-            (dateKey) => {
-                if (/^\d{8}$/.test(dateKey)) {
-                    months.add(
-                        dateKey.substring(0, 6)
-                    );
-                }
+        if (postMonths.length === 0) {
+            return [];
+        }
+
+        /*
+         * 検索カレンダーは「投稿日がある日を選ぶUI」ではなく、
+         * 検索期間を指定するUI。
+         * そのため投稿がない月も、最古投稿日から現在月までの
+         * 連続した年月として選択・移動できるようにする。
+         */
+        const firstMonth = postMonths[0];
+        const now = new Date();
+        const currentMonth =
+            String(now.getFullYear()) +
+            String(now.getMonth() + 1).padStart(2, "0");
+        const lastMonth =
+            postMonths[postMonths.length - 1] > currentMonth
+                ? postMonths[postMonths.length - 1]
+                : currentMonth;
+
+        let year = Number(firstMonth.substring(0, 4));
+        let month = Number(firstMonth.substring(4, 6)) - 1;
+        const lastYear = Number(lastMonth.substring(0, 4));
+        const lastMonthIndex = Number(lastMonth.substring(4, 6)) - 1;
+        const months = [];
+
+        while (
+            year < lastYear ||
+            (year === lastYear && month <= lastMonthIndex)
+        ) {
+            months.push(
+                String(year) +
+                String(month + 1).padStart(2, "0")
+            );
+
+            month += 1;
+            if (month > 11) {
+                month = 0;
+                year += 1;
             }
-        );
+        }
 
-        return Array.from(months).sort();
+        return months;
     }
 
 

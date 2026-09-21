@@ -36,6 +36,14 @@ import {
     createBlogSearch
 } from "./search.js";
 
+import {
+    getSavedGroup,
+    saveCurrentGroup,
+    heroGroupButtons,
+    isValidGroup,
+    updateHero
+} from "./group-ui.js";
+
 
 /*
  * ========================================
@@ -204,90 +212,9 @@ document.body.appendChild(
 
 /*
  * ========================================
- * ヒーロー DOM
- * ========================================
- */
-
-const hero =
-    document.getElementById(
-        "hero"
-    );
-
-const heroBackgroundA =
-    document.getElementById(
-        "heroBackgroundA"
-    );
-
-const heroBackgroundB =
-    document.getElementById(
-        "heroBackgroundB"
-    );
-
-const heroTitle =
-    document.getElementById(
-        "heroTitle"
-    );
-
-const heroSubtitle =
-    document.getElementById(
-        "heroSubtitle"
-    );
-
-const heroGroupButtons =
-    Array.from(
-        document.querySelectorAll(
-            ".hero-group-button"
-        )
-    );
-
-
-/*
- * ========================================
  * 状態
  * ========================================
  */
-
-const LAST_GROUP_STORAGE_KEY =
-    "sakamichi46-last-group";
-
-
-function getSavedGroup() {
-
-    try {
-        const savedGroup =
-            localStorage.getItem(
-                LAST_GROUP_STORAGE_KEY
-            );
-
-        if (
-            savedGroup === "nogizaka46" ||
-            savedGroup === "sakurazaka46" ||
-            savedGroup === "hinatazaka46"
-        ) {
-            return savedGroup;
-        }
-    } catch (error) {
-        // localStorage が利用できない環境では既定値を使う
-    }
-
-    return "nogizaka46";
-}
-
-
-function saveCurrentGroup(
-    group
-) {
-
-    try {
-        localStorage.setItem(
-            LAST_GROUP_STORAGE_KEY,
-            group
-        );
-    } catch (error) {
-        // 保存できない環境でもグループ切替自体は継続する
-    }
-}
-
 
 let currentGroup =
     getSavedGroup();
@@ -409,275 +336,6 @@ function saveGalleryScrollPosition() {
 
 const MEMBER_ICONS_API_URL =
     "/api/member-icons";
-
-
-/*
- * ========================================
- * ヒーロー設定
- * ========================================
- */
-
-const heroGroupData = {
-
-    nogizaka46: {
-        title:
-            "乃木坂46",
-
-        subtitle:
-            "NOGIZAKA46 BLOG GALLERY",
-
-        background:
-            "/images/hero/nogizaka46.webp"
-    },
-
-    sakurazaka46: {
-        title:
-            "櫻坂46",
-
-        subtitle:
-            "SAKURAZAKA46 BLOG GALLERY",
-
-        background:
-            "/images/hero/sakurazaka46.webp"
-    },
-
-    hinatazaka46: {
-        title:
-            "日向坂46",
-
-        subtitle:
-            "HINATAZAKA46 BLOG GALLERY",
-
-        background:
-            "/images/hero/hinatazaka46.webp"
-    }
-};
-
-
-/*
- * ========================================
- * ヒーロー背景状態
- * ========================================
- */
-
-let activeHeroBackground =
-    "A";
-
-let currentHeroGroup =
-    null;
-
-let requestedHeroGroup =
-    null;
-
-
-/*
- * ========================================
- * ヒーロー更新
- * ========================================
- */
-
-function updateHero(
-    group
-) {
-
-    const data =
-        heroGroupData[
-            group
-        ];
-
-    if (
-        !data
-    ) {
-        return;
-    }
-
-
-    /*
-     * ========================================
-     * タイトル
-     * ========================================
-     */
-
-    heroTitle.textContent =
-        data.title;
-
-    heroSubtitle.textContent =
-        data.subtitle;
-
-
-    /*
-     * ========================================
-     * グループクラス
-     * ========================================
-     */
-
-    hero.classList.remove(
-        "hero-nogizaka46",
-        "hero-sakurazaka46",
-        "hero-hinatazaka46"
-    );
-
-    hero.classList.add(
-        `hero-${group}`
-    );
-
-
-    /*
-     * ========================================
-     * ページ全体のグループクラス
-     * ========================================
-     */
-    
-    document.body.classList.remove(
-        "group-nogizaka46",
-        "group-sakurazaka46",
-        "group-hinatazaka46"
-    );
-    
-    document.body.classList.add(
-        `group-${group}`
-    );
-
-
-    /*
-     * ========================================
-     * タブ選択状態
-     * ========================================
-     */
-
-    heroGroupButtons.forEach(
-        button => {
-
-            const selected =
-                button.dataset.group ===
-                group;
-
-            button.classList.toggle(
-                "active",
-                selected
-            );
-
-            button.setAttribute(
-                "aria-pressed",
-                selected
-                    ? "true"
-                    : "false"
-            );
-        }
-    );
-
-
-    /*
-     * ========================================
-     * 初回
-     * ========================================
-     */
-
-    if (
-        currentHeroGroup ===
-            null
-    ) {
-
-        heroBackgroundA.style.backgroundImage =
-            `url("${data.background}")`;
-
-        heroBackgroundA.classList.add(
-            "active"
-        );
-
-        heroBackgroundB.classList.remove(
-            "active"
-        );
-
-        activeHeroBackground =
-            "A";
-
-        currentHeroGroup =
-            group;
-
-        requestedHeroGroup =
-            group;
-
-        return;
-    }
-
-
-    /*
-     * ========================================
-     * 同じグループ
-     * ========================================
-     */
-
-    if (
-        currentHeroGroup ===
-            group
-    ) {
-
-        requestedHeroGroup =
-            group;
-
-        return;
-    }
-
-
-    /*
-     * ========================================
-     * 次背景先読み
-     * ========================================
-     */
-
-    requestedHeroGroup =
-        group;
-
-    const preloadImage =
-        new Image();
-
-    preloadImage.src =
-        data.background;
-
-    preloadImage.onload =
-        () => {
-
-            if (
-                requestedHeroGroup !==
-                    group
-            ) {
-                return;
-            }
-
-            const currentBackground =
-                activeHeroBackground ===
-                    "A"
-                    ? heroBackgroundA
-                    : heroBackgroundB;
-
-            const nextBackground =
-                activeHeroBackground ===
-                    "A"
-                    ? heroBackgroundB
-                    : heroBackgroundA;
-
-            nextBackground.style.backgroundImage =
-                `url("${data.background}")`;
-
-            nextBackground.classList.add(
-                "active"
-            );
-
-            currentBackground.classList.remove(
-                "active"
-            );
-
-            activeHeroBackground =
-                activeHeroBackground ===
-                    "A"
-                    ? "B"
-                    : "A";
-
-            currentHeroGroup =
-                group;
-        };
-}
 
 
 /*
@@ -1983,9 +1641,9 @@ async function changeGroup(
 ) {
 
     if (
-        !heroGroupData[
+        !isValidGroup(
             group
-        ]
+        )
     ) {
         return;
     }

@@ -614,6 +614,141 @@ async function getGroupBlogs(
 
 /*
  * ========================================
+ * 対象メンバーだけのブログ取得
+ *
+ * 個人・期別表示ではグループ全員分を
+ * 読まず、必要なメンバーのindex.jsonだけ
+ * 取得して1時間キャッシュする。
+ *
+ * ALL表示は従来のグループキャッシュを使う。
+ * ========================================
+ */
+
+async function getScopedBlogs(
+    group,
+    targetMembers,
+    memberKey,
+    generation,
+    env,
+    origin
+) {
+    if (
+        !memberKey &&
+        generation ===
+            null
+    ) {
+        return await getGroupBlogs(
+            group,
+            env,
+            origin
+        );
+    }
+
+    const cache =
+        caches.default;
+
+    const scopeKey =
+        memberKey
+            ? `member/${encodeURIComponent(memberKey)}`
+            : `generation/${encodeURIComponent(String(generation))}`;
+
+    const cacheRequest =
+        new Request(
+            `${origin}/__cache/blog-scope/` +
+            `${encodeURIComponent(group)}/` +
+            scopeKey,
+            {
+                method:
+                    "GET"
+            }
+        );
+
+    try {
+        const cachedResponse =
+            await cache.match(
+                cacheRequest
+            );
+
+        if (
+            cachedResponse
+        ) {
+            const cachedData =
+                await cachedResponse.json();
+
+            if (
+                Array.isArray(
+                    cachedData.blogs
+                )
+            ) {
+                return cachedData.blogs;
+            }
+        }
+    } catch (
+        error
+    ) {
+        console.warn(
+            `対象別キャッシュ取得失敗: ${group}/${scopeKey}`,
+            error
+        );
+    }
+
+    const accessToken =
+        await getGoogleAccessToken(
+            env
+        );
+
+    const memberResults =
+        await processInBatches(
+            targetMembers,
+            5,
+            async ([
+                targetMemberKey,
+                member
+            ]) =>
+                await getMemberBlogs(
+                    accessToken,
+                    targetMemberKey,
+                    member
+                )
+        );
+
+    const blogs =
+        memberResults.flat();
+
+    try {
+        const cacheResponse =
+            Response.json(
+                {
+                    blogs:
+                        blogs
+                },
+                {
+                    headers: {
+                        "Cache-Control":
+                            "public, max-age=3600"
+                    }
+                }
+            );
+
+        await cache.put(
+            cacheRequest,
+            cacheResponse
+        );
+    } catch (
+        error
+    ) {
+        console.warn(
+            `対象別キャッシュ保存失敗: ${group}/${scopeKey}`,
+            error
+        );
+    }
+
+    return blogs;
+}
+
+
+/*
+ * ========================================
  * 投稿日一覧生成
  * ========================================
  */
@@ -1071,34 +1206,15 @@ export async function onRequestGet(
 
     try {
 
-        const groupBlogs =
-            await getGroupBlogs(
+        const allBlogs =
+            await getScopedBlogs(
                 group,
+                targetMembers,
+                memberKey,
+                generation,
                 env,
                 url.origin
             );
-
-        const targetMemberKeys =
-            new Set(
-                targetMembers.map(
-                    ([
-                        targetMemberKey
-                    ]) =>
-                        targetMemberKey
-                )
-            );
-
-        const allBlogs =
-            memberKey ||
-            generation !==
-                null
-                ? groupBlogs.filter(
-                    blog =>
-                        targetMemberKeys.has(
-                            blog.member?.key
-                        )
-                )
-                : groupBlogs;
 
 
         /*

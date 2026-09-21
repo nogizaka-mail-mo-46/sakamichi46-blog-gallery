@@ -33,6 +33,13 @@ const SEARCH_BATCH_SIZE =
 const SEARCH_INDEX_MANIFEST_CACHE_SECONDS =
     86400;
 
+// Driveの検索indexファイル一覧（id / name）もCache APIへ保持する。
+// 通常検索ではDriveのfiles.list自体を省略できる。
+// 新メンバー追加などでmanifestを強制再構築する場合は、
+// この一覧キャッシュも同時に更新する。
+const SEARCH_INDEX_FILE_LIST_CACHE_SECONDS =
+    86400;
+
 
 /*
  * ========================================
@@ -222,7 +229,21 @@ async function getDriveFileText(
  * ========================================
  */
 
-async function getSearchIndexFiles(
+function createSearchIndexFileListCacheRequest(
+    origin,
+    group
+) {
+    return new Request(
+        `${origin}/__search-index-file-list/${encodeURIComponent(group)}`,
+        {
+            method:
+                "GET"
+        }
+    );
+}
+
+
+async function fetchSearchIndexFilesFromDrive(
     accessToken,
     group
 ) {
@@ -335,6 +356,71 @@ async function getSearchIndexFiles(
 }
 
 
+async function getSearchIndexFiles(
+    accessToken,
+    group,
+    origin,
+    forceRefresh = false
+) {
+    const cache =
+        caches.default;
+
+    const cacheRequest =
+        createSearchIndexFileListCacheRequest(
+            origin,
+            group
+        );
+
+    if (
+        !forceRefresh
+    ) {
+        const cachedResponse =
+            await cache.match(
+                cacheRequest
+            );
+
+        if (
+            cachedResponse
+        ) {
+            const cachedData =
+                await cachedResponse.json();
+
+            if (
+                Array.isArray(
+                    cachedData
+                )
+            ) {
+                return cachedData;
+            }
+        }
+    }
+
+    const files =
+        await fetchSearchIndexFilesFromDrive(
+            accessToken,
+            group
+        );
+
+    const response =
+        Response.json(
+            files,
+            {
+                headers: {
+                    "Cache-Control":
+                        `public, max-age=${SEARCH_INDEX_FILE_LIST_CACHE_SECONDS}`
+                }
+            }
+        );
+
+    await cache.put(
+        cacheRequest,
+        response.clone()
+    );
+
+    return files;
+}
+
+
 /*
  * ========================================
  * 検索indexメタ情報キャッシュ
@@ -364,12 +450,16 @@ function createSearchManifestCacheRequest(
 
 async function buildSearchIndexManifest(
     accessToken,
-    group
+    group,
+    origin,
+    forceRefresh = false
 ) {
     const files =
         await getSearchIndexFiles(
             accessToken,
-            group
+            group,
+            origin,
+            forceRefresh
         );
 
     const rows =
@@ -469,7 +559,9 @@ async function getSearchIndexManifest(
     const manifest =
         await buildSearchIndexManifest(
             accessToken,
-            group
+            group,
+            origin,
+            forceRefresh
         );
 
     const response =
@@ -1001,31 +1093,35 @@ export async function onRequestGet(
                 targetMembers
             );
 
-        let searchIndexManifest =
-            await getSearchIndexManifest(
-                accessToken,
-                group,
-                url.origin
-            );
+        const isAllSearch =
+            !memberKey &&
+            generation === null;
 
-        let searchIndexFiles =
-            filterSearchIndexFiles(
-                searchIndexManifest,
-                targetMemberConditions
-            );
+        let searchIndexFiles;
 
-        // 新メンバー追加直後など、キャッシュ上に対象がいない場合だけ
-        // manifestを作り直して再判定する。
         if (
-            searchIndexFiles.length <
-                targetMembers.length
+            isAllSearch
         ) {
-            searchIndexManifest =
+            // ALL検索では対象が全員なのでmanifestは不要。
+            // Driveのファイル一覧（通常はCache APIから取得）を
+            // そのまま検索対象にする。
+            //
+            // 初回検索時に
+            // 「全indexをmanifest作成用に読む → もう一度全indexを検索用に読む」
+            // という二重取得が起きるのを防ぐ。
+            searchIndexFiles =
+                await getSearchIndexFiles(
+                    accessToken,
+                    group,
+                    url.origin
+                );
+
+        } else {
+            let searchIndexManifest =
                 await getSearchIndexManifest(
                     accessToken,
                     group,
-                    url.origin,
-                    true
+                    url.origin
                 );
 
             searchIndexFiles =
@@ -1033,6 +1129,27 @@ export async function onRequestGet(
                     searchIndexManifest,
                     targetMemberConditions
                 );
+
+            // 新メンバー追加直後など、キャッシュ上に対象がいない場合だけ
+            // manifestとDriveファイル一覧を作り直して再判定する。
+            if (
+                searchIndexFiles.length <
+                    targetMembers.length
+            ) {
+                searchIndexManifest =
+                    await getSearchIndexManifest(
+                        accessToken,
+                        group,
+                        url.origin,
+                        true
+                    );
+
+                searchIndexFiles =
+                    filterSearchIndexFiles(
+                        searchIndexManifest,
+                        targetMemberConditions
+                    );
+            }
         }
 
         if (

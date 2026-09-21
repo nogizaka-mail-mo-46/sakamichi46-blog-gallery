@@ -3,16 +3,15 @@ import {
 } from "../lib/google.js";
 
 import {
-    escapeDriveQueryValue,
-    processInBatches,
-    getTargetMembers,
-    getDriveFileText,
-    createDateKey
-} from "../lib/api-common.js";
-
-import {
     members
 } from "../data/member-data.js";
+
+
+import {
+    escapeDriveQueryValue,
+    processInBatches,
+    getTargetMembers
+} from "../lib/api-common.js";
 
 
 /*
@@ -47,6 +46,47 @@ const SEARCH_INDEX_MANIFEST_CACHE_SECONDS =
 // この一覧キャッシュも同時に更新する。
 const SEARCH_INDEX_FILE_LIST_CACHE_SECONDS =
     86400;
+
+/*
+ * ========================================
+ * Google Driveファイル本文取得
+ * ========================================
+ */
+
+async function getDriveFileText(
+    accessToken,
+    fileId
+) {
+    const response =
+        await fetch(
+            `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media`,
+            {
+                headers: {
+                    Authorization:
+                        `Bearer ${accessToken}`
+                }
+            }
+        );
+
+    if (
+        !response.ok
+    ) {
+        const errorText =
+            await response.text();
+
+        console.error(
+            "Google Drive file error:",
+            fileId,
+            errorText
+        );
+
+        throw new Error(
+            "Google Driveファイルの取得に失敗しました。"
+        );
+    }
+
+    return await response.text();
+}
 
 
 /*
@@ -456,6 +496,36 @@ function normalizeSearchText(
         .toLocaleLowerCase(
             "ja-JP"
         );
+}
+
+
+/*
+ * ========================================
+ * 日付キー生成
+ *
+ * 2025-01-28
+ * ↓
+ * 20250128
+ * ========================================
+ */
+
+function createDateKey(
+    date
+) {
+    const dateKey =
+        String(
+            date ||
+            ""
+        ).replace(
+            /-/g,
+            ""
+        );
+
+    return /^\d{8}$/.test(
+        dateKey
+    )
+        ? dateKey
+        : "";
 }
 
 

@@ -48,6 +48,10 @@ import {
     createReadStatusManager
 } from "./read-status.js";
 
+import {
+    createBlogLoader
+} from "./blog-loader.js";
+
 
 /*
  * ========================================
@@ -612,6 +616,56 @@ const readStatusManager =
                 }
             }
     });
+
+
+/*
+ * ========================================
+ * ブログ一覧データ取得
+ * ========================================
+ */
+
+const blogLoader =
+    createBlogLoader({
+        fetchBlogs,
+
+        getCurrentGroup:
+            () => currentGroup,
+
+        getCurrentMember:
+            () => memberSelect.value,
+
+        getSelectedGeneration:
+            () => selectedGeneration,
+
+        getSelectedDate:
+            () => selectedDate,
+
+        getCurrentMonthKey,
+
+        isCurrentDataRequest,
+
+        setBlogs:
+            (nextBlogs) => {
+                blogs = nextBlogs;
+            },
+
+        updateBlogs,
+
+        clearGallery:
+            () => gallery.clear(),
+
+        clearLightbox:
+            () => lightbox.setImages(
+                []
+            ),
+
+        galleryElement
+    });
+
+const {
+    loadCurrentMonthBlogs,
+    loadBlogsByDate
+} = blogLoader;
 
 
 /*
@@ -1705,251 +1759,6 @@ function getCurrentMonthKey() {
             "0"
         )
     );
-}
-
-
-/*
- * ========================================
- * 表示中の月ブログ取得
- * ========================================
- */
-
-async function loadCurrentMonthBlogs(
-    requestVersion =
-        dataRequestVersion
-) {
-
-    const requestGroup =
-        currentGroup;
-
-    const requestMember =
-        memberSelect.value ||
-        null;
-
-    const requestGeneration =
-        selectedGeneration;
-
-    const month =
-        getCurrentMonthKey();
-
-    if (
-        !month
-    ) {
-
-        blogs =
-            [];
-
-        gallery.clear();
-
-        lightbox.setImages(
-            []
-        );
-
-        return;
-    }
-
-    galleryElement.textContent =
-        "読み込み中...";
-
-    try {
-
-        const data =
-            await fetchBlogs({
-                group:
-                    requestGroup,
-
-                member:
-                    requestMember,
-
-                generation:
-                    requestGeneration,
-
-                month:
-                    month
-            });
-
-
-        if (
-            !isCurrentDataRequest(
-                requestVersion
-            ) ||
-            currentGroup !==
-                requestGroup ||
-            (
-                memberSelect.value ||
-                null
-            ) !==
-                requestMember ||
-            selectedGeneration !==
-                requestGeneration
-        ) {
-
-            return;
-        }
-
-
-        blogs =
-            Array.isArray(
-                data.blogs
-            )
-                ? data.blogs
-                : [];
-
-        updateBlogs();
-
-    } catch (
-        error
-    ) {
-
-        if (
-            !isCurrentDataRequest(
-                requestVersion
-            ) ||
-            currentGroup !==
-                requestGroup ||
-            (
-                memberSelect.value ||
-                null
-            ) !==
-                requestMember ||
-            selectedGeneration !==
-                requestGeneration
-        ) {
-
-            return;
-        }
-
-
-        console.error(
-            error
-        );
-
-        blogs =
-            [];
-
-        lightbox.setImages(
-            []
-        );
-
-        galleryElement.textContent =
-            "ブログの読み込みに失敗しました。";
-    }
-}
-
-
-/*
- * ========================================
- * 指定日のブログ取得
- * ========================================
- */
-
-async function loadBlogsByDate(
-    dateKey,
-    requestVersion =
-        dataRequestVersion
-) {
-
-    const requestGroup =
-        currentGroup;
-
-    const requestMember =
-        memberSelect.value ||
-        null;
-
-    const requestGeneration =
-        selectedGeneration;
-
-
-    galleryElement.textContent =
-        "読み込み中...";
-
-    try {
-
-        const data =
-            await fetchBlogs({
-                group:
-                    requestGroup,
-
-                member:
-                    requestMember,
-
-                generation:
-                    requestGeneration,
-
-                date:
-                    dateKey
-            });
-
-
-        if (
-            !isCurrentDataRequest(
-                requestVersion
-            ) ||
-            currentGroup !==
-                requestGroup ||
-            (
-                memberSelect.value ||
-                null
-            ) !==
-                requestMember ||
-            selectedGeneration !==
-                requestGeneration ||
-            selectedDate !==
-                dateKey
-        ) {
-
-            return;
-        }
-
-
-        blogs =
-            Array.isArray(
-                data.blogs
-            )
-                ? data.blogs
-                : [];
-
-        updateBlogs();
-
-    } catch (
-        error
-    ) {
-
-        if (
-            !isCurrentDataRequest(
-                requestVersion
-            ) ||
-            currentGroup !==
-                requestGroup ||
-            (
-                memberSelect.value ||
-                null
-            ) !==
-                requestMember ||
-            selectedGeneration !==
-                requestGeneration ||
-            selectedDate !==
-                dateKey
-        ) {
-
-            return;
-        }
-
-
-        console.error(
-            error
-        );
-
-        blogs =
-            [];
-
-        lightbox.setImages(
-            []
-        );
-
-        galleryElement.textContent =
-            "ブログの読み込みに失敗しました。";
-    }
 }
 
 

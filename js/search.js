@@ -26,6 +26,7 @@ export function createBlogSearch({
     getBlogs,
     setBlogs,
     getPostDates,
+    getReadArticleIds,
     createDataRequestVersion,
     loadBlogsByDate,
     loadCurrentMonthBlogs,
@@ -74,6 +75,9 @@ export function createBlogSearch({
     const desktopSearchKeywordInput = document.getElementById("desktopSearchKeywordInput");
     const desktopExecuteSearchButton = document.getElementById("desktopExecuteSearchButton");
     const desktopClearSearchButton = document.getElementById("desktopClearSearchButton");
+    const searchReadStatusTabs = Array.from(
+        document.querySelectorAll("[data-search-read-status-tabs] .search-read-status-tab")
+    );
 
     const searchEndDateButton =
         document.getElementById(
@@ -213,6 +217,7 @@ export function createBlogSearch({
 
     let searchStartDate = null;
     let searchEndDate = null;
+    let searchReadStatus = "all";
     let searchDateTarget = null;
     let searchDateDraft = null;
     let searchPickerYear = null;
@@ -232,6 +237,7 @@ export function createBlogSearch({
 
         searchStartDate = null;
         searchEndDate = null;
+        searchReadStatus = "all";
         searchDateTarget = null;
         searchDateDraft = null;
         searchPickerYear = null;
@@ -374,6 +380,12 @@ export function createBlogSearch({
                 Boolean(keyword)
             );
         }
+
+        searchReadStatusTabs.forEach(button => {
+            const isActive = button.dataset.readStatus === searchReadStatus;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+        });
     }
 
 
@@ -1367,6 +1379,17 @@ export function createBlogSearch({
         }
     );
 
+    searchReadStatusTabs.forEach(button => {
+        button.addEventListener("click", () => {
+            const nextStatus = button.dataset.readStatus;
+            if (!["all", "unread", "read"].includes(nextStatus)) {
+                return;
+            }
+            searchReadStatus = nextStatus;
+            updateSearchFilterUi();
+        });
+    });
+
     desktopClearSearchButton?.addEventListener("click", async () => {
         await clearBlogSearch();
     });
@@ -1382,6 +1405,7 @@ export function createBlogSearch({
     } = {}) {
         searchStartDate = null;
         searchEndDate = null;
+        searchReadStatus = "all";
 
         if (desktopSearchKeywordInput) {
             desktopSearchKeywordInput.value = "";
@@ -1516,7 +1540,21 @@ export function createBlogSearch({
 
             isBlogSearchActive = true;
 
-            setBlogs(Array.isArray(data.blogs) ? data.blogs : []);
+            let searchBlogs = Array.isArray(data.blogs) ? data.blogs : [];
+
+            if (searchReadStatus !== "all") {
+                const readArticleIdSet = new Set(
+                    (getReadArticleIds?.() || []).map(value => String(value))
+                );
+
+                searchBlogs = searchBlogs.filter(blog => {
+                    const articleId = String(blog.articleId ?? blog.id ?? "");
+                    const isRead = readArticleIdSet.has(articleId);
+                    return searchReadStatus === "read" ? isRead : !isRead;
+                });
+            }
+
+            setBlogs(searchBlogs);
             setSelectedDate(null);
 
             /*

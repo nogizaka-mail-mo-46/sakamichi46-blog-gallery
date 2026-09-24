@@ -1139,10 +1139,6 @@
     vertical-align: 2px;
 }
 
-.gallery-article.is-read {
-    background: #f2f2f2;
-}
-
 .gallery-article.is-read .gallery-article-title-text {
     color: #777;
 }

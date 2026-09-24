@@ -523,6 +523,21 @@ export function createMemberSelector({
         return button;
     }
 
+    function resetScrollPosition() {
+        if (
+            !memberIconTrack
+        ) {
+            return;
+        }
+
+        memberIconTrack.scrollLeft =
+            0;
+
+        requestAnimationFrame(
+            updateFadeState
+        );
+    }
+
     function updateFadeState() {
         if (
             !memberIconSelector ||
@@ -649,9 +664,7 @@ export function createMemberSelector({
         );
 
         updateSelection();
-        requestAnimationFrame(
-            updateFadeState
-        );
+        resetScrollPosition();
 
         scheduleMemberIconMapWarmup(
             requestGroup
@@ -661,6 +674,7 @@ export function createMemberSelector({
     return {
         render,
         updateSelection,
-        updateFadeState
+        updateFadeState,
+        resetScrollPosition
     };
 }

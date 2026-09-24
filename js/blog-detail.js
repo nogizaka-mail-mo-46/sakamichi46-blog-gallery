@@ -17,6 +17,7 @@ export function createBlogDetail({
     galleryView,
     blogDetailView,
     blogDetail,
+    lightbox,
     onOpen
 }) {
 
@@ -222,6 +223,22 @@ export function createBlogDetail({
             )
                 ? blogData.blocks
                 : [];
+
+        const imageIds =
+            blocks
+                .filter(
+                    block =>
+                        block.type ===
+                            "image" &&
+                        block.fileId
+                )
+                .map(
+                    block =>
+                        block.fileId
+                );
+
+        let imageIndex =
+            0;
 
         blocks.forEach(
             block => {
@@ -440,6 +457,35 @@ export function createBlogDetail({
 
                     image.decoding =
                         "async";
+
+                    const currentImageIndex =
+                        imageIndex;
+
+                    imageIndex +=
+                        1;
+
+                    image.addEventListener(
+                        "click",
+                        () => {
+
+                            if (
+                                !lightbox ||
+                                imageIds.length ===
+                                    0
+                            ) {
+
+                                return;
+                            }
+
+                            lightbox.setImages(
+                                imageIds
+                            );
+
+                            lightbox.open(
+                                currentImageIndex
+                            );
+                        }
+                    );
 
                     imageContainer.appendChild(
                         image

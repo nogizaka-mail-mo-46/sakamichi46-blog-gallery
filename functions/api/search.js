@@ -13,6 +13,12 @@ import {
     getTargetMembers
 } from "../lib/api-common.js";
 
+import {
+    CACHE_SECONDS,
+    createInternalCacheRequest,
+    createPublicCacheControl
+} from "../lib/cache-config.js";
+
 
 /*
  * ========================================
@@ -34,18 +40,9 @@ const SEARCH_INDEX_FOLDER_IDS = {
 const SEARCH_BATCH_SIZE =
     5;
 
-// 検索indexの「ファイル名 ↔ メンバー情報」対応表を
-// Cloudflare Cache APIへ保持する時間。
-// 新メンバー追加時は、対象が見つからなければ自動で再構築する。
-const SEARCH_INDEX_MANIFEST_CACHE_SECONDS =
-    86400;
-
-// Driveの検索indexファイル一覧（id / name）もCache APIへ保持する。
-// 通常検索ではDriveのfiles.list自体を省略できる。
-// 新メンバー追加などでmanifestを強制再構築する場合は、
-// この一覧キャッシュも同時に更新する。
-const SEARCH_INDEX_FILE_LIST_CACHE_SECONDS =
-    86400;
+// 検索indexのファイル一覧 / manifest は、
+// 更新頻度が低いため共通設定で24時間保持する。
+// 新メンバー追加時は対象が見つからなければ自動再構築する。
 
 /*
  * ========================================
@@ -106,12 +103,9 @@ function createSearchIndexFileListCacheRequest(
     origin,
     group
 ) {
-    return new Request(
-        `${origin}/__search-index-file-list/${encodeURIComponent(group)}`,
-        {
-            method:
-                "GET"
-        }
+    return createInternalCacheRequest(
+        origin,
+        `/__search-index-file-list/${encodeURIComponent(group)}`
     );
 }
 
@@ -280,7 +274,9 @@ async function getSearchIndexFiles(
             {
                 headers: {
                     "Cache-Control":
-                        `public, max-age=${SEARCH_INDEX_FILE_LIST_CACHE_SECONDS}`
+                        createPublicCacheControl(
+                            CACHE_SECONDS.SEARCH_INDEX_METADATA
+                        )
                 }
             }
         );
@@ -311,12 +307,9 @@ function createSearchManifestCacheRequest(
     origin,
     group
 ) {
-    return new Request(
-        `${origin}/__search-index-manifest/${encodeURIComponent(group)}`,
-        {
-            method:
-                "GET"
-        }
+    return createInternalCacheRequest(
+        origin,
+        `/__search-index-manifest/${encodeURIComponent(group)}`
     );
 }
 
@@ -443,7 +436,9 @@ async function getSearchIndexManifest(
             {
                 headers: {
                     "Cache-Control":
-                        `public, max-age=${SEARCH_INDEX_MANIFEST_CACHE_SECONDS}`
+                        createPublicCacheControl(
+                            CACHE_SECONDS.SEARCH_INDEX_METADATA
+                        )
                 }
             }
         );

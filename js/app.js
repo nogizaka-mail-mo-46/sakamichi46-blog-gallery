@@ -2135,20 +2135,6 @@ async function loadReadStatus(
     const requestGroup =
         currentGroup;
 
-    if (
-        requestGroup !==
-            "nogizaka46"
-    ) {
-        readArticleIds =
-            [];
-
-        gallery.setReadArticleIds(
-            readArticleIds
-        );
-
-        return;
-    }
-
     try {
         const data =
             await fetchReadStatus(
@@ -2200,8 +2186,11 @@ async function registerArticleRead(
     group
 ) {
     if (
-        group !==
-            "nogizaka46" ||
+        ![
+            "nogizaka46",
+            "sakurazaka46",
+            "hinatazaka46"
+        ].includes(group) ||
         !articleId
     ) {
         return;

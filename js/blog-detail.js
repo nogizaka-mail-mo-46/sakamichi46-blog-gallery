@@ -31,6 +31,57 @@ export function createBlogDetail({
     let currentBlogDetail =
         null;
 
+    let currentImageIds =
+        [];
+
+
+    /*
+     * ========================================
+     * 詳細画像クリック
+     *
+     * render() のたびに画像DOMが作り直されても
+     * 確実にライトボックスを開けるよう、
+     * 詳細コンテナ側でイベントを受け取る。
+     * ========================================
+     */
+
+    blogDetail.addEventListener(
+        "click",
+        event => {
+
+            const image =
+                event.target.closest(
+                    ".blog-detail-image img[data-lightbox-index]"
+                );
+
+            if (
+                !image ||
+                !blogDetail.contains(
+                    image
+                ) ||
+                !lightbox ||
+                currentImageIds.length ===
+                    0
+            ) {
+
+                return;
+            }
+
+            const imageIndex =
+                Number(
+                    image.dataset.lightboxIndex
+                );
+
+            lightbox.setImages(
+                currentImageIds
+            );
+
+            lightbox.open(
+                imageIndex
+            );
+        }
+    );
+
 
     /*
      * ========================================
@@ -236,6 +287,9 @@ export function createBlogDetail({
                     block =>
                         block.fileId
                 );
+
+        currentImageIds =
+            imageIds;
 
         let imageIndex =
             0;
@@ -464,28 +518,10 @@ export function createBlogDetail({
                     imageIndex +=
                         1;
 
-                    image.addEventListener(
-                        "click",
-                        () => {
-
-                            if (
-                                !lightbox ||
-                                imageIds.length ===
-                                    0
-                            ) {
-
-                                return;
-                            }
-
-                            lightbox.setImages(
-                                imageIds
-                            );
-
-                            lightbox.open(
-                                currentImageIndex
-                            );
-                        }
-                    );
+                    image.dataset.lightboxIndex =
+                        String(
+                            currentImageIndex
+                        );
 
                     imageContainer.appendChild(
                         image

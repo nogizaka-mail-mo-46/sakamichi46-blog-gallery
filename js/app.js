@@ -886,6 +886,9 @@ async function changeGroup(
     blogSearch.resetForGroupChange();
 
 
+    memberSelector.resetScrollPosition();
+
+
     updateHero(
         currentGroup
     );

@@ -1134,18 +1134,20 @@
         4px
         9px;
 
-    border:
-        1px solid
-        #bbb;
-
     border-radius:
         var(--ui-radius-round);
 
-    color: #777;
+    background:
+        var(--ui-bg-subtle);
+
+    color:
+        var(--ui-text-muted);
 
     font-size: 12px;
     font-weight: 600;
     line-height: 1.4;
+
+    letter-spacing: 0.03em;
 }
 
 .gallery-article.is-read .gallery-article-title-text {

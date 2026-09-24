@@ -77,6 +77,9 @@ export function createGallery({
     let displayedImages =
         [];
 
+    let readArticleIds =
+        new Set();
+
 
     /*
      * ========================================
@@ -182,6 +185,22 @@ export function createGallery({
                 articleElement.className =
                     "gallery-article";
 
+                const isRead =
+                    readArticleIds.has(
+                        String(
+                            blog.articleId ||
+                            ""
+                        )
+                    );
+
+                if (
+                    isRead
+                ) {
+                    articleElement.classList.add(
+                        "is-read"
+                    );
+                }
+
 
                 /*
                  * ========================================
@@ -248,6 +267,25 @@ export function createGallery({
                 titleElement.appendChild(
                     titleText
                 );
+
+                if (
+                    isRead
+                ) {
+                    const readBadge =
+                        document.createElement(
+                            "span"
+                        );
+
+                    readBadge.className =
+                        "gallery-article-read-badge";
+
+                    readBadge.textContent =
+                        "既読";
+
+                    titleElement.appendChild(
+                        readBadge
+                    );
+                }
 
                 titleElement.appendChild(
                     createUiIcon(
@@ -672,6 +710,20 @@ export function createGallery({
     }
 
 
+    function setReadArticleIds(
+        articleIds
+    ) {
+        readArticleIds =
+            new Set(
+                Array.isArray(articleIds)
+                    ? articleIds.map(
+                        value => String(value)
+                    )
+                    : []
+            );
+    }
+
+
     /*
      * ========================================
      * 公開メソッド
@@ -684,6 +736,9 @@ export function createGallery({
 
         render:
             render,
+
+        setReadArticleIds:
+            setReadArticleIds,
 
         getDisplayedImages:
             getDisplayedImages

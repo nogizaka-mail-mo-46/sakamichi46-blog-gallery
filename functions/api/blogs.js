@@ -14,6 +14,12 @@ import {
     getTargetMembers
 } from "../lib/api-common.js";
 
+import {
+    CACHE_SECONDS,
+    createInternalCacheRequest,
+    createPublicCacheControl
+} from "../lib/cache-config.js";
+
 
 /*
  * ========================================
@@ -468,13 +474,9 @@ async function getGroupBlogs(
         caches.default;
 
     const cacheRequest =
-        new Request(
-            `${origin}/__cache/blog-group/` +
-            `${encodeURIComponent(group)}`,
-            {
-                method:
-                    "GET"
-            }
+        createInternalCacheRequest(
+            origin,
+            `/__cache/blog-group/${encodeURIComponent(group)}`
         );
 
 
@@ -587,7 +589,9 @@ async function getGroupBlogs(
                 {
                     headers: {
                         "Cache-Control":
-                            "public, max-age=3600"
+                            createPublicCacheControl(
+                            CACHE_SECONDS.BLOGS_SOURCE
+                        )
                     }
                 }
             );
@@ -653,14 +657,9 @@ async function getScopedBlogs(
             : `generation/${encodeURIComponent(String(generation))}`;
 
     const cacheRequest =
-        new Request(
-            `${origin}/__cache/blog-scope/` +
-            `${encodeURIComponent(group)}/` +
-            scopeKey,
-            {
-                method:
-                    "GET"
-            }
+        createInternalCacheRequest(
+            origin,
+            `/__cache/blog-scope/${encodeURIComponent(group)}/${scopeKey}`
         );
 
     try {
@@ -725,7 +724,9 @@ async function getScopedBlogs(
                 {
                     headers: {
                         "Cache-Control":
-                            "public, max-age=3600"
+                            createPublicCacheControl(
+                            CACHE_SECONDS.BLOGS_SOURCE
+                        )
                     }
                 }
             );
@@ -880,10 +881,6 @@ function sortBlogs(
  * ========================================
  */
 
-const BLOGS_RESPONSE_CACHE_SECONDS =
-    600;
-
-
 function createBlogsResponseCacheRequest(
     url
 ) {
@@ -923,12 +920,10 @@ function createBlogsResponseCacheRequest(
         }
     );
 
-    return new Request(
-        cacheUrl.toString(),
-        {
-            method:
-                "GET"
-        }
+    return createInternalCacheRequest(
+        url.origin,
+        "/__cache/blogs-response",
+        cacheUrl.searchParams.entries()
     );
 }
 
@@ -1298,7 +1293,9 @@ export async function onRequestGet(
                 {
                     headers: {
                         "Cache-Control":
-                            `public, max-age=${BLOGS_RESPONSE_CACHE_SECONDS}`
+                            createPublicCacheControl(
+                                CACHE_SECONDS.BLOGS_RESPONSE
+                            )
                     }
                 }
             );

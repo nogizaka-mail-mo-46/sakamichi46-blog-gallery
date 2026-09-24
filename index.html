@@ -291,6 +291,13 @@
                         <label class="desktop-search-label" for="desktopSearchKeywordInput">キーワード</label>
                         <input id="desktopSearchKeywordInput" type="search" class="blog-search-input" placeholder="キーワードを入力" aria-label="ブログ検索キーワード">
 
+                        <div class="desktop-search-label">既読状態</div>
+                        <div class="search-read-status-tabs" data-search-read-status-tabs="desktop" role="group" aria-label="既読状態">
+                            <button type="button" class="search-read-status-tab is-active" data-read-status="all" aria-pressed="true">すべて</button>
+                            <button type="button" class="search-read-status-tab" data-read-status="unread" aria-pressed="false">未読</button>
+                            <button type="button" class="search-read-status-tab" data-read-status="read" aria-pressed="false">既読</button>
+                        </div>
+
                         <button type="button" id="desktopExecuteSearchButton" class="blog-search-button">検索する</button>
                         <button type="button" id="desktopClearSearchButton" class="desktop-search-clear-button">条件をクリア</button>
                     </div>
@@ -485,6 +492,15 @@
                 placeholder="キーワードを入力"
                 aria-label="検索キーワード"
             >
+        </div>
+
+        <div class="search-filter-read-status">
+            <span class="search-filter-read-status-label">既読状態</span>
+            <div class="search-read-status-tabs" data-search-read-status-tabs="mobile" role="group" aria-label="既読状態">
+                <button type="button" class="search-read-status-tab is-active" data-read-status="all" aria-pressed="true">すべて</button>
+                <button type="button" class="search-read-status-tab" data-read-status="unread" aria-pressed="false">未読</button>
+                <button type="button" class="search-read-status-tab" data-read-status="read" aria-pressed="false">既読</button>
+            </div>
         </div>
     </div>
 

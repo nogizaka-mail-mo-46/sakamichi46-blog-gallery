@@ -76,8 +76,26 @@ export function createBlogSearch({
     const desktopExecuteSearchButton = document.getElementById("desktopExecuteSearchButton");
     const desktopClearSearchButton = document.getElementById("desktopClearSearchButton");
     const searchReadStatusTabs = Array.from(
-        document.querySelectorAll("[data-search-read-status-tabs] .search-read-status-tab")
+        document.querySelectorAll(
+            "[data-search-read-status-tabs] .search-read-status-tab, " +
+            "[data-search-read-status-tabs] .search-read-status-option"
+        )
     );
+
+    const searchReadStatusButton =
+        document.getElementById("searchReadStatusButton");
+
+    const searchReadStatusValue =
+        document.getElementById("searchReadStatusValue");
+
+    const searchReadStatusBackdrop =
+        document.getElementById("searchReadStatusBackdrop");
+
+    const searchReadStatusPicker =
+        document.getElementById("searchReadStatusPicker");
+
+    const closeSearchReadStatusPickerButton =
+        document.getElementById("closeSearchReadStatusPickerButton");
 
     const searchEndDateButton =
         document.getElementById(
@@ -384,8 +402,51 @@ export function createBlogSearch({
         searchReadStatusTabs.forEach(button => {
             const isActive = button.dataset.readStatus === searchReadStatus;
             button.classList.toggle("is-active", isActive);
-            button.setAttribute("aria-pressed", String(isActive));
+
+            if (button.classList.contains("search-read-status-option")) {
+                button.setAttribute("aria-checked", String(isActive));
+            } else {
+                button.setAttribute("aria-pressed", String(isActive));
+            }
         });
+
+        if (searchReadStatusValue) {
+            const labels = {
+                all: "すべて",
+                unread: "未読",
+                read: "既読"
+            };
+            searchReadStatusValue.textContent = labels[searchReadStatus] || "すべて";
+            searchReadStatusValue.classList.toggle(
+                "is-set",
+                searchReadStatus !== "all"
+            );
+        }
+    }
+
+
+    function setSearchReadStatusPickerOpen(open) {
+        if (!searchReadStatusPicker || !searchReadStatusBackdrop) {
+            return;
+        }
+
+        if (open) {
+            updateSearchFilterUi();
+            searchReadStatusPicker.hidden = false;
+            searchReadStatusBackdrop.hidden = false;
+            requestAnimationFrame(() => {
+                searchReadStatusPicker.classList.add("is-open");
+                searchReadStatusBackdrop.classList.add("is-open");
+            });
+            return;
+        }
+
+        searchReadStatusPicker.classList.remove("is-open");
+        searchReadStatusBackdrop.classList.remove("is-open");
+        window.setTimeout(() => {
+            searchReadStatusPicker.hidden = true;
+            searchReadStatusBackdrop.hidden = true;
+        }, 220);
     }
 
 
@@ -1379,6 +1440,18 @@ export function createBlogSearch({
         }
     );
 
+    searchReadStatusButton?.addEventListener("click", () => {
+        setSearchReadStatusPickerOpen(true);
+    });
+
+    closeSearchReadStatusPickerButton?.addEventListener("click", () => {
+        setSearchReadStatusPickerOpen(false);
+    });
+
+    searchReadStatusBackdrop?.addEventListener("click", () => {
+        setSearchReadStatusPickerOpen(false);
+    });
+
     searchReadStatusTabs.forEach(button => {
         button.addEventListener("click", () => {
             const nextStatus = button.dataset.readStatus;
@@ -1387,6 +1460,10 @@ export function createBlogSearch({
             }
             searchReadStatus = nextStatus;
             updateSearchFilterUi();
+
+            if (button.classList.contains("search-read-status-option")) {
+                setSearchReadStatusPickerOpen(false);
+            }
         });
     });
 

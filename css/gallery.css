@@ -1110,3 +1110,35 @@
         padding-top: 14px;
     }
 }
+
+/* =========================
+   既読表示
+========================= */
+
+.gallery-article-read-badge {
+    display: inline-block;
+
+    margin-left: 10px;
+
+    padding:
+        2px
+        7px;
+
+    border:
+        1px solid
+        #bbb;
+
+    border-radius: 999px;
+
+    color: #777;
+
+    font-size: 11px;
+    font-weight: 500;
+    line-height: 1.4;
+
+    vertical-align: 2px;
+}
+
+.gallery-article.is-read .gallery-article-title-text {
+    color: #777;
+}

@@ -230,6 +230,18 @@ export function createGallery({
                         ? `${dateText} / ${memberName}`
                         : dateText;
 
+                const metaRow =
+                    document.createElement(
+                        "div"
+                    );
+
+                metaRow.className =
+                    "gallery-article-meta-row";
+
+                metaRow.appendChild(
+                    dateElement
+                );
+
                 if (
                     isRead
                 ) {
@@ -244,13 +256,13 @@ export function createGallery({
                     readBadge.textContent =
                         "既読";
 
-                    dateElement.appendChild(
+                    metaRow.appendChild(
                         readBadge
                     );
                 }
 
                 articleElement.appendChild(
-                    dateElement
+                    metaRow
                 );
 
 

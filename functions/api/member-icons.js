@@ -2,6 +2,13 @@ import {
     getGoogleAccessToken
 } from "../lib/google.js";
 
+import {
+    CACHE_SECONDS,
+    createInternalCacheRequest,
+    createPublicCacheControl,
+    createPrivateCacheControl
+} from "../lib/cache-config.js";
+
 
 /*
  * ========================================
@@ -464,24 +471,14 @@ export async function onRequestGet(
         const cache =
             caches.default;
 
-        const cacheUrl =
-            new URL(
-                url.origin +
-                url.pathname
-            );
-
-        cacheUrl.searchParams.set(
-            "group",
-            group
-        );
-
         const cacheKey =
-            new Request(
-                cacheUrl.toString(),
-                {
-                    method:
-                        "GET"
-                }
+            createInternalCacheRequest(
+                url.origin,
+                url.pathname,
+                [[
+                    "group",
+                    group
+                ]]
             );
 
         const cachedResponse =
@@ -500,7 +497,9 @@ export async function onRequestGet(
 
             response.headers.set(
                 "Cache-Control",
-                "private, max-age=3600"
+                createPrivateCacheControl(
+                    CACHE_SECONDS.MEMBER_ICONS
+                )
             );
 
             return response;
@@ -559,7 +558,9 @@ export async function onRequestGet(
                 {
                     headers: {
                         "Cache-Control":
-                            "private, max-age=3600"
+                            createPrivateCacheControl(
+                    CACHE_SECONDS.MEMBER_ICONS
+                )
                     }
                 }
             );
@@ -580,7 +581,9 @@ export async function onRequestGet(
 
         cacheResponse.headers.set(
             "Cache-Control",
-            "public, max-age=3600"
+            createPublicCacheControl(
+                CACHE_SECONDS.MEMBER_ICONS
+            )
         );
 
         context.waitUntil(

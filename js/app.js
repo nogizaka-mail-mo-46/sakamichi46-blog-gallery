@@ -414,6 +414,9 @@ const blogDetailController =
         blogDetail:
             blogDetail,
 
+        lightbox:
+            lightbox,
+
         onOpen:
             (
                 blogData

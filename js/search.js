@@ -1650,16 +1650,29 @@ export function createBlogSearch({
             updateBlogs();
 
             /*
-             * 検索実行後は、現在のスクロール位置を引き継がず、
-             * 検索結果一覧の先頭が見える位置へ戻す。
-             * PC / スマホ共通。スマホは検索シートが閉じた後の
-             * レイアウトを基準にするため、次フレームで移動する。
+             * 検索実行後の縦スクロール位置を端末幅に合わせて整える。
+             * PCではページ最上部へ戻し、スマホ／タブレット縦では
+             * 「検索結果 ○件」の上に少し余白を残して表示する。
              */
-            window.requestAnimationFrame(() => {
-                const blogColumn = galleryElement.closest(".gallery-blog-column");
-                blogColumn?.scrollIntoView({
-                    behavior: "auto",
-                    block: "start"
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (window.matchMedia("(min-width: 1025px)").matches) {
+                        window.scrollTo({
+                            top: 0,
+                            behavior: "auto"
+                        });
+                        return;
+                    }
+
+                    const mobileResultTopGap = 24;
+                    const resultTitleTop =
+                        window.scrollY +
+                        selectedDateTitle.getBoundingClientRect().top;
+
+                    window.scrollTo({
+                        top: Math.max(0, resultTitleTop - mobileResultTopGap),
+                        behavior: "auto"
+                    });
                 });
             });
 

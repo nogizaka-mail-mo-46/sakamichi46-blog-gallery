@@ -4,24 +4,100 @@
  * ========================================
  */
 
+const GET_RETRY_DELAY_MS =
+    350;
+
+
+function wait(
+    milliseconds
+) {
+    return new Promise(
+        resolve =>
+            window.setTimeout(
+                resolve,
+                milliseconds
+            )
+    );
+}
+
+
+function shouldRetryResponse(
+    response
+) {
+    return (
+        response.status === 429 ||
+        response.status >= 500
+    );
+}
+
+
 async function fetchJson(
     url,
     errorMessage
 ) {
-    const response =
-        await fetch(
-            url
-        );
+    let lastError =
+        null;
 
-    if (
-        !response.ok
+    for (
+        let attempt = 0;
+        attempt < 2;
+        attempt += 1
     ) {
-        throw new Error(
-            errorMessage
-        );
+        try {
+            const response =
+                await fetch(
+                    url
+                );
+
+            if (
+                response.ok
+            ) {
+                return await response.json();
+            }
+
+            if (
+                attempt === 0 &&
+                shouldRetryResponse(
+                    response
+                )
+            ) {
+                await wait(
+                    GET_RETRY_DELAY_MS
+                );
+
+                continue;
+            }
+
+            throw new Error(
+                errorMessage
+            );
+
+        } catch (
+            error
+        ) {
+            lastError =
+                error;
+
+            if (
+                attempt === 0 &&
+                !(error instanceof Error &&
+                    error.message === errorMessage)
+            ) {
+                await wait(
+                    GET_RETRY_DELAY_MS
+                );
+
+                continue;
+            }
+
+            throw error;
+        }
     }
 
-    return await response.json();
+    throw lastError ||
+        new Error(
+            errorMessage
+        );
 }
 
 

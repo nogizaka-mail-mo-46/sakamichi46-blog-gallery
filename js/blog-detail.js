@@ -157,7 +157,45 @@ export function createBlogDetail({
             console.error(
                 error
             );
+
+            currentBlogDetail =
+                null;
+
+            currentImageIds =
+                [];
+
+            renderError();
+
+            show();
         }
+    }
+
+
+    /*
+     * ========================================
+     * 詳細取得エラー描画
+     * ========================================
+     */
+
+    function renderError() {
+
+        blogDetail.innerHTML =
+            "";
+
+        const message =
+            document.createElement(
+                "p"
+            );
+
+        message.className =
+            "blog-detail-text";
+
+        message.textContent =
+            "ブログの読み込みに失敗しました。もう一度お試しください。";
+
+        blogDetail.appendChild(
+            message
+        );
     }
 
 

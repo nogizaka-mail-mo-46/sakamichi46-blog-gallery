@@ -39,15 +39,17 @@ function getFolderId(
     env,
     group
 ) {
-    if (
-        group ===
-            "nogizaka46"
-    ) {
-        return env.NOGIZAKA_READ_STATUS_FOLDER_ID?.trim() ||
-            "";
-    }
+    const folderIds = {
+        nogizaka46:
+            env.NOGIZAKA_READ_STATUS_FOLDER_ID,
+        sakurazaka46:
+            env.SAKURAZAKA_READ_STATUS_FOLDER_ID,
+        hinatazaka46:
+            env.HINATAZAKA_READ_STATUS_FOLDER_ID
+    };
 
-    return "";
+    return folderIds[group]?.trim() ||
+        "";
 }
 
 
@@ -277,7 +279,11 @@ export async function onRequestGet(
             );
 
         if (
-            group !== "nogizaka46"
+            ![
+                "nogizaka46",
+                "sakurazaka46",
+                "hinatazaka46"
+            ].includes(group)
         ) {
             return jsonResponse({
                 readArticleIds: []
@@ -363,7 +369,11 @@ export async function onRequestPost(
             );
 
         if (
-            group !== "nogizaka46"
+            ![
+                "nogizaka46",
+                "sakurazaka46",
+                "hinatazaka46"
+            ].includes(group)
         ) {
             return jsonResponse(
                 {

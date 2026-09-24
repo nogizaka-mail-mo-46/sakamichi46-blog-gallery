@@ -1649,6 +1649,20 @@ export function createBlogSearch({
 
             updateBlogs();
 
+            /*
+             * 検索実行後は、現在のスクロール位置を引き継がず、
+             * 検索結果一覧の先頭が見える位置へ戻す。
+             * PC / スマホ共通。スマホは検索シートが閉じた後の
+             * レイアウトを基準にするため、次フレームで移動する。
+             */
+            window.requestAnimationFrame(() => {
+                const blogColumn = galleryElement.closest(".gallery-blog-column");
+                blogColumn?.scrollIntoView({
+                    behavior: "auto",
+                    block: "start"
+                });
+            });
+
             if (getBlogs().length === 0) {
                 galleryElement.textContent = "検索条件に一致するブログはありません。";
                 lightbox.setImages([]);

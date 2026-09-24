@@ -152,40 +152,16 @@ async function createReadStatusFile(
     folderId,
     readArticleIds
 ) {
-    const boundary =
-        `read_status_${Date.now()}`;
+    /*
+     * multipart upload は使わず、
+     * 1. Drive にJSONファイルを作成
+     * 2. そのファイルへ既読内容を書き込む
+     * の2段階に分ける。
+     */
 
-    const metadata = {
-        name:
-            READ_STATUS_FILE_NAME,
-        parents: [
-            folderId
-        ],
-        mimeType:
-            "application/json"
-    };
-
-    const content =
-        JSON.stringify(
-            {
-                readArticleIds
-            },
-            null,
-            2
-        );
-
-    const body =
-        `--${boundary}\r\n` +
-        "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-        `${JSON.stringify(metadata)}\r\n` +
-        `--${boundary}\r\n` +
-        "Content-Type: application/json; charset=UTF-8\r\n\r\n" +
-        `${content}\r\n` +
-        `--${boundary}--`;
-
-    const response =
+    const createResponse =
         await fetch(
-            "https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id",
+            "https://www.googleapis.com/drive/v3/files?fields=id",
             {
                 method:
                     "POST",
@@ -193,22 +169,48 @@ async function createReadStatusFile(
                     Authorization:
                         `Bearer ${accessToken}`,
                     "Content-Type":
-                        `multipart/related; boundary=${boundary}`
+                        "application/json; charset=utf-8"
                 },
-                body
+                body:
+                    JSON.stringify({
+                        name:
+                            READ_STATUS_FILE_NAME,
+                        parents: [
+                            folderId
+                        ],
+                        mimeType:
+                            "application/json"
+                    })
             }
         );
 
     if (
-        !response.ok
+        !createResponse.ok
     ) {
         const errorText =
-            await response.text();
+            await createResponse.text();
 
         throw new Error(
-            `Google Drive read-status create error: ${response.status} ${errorText}`
+            `Google Drive read-status metadata create error: ${createResponse.status} ${errorText}`
         );
     }
+
+    const createdFile =
+        await createResponse.json();
+
+    if (
+        !createdFile?.id
+    ) {
+        throw new Error(
+            "Google Drive read-status create error: file id was not returned"
+        );
+    }
+
+    await updateReadStatusFile(
+        accessToken,
+        createdFile.id,
+        readArticleIds
+    );
 }
 
 

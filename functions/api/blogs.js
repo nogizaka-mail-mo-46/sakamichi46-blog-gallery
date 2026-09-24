@@ -394,7 +394,9 @@ async function getMemberBlogs(
             error
         );
 
-        return [];
+        throw new Error(
+            `index.jsonの解析に失敗しました: ${memberKey}`
+        );
     }
 
 
@@ -411,11 +413,9 @@ async function getMemberBlogs(
         )
     ) {
 
-        console.warn(
-            `index.jsonのblogsが不正: ${memberKey}`
+        throw new Error(
+            `index.jsonのblogsが不正です: ${memberKey}`
         );
-
-        return [];
     }
 
 

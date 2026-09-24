@@ -13,9 +13,7 @@ import {
 import {
     fetchMembers,
     fetchBlogs,
-    fetchBlogSearch,
-    fetchReadStatus,
-    markArticleRead
+    fetchBlogSearch
 } from "./api.js";
 
 import {
@@ -45,6 +43,10 @@ import {
 import {
     createMemberSelector
 } from "./member-selector.js";
+
+import {
+    createReadStatusManager
+} from "./read-status.js";
 
 
 /*
@@ -248,9 +250,6 @@ let selectedDate =
 let galleryScrollPosition =
     0;
 
-let readArticleIds =
-    [];
-
 
 /*
  * ========================================
@@ -429,7 +428,7 @@ const blogDetailController =
 
                 blogImagesController.hide();
 
-                registerArticleRead(
+                readStatusManager.registerArticleRead(
                     blogData.articleId,
                     currentGroup
                 );
@@ -582,6 +581,35 @@ const gallery =
                     images:
                         images
                 });
+            }
+    });
+
+
+/*
+ * ========================================
+ * 既読管理
+ * ========================================
+ */
+
+const readStatusManager =
+    createReadStatusManager({
+        getCurrentGroup:
+            () => currentGroup,
+
+        isCurrentDataRequest,
+
+        gallery,
+
+        hasBlogs:
+            () => blogs.length > 0,
+
+        onReadStatusChange:
+            () => {
+                if (
+                    blogs.length > 0
+                ) {
+                    updateBlogs();
+                }
             }
     });
 
@@ -784,7 +812,8 @@ const blogSearch =
             blogs = value;
         },
         getPostDates,
-        getReadArticleIds: () => readArticleIds,
+        getReadArticleIds: () =>
+            readStatusManager.getReadArticleIds(),
         createDataRequestVersion,
         loadBlogsByDate,
         loadCurrentMonthBlogs,
@@ -810,7 +839,7 @@ async function initialize() {
         loadGroupPostDates(
             requestVersion
         ),
-        loadReadStatus(
+        readStatusManager.loadReadStatus(
             requestVersion
         )
     ]);
@@ -969,7 +998,7 @@ async function changeGroup(
         loadGroupPostDates(
             requestVersion
         ),
-        loadReadStatus(
+        readStatusManager.loadReadStatus(
             requestVersion
         )
     ]);
@@ -2125,139 +2154,6 @@ sortSelect.addEventListener(
 
 /*
  * ========================================
- * 既読情報
- * ========================================
- */
-
-async function loadReadStatus(
-    requestVersion =
-        dataRequestVersion
-) {
-    const requestGroup =
-        currentGroup;
-
-    try {
-        const data =
-            await fetchReadStatus(
-                requestGroup
-            );
-
-        if (
-            !isCurrentDataRequest(
-                requestVersion
-            ) ||
-            currentGroup !==
-                requestGroup
-        ) {
-            return;
-        }
-
-        readArticleIds =
-            Array.isArray(
-                data.readArticleIds
-            )
-                ? data.readArticleIds.map(
-                    value => String(value)
-                )
-                : [];
-
-        gallery.setReadArticleIds(
-            readArticleIds
-        );
-
-        if (
-            blogs.length >
-                0
-        ) {
-            updateBlogs();
-        }
-
-    } catch (
-        error
-    ) {
-        console.error(
-            error
-        );
-    }
-}
-
-
-async function registerArticleRead(
-    articleId,
-    group
-) {
-    if (
-        ![
-            "nogizaka46",
-            "sakurazaka46",
-            "hinatazaka46"
-        ].includes(group) ||
-        !articleId
-    ) {
-        return;
-    }
-
-    const normalizedArticleId =
-        String(articleId);
-
-    if (
-        readArticleIds.includes(
-            normalizedArticleId
-        )
-    ) {
-        return;
-    }
-
-    try {
-        const data =
-            await markArticleRead({
-                group,
-                articleId:
-                    normalizedArticleId
-            });
-
-        if (
-            currentGroup !==
-                group
-        ) {
-            return;
-        }
-
-        readArticleIds =
-            Array.isArray(
-                data.readArticleIds
-            )
-                ? data.readArticleIds.map(
-                    value => String(value)
-                )
-                : [
-                    ...readArticleIds,
-                    normalizedArticleId
-                ];
-
-        gallery.setReadArticleIds(
-            readArticleIds
-        );
-
-        if (
-            blogs.length >
-                0
-        ) {
-            updateBlogs();
-        }
-
-    } catch (
-        error
-    ) {
-        console.error(
-            error
-        );
-    }
-}
-
-
-/*
- * ========================================
  * ブログ描画
  * ========================================
  */
@@ -2265,7 +2161,7 @@ async function registerArticleRead(
 function updateBlogs() {
 
     gallery.setReadArticleIds(
-        readArticleIds
+        readStatusManager.getReadArticleIds()
     );
 
     gallery.render(

@@ -1922,3 +1922,142 @@ body {
         margin-bottom: 14px;
     }
 }
+
+/* =========================
+   スマホ検索: 既読状態選択
+========================= */
+.search-read-status-backdrop,
+.search-read-status-picker {
+    display: none;
+}
+
+@media (max-width: 1023px) {
+    .search-filter-read-icon svg {
+        display: block;
+        width: 20px;
+        height: 20px;
+    }
+
+    #searchReadStatusButton {
+        border-bottom: 0;
+    }
+
+    .search-read-status-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 320;
+        display: block;
+        background: rgba(0, 0, 0, 0.28);
+        opacity: 0;
+        transition: opacity 0.18s ease;
+    }
+
+    .search-read-status-backdrop.is-open {
+        opacity: 1;
+    }
+
+    .search-read-status-picker {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 330;
+        display: block;
+        padding: 8px 18px calc(20px + env(safe-area-inset-bottom));
+        border-radius: 22px 22px 0 0;
+        background: #fff;
+        box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.16);
+        transform: translateY(100%);
+        transition: transform 0.22s ease;
+    }
+
+    .search-read-status-picker.is-open {
+        transform: translateY(0);
+    }
+
+    .search-read-status-picker-handle {
+        width: 42px;
+        height: 4px;
+        margin: 0 auto 10px;
+        border-radius: 999px;
+        background: #d2d2d2;
+    }
+
+    .search-read-status-picker-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 46px;
+        padding: 0 2px 6px;
+    }
+
+    .search-read-status-picker-header h2 {
+        margin: 0;
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .search-read-status-picker-close {
+        appearance: none;
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #444;
+        font: inherit;
+        font-size: 28px;
+        line-height: 1;
+        cursor: pointer;
+    }
+
+    .search-read-status-options {
+        overflow: hidden;
+        border: 1px solid #e8e8e8;
+        border-radius: 14px;
+        background: #fff;
+    }
+
+    .search-read-status-option {
+        appearance: none;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        min-height: 56px;
+        padding: 0 18px;
+        border: 0;
+        border-bottom: 1px solid #ededed;
+        background: #fff;
+        color: var(--ui-text);
+        font: inherit;
+        font-size: 15px;
+        font-weight: 650;
+        text-align: left;
+        cursor: pointer;
+    }
+
+    .search-read-status-option:last-child {
+        border-bottom: 0;
+    }
+
+    .search-read-status-option.is-active {
+        color: var(--member-icon-color);
+    }
+
+    .search-read-status-check {
+        visibility: hidden;
+        color: var(--member-icon-color);
+        font-size: 18px;
+        font-weight: 700;
+    }
+
+    .search-read-status-option.is-active .search-read-status-check {
+        visibility: visible;
+    }
+}
+
+.search-read-status-backdrop[hidden],
+.search-read-status-picker[hidden] {
+    display: none !important;
+}

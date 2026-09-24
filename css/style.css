@@ -1054,11 +1054,6 @@ body {
         display: none;
     }
 
-    .blog-search-input-wrap {
-        flex: 1 1 auto;
-        min-width: 0;
-    }
-
     .blog-search-input {
         box-sizing: border-box;
 
@@ -1903,18 +1898,6 @@ body {
     background: #fff;
     color: var(--member-icon-color);
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
-}
-
-.search-filter-read-status {
-    padding: 12px 13px 14px;
-    background: #fff;
-}
-
-.search-filter-read-status-label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    font-weight: 650;
 }
 
 @media (min-width: 1024px) {

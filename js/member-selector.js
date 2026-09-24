@@ -53,24 +53,61 @@ export function createMemberSelector({
             new Map();
 
         try {
-            const response =
-                await fetch(
-                    `${MEMBER_ICONS_API_URL}` +
-                    `?group=${encodeURIComponent(group)}`,
-                    {
-                        method:
-                            "GET",
-                        credentials:
-                            "include"
+            let response =
+                null;
+
+            for (
+                let attempt = 0;
+                attempt < 2;
+                attempt += 1
+            ) {
+                try {
+                    response =
+                        await fetch(
+                            `${MEMBER_ICONS_API_URL}` +
+                            `?group=${encodeURIComponent(group)}`,
+                            {
+                                method:
+                                    "GET",
+                                credentials:
+                                    "include"
+                            }
+                        );
+
+                    if (
+                        response.ok ||
+                        (response.status !== 429 &&
+                            response.status < 500) ||
+                        attempt > 0
+                    ) {
+                        break;
                     }
+
+                } catch (
+                    error
+                ) {
+                    if (
+                        attempt > 0
+                    ) {
+                        throw error;
+                    }
+                }
+
+                await new Promise(
+                    resolve =>
+                        window.setTimeout(
+                            resolve,
+                            350
+                        )
                 );
+            }
 
             if (
-                !response.ok
+                !response?.ok
             ) {
                 throw new Error(
                     `メンバーアイコン一覧の取得に失敗しました: ` +
-                    `${response.status}`
+                    `${response?.status || "network"}`
                 );
             }
 

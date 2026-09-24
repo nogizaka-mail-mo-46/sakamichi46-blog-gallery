@@ -177,6 +177,9 @@
     background:
         #f3f3f3;
 
+    cursor:
+        zoom-in;
+
     box-shadow:
         0 3px 14px
         rgba(

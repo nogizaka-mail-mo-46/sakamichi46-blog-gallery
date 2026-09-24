@@ -784,6 +784,7 @@ const blogSearch =
             blogs = value;
         },
         getPostDates,
+        getReadArticleIds: () => readArticleIds,
         createDataRequestVersion,
         loadBlogsByDate,
         loadCurrentMonthBlogs,

@@ -230,6 +230,25 @@ export function createGallery({
                         ? `${dateText} / ${memberName}`
                         : dateText;
 
+                if (
+                    isRead
+                ) {
+                    const readBadge =
+                        document.createElement(
+                            "span"
+                        );
+
+                    readBadge.className =
+                        "gallery-article-read-badge";
+
+                    readBadge.textContent =
+                        "既読";
+
+                    dateElement.appendChild(
+                        readBadge
+                    );
+                }
+
                 articleElement.appendChild(
                     dateElement
                 );
@@ -267,25 +286,6 @@ export function createGallery({
                 titleElement.appendChild(
                     titleText
                 );
-
-                if (
-                    isRead
-                ) {
-                    const readBadge =
-                        document.createElement(
-                            "span"
-                        );
-
-                    readBadge.className =
-                        "gallery-article-read-badge";
-
-                    readBadge.textContent =
-                        "既読";
-
-                    titleElement.appendChild(
-                        readBadge
-                    );
-                }
 
                 titleElement.appendChild(
                     createUiIcon(

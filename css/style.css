@@ -1869,3 +1869,56 @@ body {
         scrollbar-gutter: auto;
     }
 }
+
+
+/* =========================
+   検索条件: 既読状態
+========================= */
+.search-read-status-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    background: var(--ui-bg-page);
+}
+
+.search-read-status-tab {
+    appearance: none;
+    min-width: 0;
+    min-height: 34px;
+    padding: 6px 8px;
+    border: 0;
+    border-radius: 7px;
+    background: transparent;
+    color: var(--ui-text-muted);
+    font: inherit;
+    font-size: 12px;
+    font-weight: 650;
+    cursor: pointer;
+}
+
+.search-read-status-tab.is-active {
+    background: #fff;
+    color: var(--member-icon-color);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.10);
+}
+
+.search-filter-read-status {
+    padding: 12px 13px 14px;
+    background: #fff;
+}
+
+.search-filter-read-status-label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 650;
+}
+
+@media (min-width: 1024px) {
+    .blog-search-panel-desktop .search-read-status-tabs {
+        margin-bottom: 14px;
+    }
+}

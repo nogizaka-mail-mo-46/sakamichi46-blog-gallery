@@ -45,12 +45,20 @@
    ブログ日付
 ========================= */
 
+.gallery-article-meta-row {
+    display: flex;
+
+    align-items: center;
+
+    gap: 6px;
+
+    margin-bottom: 10px;
+}
+
 .gallery-article-date {
     display: inline-flex;
 
     align-items: center;
-
-    margin-bottom: 10px;
 
     padding:
         4px
@@ -892,9 +900,11 @@
             );
     }
 
-    .gallery-article-date {
+    .gallery-article-meta-row {
         margin-bottom: 6px;
+    }
 
+    .gallery-article-date {
         font-size: 12px;
     }
 
@@ -1116,27 +1126,26 @@
 ========================= */
 
 .gallery-article-read-badge {
-    display: inline-block;
+    display: inline-flex;
 
-    margin-left: 10px;
+    align-items: center;
 
     padding:
-        2px
-        7px;
+        4px
+        9px;
 
     border:
         1px solid
         #bbb;
 
-    border-radius: 999px;
+    border-radius:
+        var(--ui-radius-round);
 
     color: #777;
 
-    font-size: 11px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 600;
     line-height: 1.4;
-
-    vertical-align: 2px;
 }
 
 .gallery-article.is-read .gallery-article-title-text {

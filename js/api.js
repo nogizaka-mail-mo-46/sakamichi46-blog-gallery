@@ -151,6 +151,62 @@ export async function fetchBlogDetail({
     );
 }
 
+
+/*
+ * ========================================
+ * 既読情報取得
+ * ========================================
+ */
+
+export async function fetchReadStatus(
+    group
+) {
+    return await fetchJson(
+        `/api/read-status?group=${encodeURIComponent(group)}`,
+        "既読情報の取得に失敗しました。"
+    );
+}
+
+
+/*
+ * ========================================
+ * 既読登録
+ * ========================================
+ */
+
+export async function markArticleRead({
+    group,
+    articleId
+}) {
+    const response =
+        await fetch(
+            "/api/read-status",
+            {
+                method:
+                    "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+                body:
+                    JSON.stringify({
+                        group,
+                        articleId
+                    })
+            }
+        );
+
+    if (
+        !response.ok
+    ) {
+        throw new Error(
+            "既読情報の保存に失敗しました。"
+        );
+    }
+
+    return await response.json();
+}
+
 /*
  * ========================================
  * ブログ検索

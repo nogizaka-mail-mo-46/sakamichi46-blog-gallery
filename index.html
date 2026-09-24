@@ -494,19 +494,46 @@
             >
         </div>
 
-        <div class="search-filter-read-status">
-            <span class="search-filter-read-status-label">既読状態</span>
-            <div class="search-read-status-tabs" data-search-read-status-tabs="mobile" role="group" aria-label="既読状態">
-                <button type="button" class="search-read-status-tab is-active" data-read-status="all" aria-pressed="true">すべて</button>
-                <button type="button" class="search-read-status-tab" data-read-status="unread" aria-pressed="false">未読</button>
-                <button type="button" class="search-read-status-tab" data-read-status="read" aria-pressed="false">既読</button>
-            </div>
-        </div>
+        <button type="button" id="searchReadStatusButton" class="search-filter-row">
+            <span class="search-filter-row-icon search-filter-read-icon" aria-hidden="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                </svg>
+            </span>
+            <span class="search-filter-row-label">既読状態</span>
+            <span id="searchReadStatusValue" class="search-filter-row-value">すべて</span>
+            <span class="search-filter-row-chevron">›</span>
+        </button>
     </div>
 
     <div class="search-filter-sheet-footer">
         <button type="button" id="executeSearchButton" class="search-filter-execute-button">この条件で検索</button>
         <button type="button" id="clearSearchFiltersButton" class="search-filter-clear-button">条件をクリア</button>
+    </div>
+</section>
+
+<!-- =========================
+     既読状態 選択
+========================= -->
+<div id="searchReadStatusBackdrop" class="search-read-status-backdrop" hidden></div>
+
+<section id="searchReadStatusPicker" class="search-read-status-picker" aria-modal="true" aria-labelledby="searchReadStatusPickerTitle" hidden>
+    <div class="search-read-status-picker-handle" aria-hidden="true"></div>
+    <div class="search-read-status-picker-header">
+        <h2 id="searchReadStatusPickerTitle">既読状態</h2>
+        <button type="button" id="closeSearchReadStatusPickerButton" class="search-read-status-picker-close" aria-label="既読状態の選択を閉じる">×</button>
+    </div>
+    <div class="search-read-status-options" data-search-read-status-tabs="mobile" role="radiogroup" aria-label="既読状態">
+        <button type="button" class="search-read-status-option is-active" data-read-status="all" role="radio" aria-checked="true">
+            <span>すべて</span><span class="search-read-status-check">✓</span>
+        </button>
+        <button type="button" class="search-read-status-option" data-read-status="unread" role="radio" aria-checked="false">
+            <span>未読</span><span class="search-read-status-check">✓</span>
+        </button>
+        <button type="button" class="search-read-status-option" data-read-status="read" role="radio" aria-checked="false">
+            <span>既読</span><span class="search-read-status-check">✓</span>
+        </button>
     </div>
 </section>
 

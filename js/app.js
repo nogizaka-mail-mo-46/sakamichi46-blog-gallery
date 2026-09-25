@@ -995,6 +995,17 @@ async function changeGroup(
     );
 
 
+    memberSelect.value =
+        "";
+
+
+    selectedGeneration =
+        null;
+
+
+    memberSelector.resetForGroupChange();
+
+
     blogSearch.resetForGroupChange();
 
 
@@ -1004,14 +1015,6 @@ async function changeGroup(
     updateHero(
         currentGroup
     );
-
-
-    memberSelect.value =
-        "";
-
-
-    selectedGeneration =
-        null;
 
 
     members =

@@ -21,6 +21,7 @@ export function createBlogSearch({
     lightbox,
     getCurrentGroup,
     getSelectedGeneration,
+    getFavoriteOnlyMode,
     getSelectedDate,
     setSelectedDate,
     getBlogs,
@@ -314,6 +315,13 @@ export function createBlogSearch({
 
 
     function getCurrentSearchMemberLabel() {
+        if (
+            typeof getFavoriteOnlyMode === "function" &&
+            getFavoriteOnlyMode()
+        ) {
+            return "推しメン";
+        }
+
         if (
             getSelectedGeneration() !== null
         ) {

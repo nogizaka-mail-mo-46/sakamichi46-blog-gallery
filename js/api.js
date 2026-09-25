@@ -285,6 +285,64 @@ export async function markArticleRead({
 
 /*
  * ========================================
+ * 推しメン情報取得
+ * ========================================
+ */
+
+export async function fetchFavoriteMembers(
+    group
+) {
+    return await fetchJson(
+        `/api/favorite-members?group=${encodeURIComponent(group)}`,
+        "推しメン情報の取得に失敗しました。"
+    );
+}
+
+
+/*
+ * ========================================
+ * 推しメン登録・解除
+ * ========================================
+ */
+
+export async function updateFavoriteMember({
+    group,
+    memberKey,
+    favorite
+}) {
+    const response =
+        await fetch(
+            "/api/favorite-members",
+            {
+                method:
+                    "POST",
+                headers: {
+                    "Content-Type":
+                        "application/json"
+                },
+                body:
+                    JSON.stringify({
+                        group,
+                        memberKey,
+                        favorite
+                    })
+            }
+        );
+
+    if (
+        !response.ok
+    ) {
+        throw new Error(
+            "推しメン情報の保存に失敗しました。"
+        );
+    }
+
+    return await response.json();
+}
+
+
+/*
+ * ========================================
  * ブログ検索
  *
  * 【対応パラメータ】

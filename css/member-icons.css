@@ -659,7 +659,7 @@ body.group-hinatazaka46 {
 .member-favorite-button {
     position: absolute;
 
-    top: -2px;
+    top: -12px;
     right: 0;
 
     z-index: 4;

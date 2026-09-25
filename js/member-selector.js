@@ -358,6 +358,7 @@ export function createMemberSelector({
                             buttonGeneration;
                 } else {
                     selected =
+                        !favoriteOnlyMode &&
                         selectedGeneration ===
                             null &&
                         buttonMemberKey ===
@@ -789,6 +790,8 @@ export function createMemberSelector({
                     return;
                 }
 
+                favoriteOnlyMode =
+                    false;
                 setSelectedGeneration(
                     null
                 );

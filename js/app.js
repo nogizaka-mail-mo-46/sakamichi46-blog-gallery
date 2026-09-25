@@ -1365,6 +1365,8 @@ async function changeFavoriteMembers(
     favoriteMemberKeys
 ) {
 
+    blogSearch.resetForGroupChange();
+
     const requestVersion =
         createDataRequestVersion();
 
@@ -1515,6 +1517,8 @@ async function changeGeneration(
     generation
 ) {
 
+    blogSearch.resetForGroupChange();
+
     const requestVersion =
         createDataRequestVersion();
 
@@ -1562,6 +1566,8 @@ async function changeGeneration(
 memberSelect.addEventListener(
     "change",
     async () => {
+
+        blogSearch.resetForGroupChange();
 
         const member =
             memberSelect.value;

@@ -12,6 +12,8 @@ export function createBlogLoader({
     getCurrentGroup,
     getCurrentMember,
     getSelectedGeneration,
+    getFavoriteOnlyMode,
+    getFavoriteMemberKeys,
     getSelectedDate,
     getCurrentMonthKey,
     isCurrentDataRequest,
@@ -32,7 +34,13 @@ export function createBlogLoader({
                 null,
 
             generation:
-                getSelectedGeneration()
+                getSelectedGeneration(),
+
+            favoriteOnly:
+                getFavoriteOnlyMode(),
+
+            favoriteMemberKeys:
+                getFavoriteMemberKeys()
         };
     }
 
@@ -53,10 +61,38 @@ export function createBlogLoader({
             ) ===
                 requestTarget.member &&
             getSelectedGeneration() ===
-                requestTarget.generation
+                requestTarget.generation &&
+            getFavoriteOnlyMode() ===
+                requestTarget.favoriteOnly
         );
     }
 
+
+    function filterFavoriteBlogs(
+        blogs,
+        requestTarget
+    ) {
+        const source =
+            Array.isArray(blogs)
+                ? blogs
+                : [];
+
+        if (
+            !requestTarget.favoriteOnly
+        ) {
+            return source;
+        }
+
+        return source.filter(
+            blog =>
+                requestTarget.favoriteMemberKeys.has(
+                    String(
+                        blog?.member?.key ||
+                        ""
+                    )
+                )
+        );
+    }
 
     function showLoadError() {
         setBlogs(
@@ -121,11 +157,10 @@ export function createBlogLoader({
             }
 
             setBlogs(
-                Array.isArray(
-                    data.blogs
+                filterFavoriteBlogs(
+                    data.blogs,
+                    requestTarget
                 )
-                    ? data.blogs
-                    : []
             );
 
             updateBlogs();
@@ -189,11 +224,10 @@ export function createBlogLoader({
             }
 
             setBlogs(
-                Array.isArray(
-                    data.blogs
+                filterFavoriteBlogs(
+                    data.blogs,
+                    requestTarget
                 )
-                    ? data.blogs
-                    : []
             );
 
             updateBlogs();

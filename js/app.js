@@ -869,6 +869,8 @@ const blogSearch =
         getSelectedGeneration: () => selectedGeneration,
         getFavoriteOnlyMode: () =>
             memberSelector.isFavoriteOnlyMode(),
+        getFavoriteMemberKeys: () =>
+            memberSelector.getFavoriteMemberKeys(),
         getSelectedDate: () => selectedDate,
         setSelectedDate: value => {
             selectedDate = value;

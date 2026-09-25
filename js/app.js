@@ -867,6 +867,8 @@ const blogSearch =
         lightbox,
         getCurrentGroup: () => currentGroup,
         getSelectedGeneration: () => selectedGeneration,
+        getFavoriteOnlyMode: () =>
+            memberSelector.isFavoriteOnlyMode(),
         getSelectedDate: () => selectedDate,
         setSelectedDate: value => {
             selectedDate = value;

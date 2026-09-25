@@ -332,7 +332,7 @@ export function createBlogSearch({
                 memberSelect.value;
         }
 
-        return "ALL";
+        return "全メンバー";
     }
 
 

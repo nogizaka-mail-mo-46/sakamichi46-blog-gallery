@@ -22,6 +22,7 @@ export function createBlogSearch({
     getCurrentGroup,
     getSelectedGeneration,
     getFavoriteOnlyMode,
+    getFavoriteMemberKeys,
     getSelectedDate,
     setSelectedDate,
     getBlogs,
@@ -1563,6 +1564,14 @@ export function createBlogSearch({
     } = {}) {
         const requestGroup = getCurrentGroup();
         const requestMember = memberSelect.value || null;
+        const requestFavoriteOnly =
+            typeof getFavoriteOnlyMode === "function" &&
+            getFavoriteOnlyMode();
+        const requestFavoriteMemberKeys =
+            requestFavoriteOnly &&
+            typeof getFavoriteMemberKeys === "function"
+                ? getFavoriteMemberKeys()
+                : new Set();
 
         if (!isBlogSearchActive) {
             searchRestoreSelectedDate = getSelectedDate();
@@ -1618,7 +1627,11 @@ export function createBlogSearch({
 
             if (
                 getCurrentGroup() !== requestGroup ||
-                (memberSelect.value || null) !== requestMember
+                (memberSelect.value || null) !== requestMember ||
+                (
+                    typeof getFavoriteOnlyMode === "function" &&
+                    getFavoriteOnlyMode()
+                ) !== requestFavoriteOnly
             ) {
                 return;
             }
@@ -1626,6 +1639,21 @@ export function createBlogSearch({
             isBlogSearchActive = true;
 
             let searchBlogs = Array.isArray(data.blogs) ? data.blogs : [];
+
+            /*
+             * 推しメン表示中の検索は、通常一覧と同じく
+             * 登録済みの推しメンだけに検索結果を絞り込む。
+             * memberSelect.value は推しメン選択時には空のため、
+             * APIへ member を渡すだけでは全メンバー検索になってしまう。
+             */
+            if (requestFavoriteOnly) {
+                searchBlogs = searchBlogs.filter(
+                    blog =>
+                        requestFavoriteMemberKeys.has(
+                            String(blog?.member?.key || "")
+                        )
+                );
+            }
 
             if (searchReadStatus !== "all") {
                 const readArticleIdSet = new Set(

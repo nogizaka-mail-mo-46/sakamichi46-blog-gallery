@@ -348,7 +348,11 @@ const memberSelector =
         getCurrentGroup: () => currentGroup,
         getDataRequestVersion: () => dataRequestVersion,
         isCurrentDataRequest,
-        onGenerationChange: generation => changeGeneration(generation)
+        onGenerationChange: generation => changeGeneration(generation),
+        onFavoriteFilterChange: favoriteMemberKeys =>
+            changeFavoriteMembers(
+                favoriteMemberKeys
+            )
     });
 
 function updateMemberIconSelection() {
@@ -636,6 +640,12 @@ const blogLoader =
 
         getSelectedGeneration:
             () => selectedGeneration,
+
+        getFavoriteOnlyMode:
+            () => memberSelector.isFavoriteOnlyMode(),
+
+        getFavoriteMemberKeys:
+            () => memberSelector.getFavoriteMemberKeys(),
 
         getSelectedDate:
             () => selectedDate,
@@ -1334,6 +1344,156 @@ async function loadGroupPostDates(
             "カレンダーの読み込みに失敗しました。";
 
         gallery.clear();
+    }
+}
+
+
+/*
+ * ========================================
+ * 推しメン表示
+ * ========================================
+ */
+
+async function changeFavoriteMembers(
+    favoriteMemberKeys
+) {
+
+    const requestVersion =
+        createDataRequestVersion();
+
+    selectedGeneration =
+        null;
+
+    memberSelect.value =
+        "";
+
+    updateMemberIconSelection();
+
+    blogs =
+        [];
+
+    memberPostDates =
+        [];
+
+    selectedDate =
+        null;
+
+    calendarYear =
+        null;
+
+    calendarMonth =
+        null;
+
+    galleryScrollPosition =
+        0;
+
+    gallery.clear();
+
+    lightbox.setImages(
+        []
+    );
+
+    calendar.updateSelectedDateTitle();
+
+    const requestGroup =
+        currentGroup;
+
+    calendarElement.innerHTML =
+        "読み込み中...";
+
+    try {
+        const data =
+            await fetchBlogs({
+                group:
+                    requestGroup
+            });
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            !memberSelector.isFavoriteOnlyMode()
+        ) {
+            return;
+        }
+
+        const favoriteBlogs =
+            Array.isArray(
+                data.blogs
+            )
+                ? data.blogs.filter(
+                    blog =>
+                        favoriteMemberKeys.has(
+                            String(
+                                blog?.member?.key ||
+                                ""
+                            )
+                        )
+                )
+                : [];
+
+        memberPostDates =
+            [
+                ...new Set(
+                    favoriteBlogs
+                        .map(
+                            blog =>
+                                String(
+                                    blog.date ||
+                                    ""
+                                ).replace(
+                                    /-/g,
+                                    ""
+                                )
+                        )
+                        .filter(
+                            date =>
+                                /^\d{8}$/.test(
+                                    date
+                                )
+                        )
+                )
+            ];
+
+        selectedDate =
+            null;
+
+        setInitialCalendarMonth();
+
+        calendar.updateSelectedDateTitle();
+        calendar.render();
+
+        await loadCurrentMonthBlogs(
+            requestVersion
+        );
+
+    } catch (error) {
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            currentGroup !==
+                requestGroup ||
+            !memberSelector.isFavoriteOnlyMode()
+        ) {
+            return;
+        }
+
+        console.error(
+            error
+        );
+
+        memberPostDates =
+            [];
+
+        setInitialCalendarMonth();
+        calendar.updateSelectedDateTitle();
+        calendar.render();
+
+        galleryElement.textContent =
+            "ブログの読み込みに失敗しました。";
     }
 }
 

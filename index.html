@@ -270,14 +270,13 @@
                     ========================= -->
 
                     <div class="blog-search-panel blog-search-panel-desktop">
-                        <div class="blog-search-title">ブログを検索</div>
+                        <div class="blog-search-title">ブログ検索</div>
 
                         <div class="desktop-search-member">
                             <span class="desktop-search-label">メンバー</span>
                             <strong id="desktopSearchMemberValue">全メンバー</strong>
                         </div>
 
-                        <div class="desktop-search-label">期間</div>
                         <div class="desktop-search-period">
                             <button type="button" id="desktopSearchStartDateButton" class="desktop-search-date-button">
                                 <span>開始日</span><strong id="desktopSearchStartDateValue">未選択</strong>
@@ -298,7 +297,7 @@
                             <button type="button" class="search-read-status-tab" data-read-status="read" aria-pressed="false">既読</button>
                         </div>
 
-                        <button type="button" id="desktopExecuteSearchButton" class="blog-search-button">検索する</button>
+                        <button type="button" id="desktopExecuteSearchButton" class="blog-search-button">検索</button>
                         <button type="button" id="desktopClearSearchButton" class="desktop-search-clear-button">条件をクリア</button>
                     </div>
 
@@ -452,11 +451,17 @@
     <div class="search-filter-sheet-handle" aria-hidden="true"></div>
 
     <div class="search-filter-sheet-header">
-        <h2 id="searchFilterSheetTitle">検索条件を指定する</h2>
+        <h2 id="searchFilterSheetTitle">ブログ検索</h2>
         <button type="button" id="closeSearchFiltersButton" class="search-filter-close-button" aria-label="閉じる">×</button>
     </div>
 
     <div class="search-filter-sheet-body">
+        <div class="search-filter-row search-filter-member-row">
+            <span class="search-filter-row-icon" data-search-icon="users"></span>
+            <span class="search-filter-row-label">メンバー</span>
+            <span id="searchMemberValue" class="search-filter-row-value">全メンバー</span>
+        </div>
+
         <button type="button" id="searchStartDateButton" class="search-filter-row">
             <span class="search-filter-row-icon" data-search-icon="calendar"></span>
             <span class="search-filter-row-label">開始日</span>
@@ -470,12 +475,6 @@
             <span id="searchEndDateValue" class="search-filter-row-value">未選択</span>
             <span class="search-filter-row-chevron">›</span>
         </button>
-
-        <div class="search-filter-row search-filter-member-row">
-            <span class="search-filter-row-icon" data-search-icon="users"></span>
-            <span class="search-filter-row-label">メンバー</span>
-            <span id="searchMemberValue" class="search-filter-row-value">全メンバー</span>
-        </div>
 
         <button type="button" id="searchKeywordToggleButton" class="search-filter-row" aria-expanded="false">
             <span class="search-filter-row-icon search-filter-search-icon" aria-hidden="true"></span>
@@ -508,7 +507,7 @@
     </div>
 
     <div class="search-filter-sheet-footer">
-        <button type="button" id="executeSearchButton" class="search-filter-execute-button">この条件で検索</button>
+        <button type="button" id="executeSearchButton" class="search-filter-execute-button">検索</button>
         <button type="button" id="clearSearchFiltersButton" class="search-filter-clear-button">条件をクリア</button>
     </div>
 </section>

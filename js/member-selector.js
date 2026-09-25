@@ -20,7 +20,8 @@ export function createMemberSelector({
     getCurrentGroup,
     getDataRequestVersion,
     isCurrentDataRequest,
-    onGenerationChange
+    onGenerationChange,
+    onFavoriteFilterChange
 }) {
 
     const memberIconMaps =
@@ -690,11 +691,33 @@ export function createMemberSelector({
         button.addEventListener(
             "click",
             () => {
+                const wasFavoriteOnlyMode =
+                    favoriteOnlyMode;
+
                 if (
                     isAll
                 ) {
                     favoriteOnlyMode =
                         false;
+
+                    if (
+                        wasFavoriteOnlyMode
+                    ) {
+                        setSelectedGeneration(
+                            null
+                        );
+                        memberSelect.value =
+                            "";
+                        memberSelect.dispatchEvent(
+                            new Event(
+                                "change",
+                                {
+                                    bubbles: true
+                                }
+                            )
+                        );
+                        return;
+                    }
                 }
 
                 const selectedGeneration =
@@ -717,10 +740,20 @@ export function createMemberSelector({
                     );
                     memberSelect.value =
                         "";
-                    render(
-                        getDataRequestVersion(),
-                        getCurrentGroup()
-                    );
+                    updateSelection();
+
+                    if (
+                        typeof onFavoriteFilterChange ===
+                            "function"
+                    ) {
+                        onFavoriteFilterChange(
+                            new Set(
+                                favoriteMemberMaps.get(
+                                    getCurrentGroup()
+                                ) || []
+                            )
+                        );
+                    }
                     return;
                 }
 
@@ -1019,9 +1052,7 @@ export function createMemberSelector({
             appendMember
         );
 
-        if (
-            !favoriteOnlyMode
-        ) {
+        {
             let previousGeneration =
                 null;
 
@@ -1067,6 +1098,13 @@ export function createMemberSelector({
     return {
         render,
         updateSelection,
+        isFavoriteOnlyMode: () => favoriteOnlyMode,
+        getFavoriteMemberKeys: () =>
+            new Set(
+                favoriteMemberMaps.get(
+                    getCurrentGroup()
+                ) || []
+            ),
         updateFadeState,
         resetScrollPosition
     };

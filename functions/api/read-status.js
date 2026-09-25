@@ -41,11 +41,11 @@ function getFolderId(
 ) {
     const folderIds = {
         nogizaka46:
-            env.NOGIZAKA_READ_STATUS_FOLDER_ID,
+            env.NOGIZAKA_USER_DATA_FOLDER_ID,
         sakurazaka46:
-            env.SAKURAZAKA_READ_STATUS_FOLDER_ID,
+            env.SAKURAZAKA_USER_DATA_FOLDER_ID,
         hinatazaka46:
-            env.HINATAZAKA_READ_STATUS_FOLDER_ID
+            env.HINATAZAKA_USER_DATA_FOLDER_ID
     };
 
     return folderIds[group]?.trim() ||

@@ -383,38 +383,7 @@ export function createMemberSelector({
     function getGenerationOrdinal(
         generation
     ) {
-        const value =
-            Number(
-                generation
-            );
-
-        const mod100 =
-            value %
-            100;
-
-        let suffix =
-            "th";
-
-        if (
-            mod100 < 11 ||
-            mod100 > 13
-        ) {
-            switch (
-                value % 10
-            ) {
-                case 1:
-                    suffix = "st";
-                    break;
-                case 2:
-                    suffix = "nd";
-                    break;
-                case 3:
-                    suffix = "rd";
-                    break;
-            }
-        }
-
-        return `${value}${suffix}`;
+        return `${Number(generation)}期`;
     }
 
     function createMemberIconButton({
@@ -464,7 +433,7 @@ export function createMemberSelector({
         button.setAttribute(
             "aria-label",
             isAll
-                ? "全員を表示"
+                ? "全メンバーを表示"
                 : favoriteFilter
                     ? "推しメンだけ表示"
                     : generation !== null
@@ -492,7 +461,7 @@ export function createMemberSelector({
                 "member-icon-all-symbol";
             textIcon.textContent =
                 isAll
-                    ? "ALL"
+                    ? "全員"
                     : favoriteFilter
                         ? "推し"
                         : getGenerationOrdinal(
@@ -677,7 +646,7 @@ export function createMemberSelector({
             "member-icon-name";
         name.textContent =
             isAll
-                ? "全員"
+                ? "全メンバー"
                 : favoriteFilter
                     ? "推しメン"
                     : generation !== null

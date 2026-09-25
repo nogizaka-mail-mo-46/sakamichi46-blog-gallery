@@ -2,6 +2,11 @@ import {
     getImageUrl
 } from "./image-url.js";
 
+import {
+    fetchFavoriteMembers,
+    updateFavoriteMember
+} from "./api.js";
+
 const MEMBER_ICONS_API_URL =
     "/api/member-icons";
 
@@ -20,6 +25,58 @@ export function createMemberSelector({
 
     const memberIconMaps =
         new Map();
+
+    const favoriteMemberMaps =
+        new Map();
+
+    async function loadFavoriteMemberKeys(
+        group
+    ) {
+        if (
+            favoriteMemberMaps.has(
+                group
+            )
+        ) {
+            return favoriteMemberMaps.get(
+                group
+            );
+        }
+
+        try {
+            const data =
+                await fetchFavoriteMembers(
+                    group
+                );
+
+            const favoriteMemberKeys =
+                new Set(
+                    Array.isArray(
+                        data.favoriteMemberKeys
+                    )
+                        ? data.favoriteMemberKeys.map(
+                            value => String(value)
+                        )
+                        : []
+                );
+
+            favoriteMemberMaps.set(
+                group,
+                favoriteMemberKeys
+            );
+
+            return favoriteMemberKeys;
+
+        } catch (
+            error
+        ) {
+            console.error(
+                error
+            );
+
+            return new Set();
+        }
+    }
+
 
     function normalizeMemberName(
         value
@@ -346,7 +403,9 @@ export function createMemberSelector({
         fileId = null,
         isAll = false,
         generation = null,
-        imagePriority = false
+        imagePriority = false,
+        favorite = false,
+        onFavoriteToggle = null
     }) {
         const button =
             document.createElement(
@@ -484,6 +543,95 @@ export function createMemberSelector({
                 );
             icon.appendChild(
                 fallback
+            );
+        }
+
+        if (
+            !isAll &&
+            generation === null &&
+            memberKey
+        ) {
+            const favoriteButton =
+                document.createElement(
+                    "span"
+                );
+
+            favoriteButton.className =
+                "member-favorite-button";
+            favoriteButton.setAttribute(
+                "role",
+                "button"
+            );
+            favoriteButton.setAttribute(
+                "tabindex",
+                "0"
+            );
+            favoriteButton.setAttribute(
+                "aria-pressed",
+                favorite
+                    ? "true"
+                    : "false"
+            );
+            favoriteButton.setAttribute(
+                "aria-label",
+                favorite
+                    ? `${memberName}を推しメンから解除`
+                    : `${memberName}を推しメンに登録`
+            );
+            favoriteButton.textContent =
+                favorite
+                    ? "★"
+                    : "☆";
+
+            if (
+                favorite
+            ) {
+                favoriteButton.classList.add(
+                    "is-favorite"
+                );
+            }
+
+            const toggleFavorite =
+                event => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    if (
+                        favoriteButton.classList.contains(
+                            "is-saving"
+                        )
+                    ) {
+                        return;
+                    }
+
+                    onFavoriteToggle?.(
+                        memberKey,
+                        memberName,
+                        !favorite
+                    );
+                };
+
+            favoriteButton.addEventListener(
+                "click",
+                toggleFavorite
+            );
+
+            favoriteButton.addEventListener(
+                "keydown",
+                event => {
+                    if (
+                        event.key === "Enter" ||
+                        event.key === " "
+                    ) {
+                        toggleFavorite(
+                            event
+                        );
+                    }
+                }
+            );
+
+            button.appendChild(
+                favoriteButton
             );
         }
 
@@ -645,13 +793,152 @@ export function createMemberSelector({
             return;
         }
 
-        let previousGeneration =
-            null;
+        const favoriteMemberKeys =
+            await loadFavoriteMemberKeys(
+                requestGroup
+            );
+
+        if (
+            !isCurrentDataRequest(
+                requestVersion
+            ) ||
+            getCurrentGroup() !==
+                requestGroup
+        ) {
+            return;
+        }
+
+        const allMembers =
+            getMembers();
+
+        const favoriteMembers =
+            allMembers.filter(
+                member =>
+                    favoriteMemberKeys.has(
+                        member.key
+                    )
+            );
+
+        const otherMembers =
+            allMembers.filter(
+                member =>
+                    !favoriteMemberKeys.has(
+                        member.key
+                    )
+            );
 
         let memberImageIndex =
             0;
 
-        getMembers().forEach(
+        const handleFavoriteToggle =
+            async (
+                memberKey,
+                memberName,
+                favorite
+            ) => {
+                const currentFavoriteKeys =
+                    favoriteMemberMaps.get(
+                        requestGroup
+                    ) ||
+                    new Set();
+
+                try {
+                    const data =
+                        await updateFavoriteMember({
+                            group:
+                                requestGroup,
+                            memberKey,
+                            favorite
+                        });
+
+                    if (
+                        getCurrentGroup() !==
+                            requestGroup
+                    ) {
+                        return;
+                    }
+
+                    const nextFavoriteKeys =
+                        new Set(
+                            Array.isArray(
+                                data.favoriteMemberKeys
+                            )
+                                ? data.favoriteMemberKeys.map(
+                                    value => String(value)
+                                )
+                                : favorite
+                                    ? [
+                                        ...currentFavoriteKeys,
+                                        memberKey
+                                    ]
+                                    : [
+                                        ...currentFavoriteKeys
+                                    ].filter(
+                                        value =>
+                                            value !== memberKey
+                                    )
+                        );
+
+                    favoriteMemberMaps.set(
+                        requestGroup,
+                        nextFavoriteKeys
+                    );
+
+                    await render(
+                        getDataRequestVersion(),
+                        requestGroup
+                    );
+
+                } catch (
+                    error
+                ) {
+                    console.error(
+                        `推しメン更新失敗: ${memberName}`,
+                        error
+                    );
+                }
+            };
+
+        const appendMember =
+            member => {
+                const iconData =
+                    iconMap.get(
+                        normalizeMemberName(
+                            member.name
+                        )
+                    );
+
+                memberIconTrack.appendChild(
+                    createMemberIconButton({
+                        memberKey:
+                            member.key,
+                        memberName:
+                            member.name,
+                        fileId:
+                            iconData?.fileId ||
+                            null,
+                        imagePriority:
+                            memberImageIndex < 10,
+                        favorite:
+                            favoriteMemberKeys.has(
+                                member.key
+                            ),
+                        onFavoriteToggle:
+                            handleFavoriteToggle
+                    })
+                );
+
+                memberImageIndex += 1;
+            };
+
+        favoriteMembers.forEach(
+            appendMember
+        );
+
+        let previousGeneration =
+            null;
+
+        otherMembers.forEach(
             member => {
                 const generation =
                     Number.isInteger(
@@ -675,28 +962,9 @@ export function createMemberSelector({
                         generation;
                 }
 
-                const iconData =
-                    iconMap.get(
-                        normalizeMemberName(
-                            member.name
-                        )
-                    );
-
-                memberIconTrack.appendChild(
-                    createMemberIconButton({
-                        memberKey:
-                            member.key,
-                        memberName:
-                            member.name,
-                        fileId:
-                            iconData?.fileId ||
-                            null,
-                        imagePriority:
-                            memberImageIndex < 10
-                    })
+                appendMember(
+                    member
                 );
-
-                memberImageIndex += 1;
             }
         );
 

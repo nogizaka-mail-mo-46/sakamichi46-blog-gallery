@@ -29,6 +29,12 @@ export function createMemberSelector({
     const favoriteMemberMaps =
         new Map();
 
+    let favoriteOnlyMode =
+        false;
+
+    let renderedGroup =
+        null;
+
     async function loadFavoriteMemberKeys(
         group
     ) {
@@ -326,10 +332,22 @@ export function createMemberSelector({
                         )
                         : null;
 
+                const buttonFavoriteFilter =
+                    button.dataset.favoriteFilter ===
+                        "true";
+
                 let selected =
                     false;
 
                 if (
+                    buttonFavoriteFilter
+                ) {
+                    selected =
+                        favoriteOnlyMode &&
+                        !selectedMemberKey &&
+                        selectedGeneration ===
+                            null;
+                } else if (
                     buttonGeneration !==
                         null
                 ) {
@@ -405,6 +423,7 @@ export function createMemberSelector({
         generation = null,
         imagePriority = false,
         favorite = false,
+        favoriteFilter = false,
         onFavoriteToggle = null
     }) {
         const button =
@@ -418,6 +437,13 @@ export function createMemberSelector({
             "member-icon-button";
         button.dataset.memberKey =
             memberKey;
+
+        if (
+            favoriteFilter
+        ) {
+            button.dataset.favoriteFilter =
+                "true";
+        }
 
         if (
             generation !== null
@@ -437,9 +463,11 @@ export function createMemberSelector({
             "aria-label",
             isAll
                 ? "全員を表示"
-                : generation !== null
-                    ? `${generation}期生を表示`
-                    : `${memberName}を選択`
+                : favoriteFilter
+                    ? "推しメンだけ表示"
+                    : generation !== null
+                        ? `${generation}期生を表示`
+                        : `${memberName}を選択`
         );
 
         const icon =
@@ -451,6 +479,7 @@ export function createMemberSelector({
 
         if (
             isAll ||
+            favoriteFilter ||
             generation !== null
         ) {
             const textIcon =
@@ -462,9 +491,11 @@ export function createMemberSelector({
             textIcon.textContent =
                 isAll
                     ? "ALL"
-                    : getGenerationOrdinal(
-                        generation
-                    );
+                    : favoriteFilter
+                        ? "推し"
+                        : getGenerationOrdinal(
+                            generation
+                        );
             icon.appendChild(
                 textIcon
             );
@@ -548,6 +579,7 @@ export function createMemberSelector({
 
         if (
             !isAll &&
+            !favoriteFilter &&
             generation === null &&
             memberKey
         ) {
@@ -644,9 +676,11 @@ export function createMemberSelector({
         name.textContent =
             isAll
                 ? "全員"
-                : generation !== null
-                    ? `${generation}期生`
-                    : memberName;
+                : favoriteFilter
+                    ? "推しメン"
+                    : generation !== null
+                        ? `${generation}期生`
+                        : memberName;
 
         button.append(
             icon,
@@ -656,12 +690,45 @@ export function createMemberSelector({
         button.addEventListener(
             "click",
             () => {
+                if (
+                    isAll
+                ) {
+                    favoriteOnlyMode =
+                        false;
+                }
+
                 const selectedGeneration =
                     getSelectedGeneration();
 
                 if (
+                    favoriteFilter
+                ) {
+                    if (
+                        favoriteOnlyMode
+                    ) {
+                        updateSelection();
+                        return;
+                    }
+
+                    favoriteOnlyMode =
+                        true;
+                    setSelectedGeneration(
+                        null
+                    );
+                    memberSelect.value =
+                        "";
+                    render(
+                        getDataRequestVersion(),
+                        getCurrentGroup()
+                    );
+                    return;
+                }
+
+                if (
                     generation !== null
                 ) {
+                    favoriteOnlyMode =
+                        false;
                     if (
                         selectedGeneration === generation &&
                         !memberSelect.value
@@ -763,6 +830,16 @@ export function createMemberSelector({
             return;
         }
 
+        if (
+            renderedGroup !==
+                requestGroup
+        ) {
+            favoriteOnlyMode =
+                false;
+            renderedGroup =
+                requestGroup;
+        }
+
         memberIconTrack.innerHTML =
             "";
         memberIconSelector.hidden =
@@ -807,6 +884,13 @@ export function createMemberSelector({
         ) {
             return;
         }
+
+        memberIconTrack.appendChild(
+            createMemberIconButton({
+                memberName: "推しメン",
+                favoriteFilter: true
+            })
+        );
 
         const allMembers =
             getMembers();
@@ -935,38 +1019,42 @@ export function createMemberSelector({
             appendMember
         );
 
-        let previousGeneration =
-            null;
+        if (
+            !favoriteOnlyMode
+        ) {
+            let previousGeneration =
+                null;
 
-        otherMembers.forEach(
-            member => {
-                const generation =
-                    Number.isInteger(
-                        member.generation
-                    )
-                        ? member.generation
-                        : null;
+            otherMembers.forEach(
+                member => {
+                    const generation =
+                        Number.isInteger(
+                            member.generation
+                        )
+                            ? member.generation
+                            : null;
 
-                if (
-                    generation !== null &&
-                    generation !== previousGeneration
-                ) {
-                    memberIconTrack.appendChild(
-                        createMemberIconButton({
-                            memberName:
-                                `${generation}期生`,
-                            generation
-                        })
+                    if (
+                        generation !== null &&
+                        generation !== previousGeneration
+                    ) {
+                        memberIconTrack.appendChild(
+                            createMemberIconButton({
+                                memberName:
+                                    `${generation}期生`,
+                                generation
+                            })
+                        );
+                        previousGeneration =
+                            generation;
+                    }
+
+                    appendMember(
+                        member
                     );
-                    previousGeneration =
-                        generation;
                 }
-
-                appendMember(
-                    member
-                );
-            }
-        );
+            );
+        }
 
         updateSelection();
         resetScrollPosition();

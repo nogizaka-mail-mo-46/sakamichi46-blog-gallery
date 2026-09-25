@@ -1067,9 +1067,14 @@ export function createMemberSelector({
         );
     }
 
+    function resetForGroupChange() {
+        favoriteOnlyMode = false;
+    }
+
     return {
         render,
         updateSelection,
+        resetForGroupChange,
         isFavoriteOnlyMode: () => favoriteOnlyMode,
         getFavoriteMemberKeys: () =>
             new Set(

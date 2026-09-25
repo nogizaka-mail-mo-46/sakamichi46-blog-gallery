@@ -1933,7 +1933,8 @@ function getPostDates() {
     if (
         memberSelect.value ||
         selectedGeneration !==
-            null
+            null ||
+        memberSelector.isFavoriteOnlyMode()
     ) {
 
         return new Set(

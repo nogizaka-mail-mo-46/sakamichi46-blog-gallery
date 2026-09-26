@@ -231,6 +231,12 @@ function createBlogSummary(
                 ""
             ),
 
+        detailFileId:
+            String(
+                blog.detailFileId ||
+                ""
+            ),
+
         title:
             String(
                 blog.title ||

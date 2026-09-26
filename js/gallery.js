@@ -326,6 +326,10 @@ export function createGallery({
 
                                 memberKey:
                                     blog.member?.key ||
+                                    null,
+
+                                detailFileId:
+                                    blog.detailFileId ||
                                     null
                             });
                         }
@@ -666,7 +670,11 @@ export function createGallery({
 
                                     memberKey:
                                         blog.member?.key ||
-                                        null
+                                        null,
+
+                                detailFileId:
+                                    blog.detailFileId ||
+                                    null
                                 });
                             }
                         }

@@ -207,7 +207,8 @@ export async function fetchBlogs({
 export async function fetchBlogDetail({
     group,
     member,
-    articleId
+    articleId,
+    detailFileId
 }) {
     const params =
         new URLSearchParams({
@@ -220,6 +221,15 @@ export async function fetchBlogDetail({
             articleId:
                 articleId
         });
+
+    if (
+        detailFileId
+    ) {
+        params.set(
+            "detailFileId",
+            detailFileId
+        );
+    }
 
     return await fetchJson(
         `/api/blog?${params.toString()}`,

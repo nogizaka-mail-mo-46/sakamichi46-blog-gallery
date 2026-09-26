@@ -119,6 +119,25 @@ export function createBlogDetail({
 
         try {
 
+            /*
+             * ========================================
+             * 読み込み中表示
+             *
+             * 詳細データの取得完了を待たずに画面を切り替え、
+             * クリックが受け付けられたことをすぐ分かるようにする。
+             * ========================================
+             */
+
+            currentBlogDetail =
+                null;
+
+            currentImageIds =
+                [];
+
+            renderLoading();
+
+            show();
+
             const blogData =
                 await fetchBlogDetail({
                     group:
@@ -168,6 +187,73 @@ export function createBlogDetail({
 
             show();
         }
+    }
+
+
+    /*
+     * ========================================
+     * 読み込み中描画
+     * ========================================
+     */
+
+    function renderLoading() {
+
+        blogDetail.innerHTML =
+            "";
+
+        const loading =
+            document.createElement(
+                "div"
+            );
+
+        loading.className =
+            "blog-detail-loading";
+
+        loading.setAttribute(
+            "role",
+            "status"
+        );
+
+        loading.setAttribute(
+            "aria-live",
+            "polite"
+        );
+
+        const spinner =
+            document.createElement(
+                "span"
+            );
+
+        spinner.className =
+            "blog-detail-loading-spinner";
+
+        spinner.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+        const message =
+            document.createElement(
+                "span"
+            );
+
+        message.className =
+            "blog-detail-loading-text";
+
+        message.textContent =
+            "ブログを読み込んでいます…";
+
+        loading.appendChild(
+            spinner
+        );
+
+        loading.appendChild(
+            message
+        );
+
+        blogDetail.appendChild(
+            loading
+        );
     }
 
 

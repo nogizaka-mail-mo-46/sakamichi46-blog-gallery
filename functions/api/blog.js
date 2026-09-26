@@ -6,6 +6,13 @@ import {
     getGoogleAccessToken
 } from "../lib/google.js";
 
+import {
+    CACHE_SECONDS,
+    createInternalCacheRequest,
+    createPublicCacheControl,
+    createPrivateCacheControl
+} from "../lib/cache-config.js";
+
 
 /*
  * ========================================
@@ -231,7 +238,69 @@ export async function onRequestGet(
 
         /*
          * ========================================
+         * Cloudflare Cache確認
+         *
+         * キャッシュヒット時はGoogle認証・Drive検索・
+         * JSON取得をすべて省略する。
+         * ========================================
+         */
+
+        const cache =
+            caches.default;
+
+        const cacheRequest =
+            createInternalCacheRequest(
+                url.origin,
+                `/__cache/blog-detail/${encodeURIComponent(group)}/${encodeURIComponent(memberKey)}/${encodeURIComponent(articleId)}`
+            );
+
+        try {
+            const cachedResponse =
+                await cache.match(
+                    cacheRequest
+                );
+
+            if (
+                cachedResponse
+            ) {
+                const cachedBlogData =
+                    await cachedResponse.json();
+
+                return new Response(
+                    JSON.stringify(
+                        cachedBlogData
+                    ),
+                    {
+                        status:
+                            200,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json; charset=utf-8",
+
+                            "Cache-Control":
+                                createPrivateCacheControl(
+                                    CACHE_SECONDS.BLOG_DETAIL
+                                )
+                        }
+                    }
+                );
+            }
+        } catch (
+            error
+        ) {
+            console.warn(
+                `ブログ詳細キャッシュ取得失敗: ${group}/${memberKey}/${articleId}`,
+                error
+            );
+        }
+
+
+        /*
+         * ========================================
          * Googleアクセストークン取得
+         *
+         * キャッシュミス時だけ取得する。
          * ========================================
          */
 
@@ -400,6 +469,40 @@ export async function onRequestGet(
 
         /*
          * ========================================
+         * Cloudflare Cache保存
+         * ========================================
+         */
+
+        try {
+            const cacheResponse =
+                Response.json(
+                    blogData,
+                    {
+                        headers: {
+                            "Cache-Control":
+                                createPublicCacheControl(
+                                    CACHE_SECONDS.BLOG_DETAIL
+                                )
+                        }
+                    }
+                );
+
+            await cache.put(
+                cacheRequest,
+                cacheResponse
+            );
+        } catch (
+            error
+        ) {
+            console.warn(
+                `ブログ詳細キャッシュ保存失敗: ${group}/${memberKey}/${articleId}`,
+                error
+            );
+        }
+
+
+        /*
+         * ========================================
          * レスポンス
          * ========================================
          */
@@ -417,7 +520,9 @@ export async function onRequestGet(
                         "application/json; charset=utf-8",
 
                     "Cache-Control":
-                        "private, max-age=3600"
+                        createPrivateCacheControl(
+                            CACHE_SECONDS.BLOG_DETAIL
+                        )
                 }
             }
         );

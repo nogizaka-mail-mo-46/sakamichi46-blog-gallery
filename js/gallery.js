@@ -80,6 +80,9 @@ export function createGallery({
     let readArticleIds =
         new Set();
 
+    let loadObserver =
+        null;
+
 
     /*
      * ========================================
@@ -88,6 +91,14 @@ export function createGallery({
      */
 
     function clear() {
+        if (
+            loadObserver
+        ) {
+            loadObserver.disconnect();
+            loadObserver =
+                null;
+        }
+
         element.innerHTML =
             "";
 
@@ -160,13 +171,83 @@ export function createGallery({
 
         /*
          * ========================================
-         * 一括描画用Fragment
+         * ライトボックス用画像一覧は先に構築
+         *
+         * スマホでDOMを段階描画しても、
+         * ライトボックスでは全画像を扱えるようにする。
          * ========================================
          */
 
-        const fragment =
-            document.createDocumentFragment();
+        const imageIndexMap =
+            new Map();
 
+        sortedBlogs.forEach(
+            blog => {
+                const blogImages =
+                    Array.isArray(
+                        blog.images
+                    )
+                        ? blog.images
+                        : [];
+
+                blogImages.forEach(
+                    image => {
+                        const globalIndex =
+                            displayedImages.length;
+
+                        imageIndexMap.set(
+                            image,
+                            globalIndex
+                        );
+
+                        displayedImages.push({
+                            ...image,
+                            articleId:
+                                blog.articleId,
+                            title:
+                                blog.title,
+                            timestamp:
+                                blog.timestamp,
+                            date:
+                                blog.date,
+                            member:
+                                blog.member
+                        });
+                    }
+                );
+            }
+        );
+
+
+        /*
+         * ========================================
+         * スマホ段階描画
+         *
+         * PC / タブレットは従来どおり全件描画。
+         * スマホは最初の20件だけ描画し、
+         * 一覧末尾へ近づいた時に20件ずつ追加する。
+         * ========================================
+         */
+
+        const isMobile =
+            window.matchMedia(
+                "(max-width: 767px)"
+            ).matches;
+
+        const batchSize =
+            isMobile
+                ? 20
+                : sortedBlogs.length;
+
+        let renderedCount =
+            0;
+
+
+        /*
+         * ========================================
+         * 一括描画用Fragment
+         * ========================================
+         */
 
         /*
          * ========================================
@@ -174,8 +255,26 @@ export function createGallery({
          * ========================================
          */
 
-        sortedBlogs.forEach(
-            blog => {
+        function appendNextBatch() {
+            const batch =
+                sortedBlogs.slice(
+                    renderedCount,
+                    renderedCount +
+                        batchSize
+                );
+
+            if (
+                batch.length ===
+                    0
+            ) {
+                return false;
+            }
+
+            const batchFragment =
+                document.createDocumentFragment();
+
+            batch.forEach(
+                blog => {
 
                 const articleElement =
                     document.createElement(
@@ -390,26 +489,9 @@ export function createGallery({
                              */
 
                             const globalIndex =
-                                displayedImages.length;
-
-                            displayedImages.push({
-                                ...image,
-
-                                articleId:
-                                    blog.articleId,
-
-                                title:
-                                    blog.title,
-
-                                timestamp:
-                                    blog.timestamp,
-
-                                date:
-                                    blog.date,
-
-                                member:
-                                    blog.member
-                            });
+                                imageIndexMap.get(
+                                    image
+                                );
 
 
                             const item =
@@ -696,22 +778,97 @@ export function createGallery({
                  * ========================================
                  */
 
-                fragment.appendChild(
+                batchFragment.appendChild(
                     articleElement
                 );
-            }
-        );
+                }
+            );
+
+            element.appendChild(
+                batchFragment
+            );
+
+            renderedCount +=
+                batch.length;
+
+            return (
+                renderedCount <
+                sortedBlogs.length
+            );
+        }
 
 
         /*
          * ========================================
-         * ギャラリーへ一括追加
+         * 初回描画
          * ========================================
          */
 
-        element.appendChild(
-            fragment
-        );
+        appendNextBatch();
+
+
+        /*
+         * ========================================
+         * スマホ：末尾接近時に次の20件を追加
+         * ========================================
+         */
+
+        if (
+            isMobile &&
+            renderedCount <
+                sortedBlogs.length
+        ) {
+            const sentinel =
+                document.createElement(
+                    "div"
+                );
+
+            sentinel.className =
+                "gallery-load-sentinel";
+
+            element.appendChild(
+                sentinel
+            );
+
+            loadObserver =
+                new IntersectionObserver(
+                    entries => {
+                        if (
+                            !entries.some(
+                                entry =>
+                                    entry.isIntersecting
+                            )
+                        ) {
+                            return;
+                        }
+
+                        sentinel.remove();
+
+                        const hasMore =
+                            appendNextBatch();
+
+                        if (
+                            hasMore
+                        ) {
+                            element.appendChild(
+                                sentinel
+                            );
+                        } else {
+                            loadObserver.disconnect();
+                            loadObserver =
+                                null;
+                        }
+                    },
+                    {
+                        rootMargin:
+                            "800px 0px"
+                    }
+                );
+
+            loadObserver.observe(
+                sentinel
+            );
+        }
     }
 
 

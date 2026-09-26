@@ -73,6 +73,11 @@ export async function onRequestGet(
                 "articleId"
             );
 
+        const detailFileId =
+            url.searchParams.get(
+                "detailFileId"
+            );
+
 
         /*
          * ========================================
@@ -312,132 +317,196 @@ export async function onRequestGet(
 
         /*
          * ========================================
-         * JSONファイル検索
-         * ========================================
-         */
-
-        const fileName =
-            `${articleId}.json`;
-
-        const query =
-            `'${escapeDriveQueryValue(
-                member.blogDataFolderId
-            )}' in parents and name = '${escapeDriveQueryValue(
-                fileName
-            )}' and trashed = false`;
-
-        const searchUrl =
-            new URL(
-                "https://www.googleapis.com/drive/v3/files"
-            );
-
-        searchUrl.searchParams.set(
-            "q",
-            query
-        );
-
-        searchUrl.searchParams.set(
-            "pageSize",
-            "2"
-        );
-
-        searchUrl.searchParams.set(
-            "fields",
-            "files(id,name,mimeType)"
-        );
-
-        const searchResponse =
-            await fetch(
-                searchUrl.toString(),
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${accessToken}`
-                    }
-                }
-            );
-
-        if (
-            !searchResponse.ok
-        ) {
-            const errorText =
-                await searchResponse.text();
-
-            throw new Error(
-                `Google Drive API error: ${searchResponse.status} ${errorText}`
-            );
-        }
-
-        const searchData =
-            await searchResponse.json();
-
-        const files =
-            Array.isArray(
-                searchData.files
-            )
-                ? searchData.files
-                : [];
-
-        if (
-            files.length ===
-                0
-        ) {
-            return new Response(
-                JSON.stringify({
-                    error:
-                        "blog not found"
-                }),
-                {
-                    status:
-                        404,
-
-                    headers: {
-                        "Content-Type":
-                            "application/json; charset=utf-8"
-                    }
-                }
-            );
-        }
-
-
-        /*
-         * ========================================
          * JSONファイル取得
+         *
+         * detailFileId が利用できる場合は
+         * Driveのファイル名検索を省略して直接取得する。
+         *
+         * 未指定・不正・取得失敗時は
+         * 従来の articleId.json 検索へフォールバックする。
          * ========================================
          */
 
-        const file =
-            files[0];
+        let blogData =
+            null;
 
-        const downloadUrl =
-            `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
-                file.id
-            )}?alt=media`;
-
-        const downloadResponse =
-            await fetch(
-                downloadUrl,
-                {
-                    headers: {
-                        Authorization:
-                            `Bearer ${accessToken}`
-                    }
-                }
-            );
+        const safeDetailFileId =
+            detailFileId &&
+            /^[A-Za-z0-9_-]+$/.test(
+                detailFileId
+            )
+                ? detailFileId
+                : null;
 
         if (
-            !downloadResponse.ok
+            safeDetailFileId
         ) {
-            const errorText =
-                await downloadResponse.text();
+            try {
+                const directDownloadUrl =
+                    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
+                        safeDetailFileId
+                    )}?alt=media`;
 
-            throw new Error(
-                `Google Drive file download error: ${downloadResponse.status} ${errorText}`
-            );
+                const directDownloadResponse =
+                    await fetch(
+                        directDownloadUrl,
+                        {
+                            headers: {
+                                Authorization:
+                                    `Bearer ${accessToken}`
+                            }
+                        }
+                    );
+
+                if (
+                    directDownloadResponse.ok
+                ) {
+                    const directBlogData =
+                        await directDownloadResponse.json();
+
+                    if (
+                        String(
+                            directBlogData.articleId
+                        ) ===
+                            articleId &&
+                        directBlogData.group?.id ===
+                            group &&
+                        directBlogData.member?.name ===
+                            member.name
+                    ) {
+                        blogData =
+                            directBlogData;
+                    }
+                }
+            } catch (
+                error
+            ) {
+                console.warn(
+                    `ブログ詳細の直接取得失敗。従来検索へフォールバック: ${group}/${memberKey}/${articleId}`,
+                    error
+                );
+            }
         }
 
-        const blogData =
-            await downloadResponse.json();
+        if (
+            !blogData
+        ) {
+            const fileName =
+                `${articleId}.json`;
+
+            const query =
+                `'${escapeDriveQueryValue(
+                    member.blogDataFolderId
+                )}' in parents and name = '${escapeDriveQueryValue(
+                    fileName
+                )}' and trashed = false`;
+
+            const searchUrl =
+                new URL(
+                    "https://www.googleapis.com/drive/v3/files"
+                );
+
+            searchUrl.searchParams.set(
+                "q",
+                query
+            );
+
+            searchUrl.searchParams.set(
+                "pageSize",
+                "2"
+            );
+
+            searchUrl.searchParams.set(
+                "fields",
+                "files(id,name,mimeType)"
+            );
+
+            const searchResponse =
+                await fetch(
+                    searchUrl.toString(),
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${accessToken}`
+                        }
+                    }
+                );
+
+            if (
+                !searchResponse.ok
+            ) {
+                const errorText =
+                    await searchResponse.text();
+
+                throw new Error(
+                    `Google Drive API error: ${searchResponse.status} ${errorText}`
+                );
+            }
+
+            const searchData =
+                await searchResponse.json();
+
+            const files =
+                Array.isArray(
+                    searchData.files
+                )
+                    ? searchData.files
+                    : [];
+
+            if (
+                files.length ===
+                    0
+            ) {
+                return new Response(
+                    JSON.stringify({
+                        error:
+                            "blog not found"
+                    }),
+                    {
+                        status:
+                            404,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json; charset=utf-8"
+                        }
+                    }
+                );
+            }
+
+            const file =
+                files[0];
+
+            const downloadUrl =
+                `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(
+                    file.id
+                )}?alt=media`;
+
+            const downloadResponse =
+                await fetch(
+                    downloadUrl,
+                    {
+                        headers: {
+                            Authorization:
+                                `Bearer ${accessToken}`
+                        }
+                    }
+                );
+
+            if (
+                !downloadResponse.ok
+            ) {
+                const errorText =
+                    await downloadResponse.text();
+
+                throw new Error(
+                    `Google Drive file download error: ${downloadResponse.status} ${errorText}`
+                );
+            }
+
+            blogData =
+                await downloadResponse.json();
+        }
 
 
         /*
@@ -463,6 +532,15 @@ export async function onRequestGet(
         ) {
             throw new Error(
                 "Blog JSON group mismatch"
+            );
+        }
+
+        if (
+            blogData.member?.name !==
+                member.name
+        ) {
+            throw new Error(
+                "Blog JSON member mismatch"
             );
         }
 

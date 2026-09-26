@@ -92,6 +92,7 @@ export function createBlogDetail({
     async function open({
         articleId,
         memberKey,
+        detailFileId,
         group
     }) {
 
@@ -147,7 +148,10 @@ export function createBlogDetail({
                         memberKey,
 
                     articleId:
-                        articleId
+                        articleId,
+
+                    detailFileId:
+                        detailFileId
                 });
 
             currentBlogDetail =

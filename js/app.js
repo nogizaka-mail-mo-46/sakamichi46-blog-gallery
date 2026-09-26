@@ -2161,9 +2161,6 @@ function updateBlogs() {
         sortSelect.value
     );
 
-    lightbox.setImages(
-        getDisplayedImageIds()
-    );
 }
 
 

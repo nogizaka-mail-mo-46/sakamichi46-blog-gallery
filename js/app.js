@@ -549,7 +549,8 @@ const gallery =
         onArticleClick:
             async ({
                 articleId,
-                memberKey
+                memberKey,
+                detailFileId
             }) => {
 
                 saveGalleryScrollPosition();
@@ -560,6 +561,9 @@ const gallery =
 
                     memberKey:
                         memberKey,
+
+                    detailFileId:
+                        detailFileId,
 
                     group:
                         currentGroup

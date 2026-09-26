@@ -754,9 +754,9 @@ export function createGallery({
                                         blog.member?.key ||
                                         null,
 
-                                detailFileId:
-                                    blog.detailFileId ||
-                                    null
+                                    detailFileId:
+                                        blog.detailFileId ||
+                                        null
                                 });
                             }
                         }

@@ -61,6 +61,77 @@
 
 
 /* =========================
+   読み込み中
+========================= */
+
+.blog-detail-loading {
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    gap:
+        12px;
+
+    min-height:
+        180px;
+
+    color:
+        #777;
+
+    font-size:
+        15px;
+
+    font-weight:
+        500;
+}
+
+.blog-detail-loading-spinner {
+    width:
+        22px;
+
+    height:
+        22px;
+
+    border:
+        3px solid
+        #e5e5e5;
+
+    border-top-color:
+        #888;
+
+    border-radius:
+        50%;
+
+    animation:
+        blog-detail-loading-spin
+        0.8s
+        linear
+        infinite;
+}
+
+@keyframes blog-detail-loading-spin {
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+    .blog-detail-loading-spinner {
+        animation:
+            none;
+    }
+}
+
+
+/* =========================
    ブログヘッダー
 ========================= */
 

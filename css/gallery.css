@@ -882,6 +882,13 @@
     }
 
     .gallery-article {
+        /*
+         * スマホでは画面外の記事カードの描画を遅延し、
+         * 検索結果が多い場合の初回詳細画面切替負荷を抑える。
+         */
+        content-visibility: auto;
+        contain-intrinsic-size: auto 600px;
+
         margin-bottom: 14px;
 
         padding:
